@@ -1,0 +1,111 @@
+<!-- views/pages/settings.ejs -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <% include ../partials/head %>
+</head>
+<body class="container">
+
+<header>
+    <% include ../partials/header %>
+</header>
+
+<main>
+<div class="row">
+    <div class="col-sm-8">    
+        <div class="jumbotron" style="min-height: 460px">
+		<h2>Commute Settings </h2>
+		<form method="POST" action="/submit-game" id="sg">
+		<table class="table">
+			<thead>
+				<tr>
+				<th scope="col">Esri Office Location</th>
+				<th scope="col">Pickup Location</th>
+				<th scope="col">Arrive At Work</th>
+				<th scope="col">Leave Work</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr>
+				<td scope="row">1</td>
+				<td>
+				<select class="form-control" id="name1" name="name1">
+				<option disabled selected >Name</option>
+				</td>
+				<td><select class="form-control" id="wins1" name="wins1">
+						<option>0</option>
+						<option>1</option>
+						<option>2</option>
+						<option>3</option>
+						<option>4</option>
+						<option>5</option>
+  					</select>
+				</td>
+				<td><select class="form-control" id="wins1" name="wins1">
+					<option>0</option>
+					<option>1</option>
+					<option>2</option>
+					<option>3</option>
+					<option>4</option>
+					<option>5</option>
+				  </select>
+			</td>
+				</tr>
+				<tr>
+				<td scope="row">2</td>
+				<td>
+				<select class="form-control" id="name3" name="name3">
+				<option>Name</option>
+				</td>
+				<td><select class="form-control" id="wins2" name="wins2">
+					<option>0</option>
+					<option>1</option>
+					<option>2</option>
+					<option>3</option>
+					<option>4</option>
+					<option>5</option>
+				  </select>
+			</td>
+				<td><select class="form-control" id="wins2" name="wins2">
+						<option>0</option>
+						<option>1</option>
+						<option>2</option>
+						<option>3</option>
+						<option>4</option>
+						<option>5</option>
+  					</select>
+				</td>
+				</tr>
+			</tbody>
+			</table>
+				<button type="submit" id="gameSub" class="btn btn-light">Submit</button>
+            </form>
+		</div>
+    </div>
+
+    <div class="col-sm-4">        
+        <div class="jumbotron" style="min-height: 460px">
+            <h3>Suggestions</h3>
+                <form method="POST" action="/submit-suggest" id ='ss'>
+                
+                <div class="form-group">
+					<input type="text" class="form-control" name= "name" id="name" placeholder="Name">
+				</div>
+                
+				<div class="form-group">
+    				<textarea class="form-control" name="trash" id="trash" rows="9" placeholder="Brilliant ideas"></textarea>
+ 					 </div>
+					  <button id="sugSub" type="submit" class="btn btn-light">Submit</button>
+				</form>
+        </div>
+    </div>
+
+</div>
+</main>
+<footer>
+    <% include ../partials/footer %>
+</footer>
+
+</body>
+</html>
