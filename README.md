@@ -1,4 +1,4 @@
-# Foosball Leaderboard
+# Carpool
 
 A carpool matcher app for Esri employees
 
