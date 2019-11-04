@@ -1,12 +1,17 @@
 {
   "name": "carpool",
   "version": "1.0.0",
+  "private": true,
   "description": "Esri carpool app",
   "main": "server.js",
   "scripts": {
-    "start": "concurrently \"nodemon server.js\" \"cd views && npm start\"",
-    "prod": "concurrently \"forever server.js\" \"cd views && npm start\"",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "concurrently \"nodemon server.js\" \"react-scripts start\"",
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject"
+  },
+  "eslintConfig": {
+    "extends": "react-app"
   },
   "keywords": [
     "carpool"
@@ -23,6 +28,22 @@
     "express": "^4.17.1",
     "express-session": "^1.17.0",
     "helmet": "^3.21.2",
-    "mongoose": "^5.7.7"
+    "mongoose": "^5.7.7",
+    "axios": "^0.19.0",
+    "react": "^16.11.0",
+    "react-dom": "^16.11.0",
+    "react-scripts": "3.2.0"
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
   }
 }
