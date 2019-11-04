@@ -8,9 +8,9 @@ To run the web app you must have [Node](https://nodejs.org/en/) installed. With 
 
 ```
 npm install
-node app.js
+node server.js
 ```
-Open a modern browser and go to http://localhost:3000/
+Open a modern browser and go to http://localhost:4200/
 
 
 ## TODO
@@ -21,8 +21,7 @@ To do list (Ask to be a collaborator and help me out!)
 * Create user settings controller
 * Create user settings view
 * Create matched user table view
-* Deal with authentication - [Passport](http://www.passportjs.org/docs/)
-* Will Passport's OAuth work with Esri OAuth?
+* Finish setting up Okta auth
 * Stop procrastinating
 
 ## Done List
@@ -30,11 +29,13 @@ completed items from TODO
 * structure app - MVC
 
 
-## Built With
+## Built With MERN Stack
 * [Bootstrap](https://getbootstrap.com/) - Frontend
-* [EJS](https://ejs.co/) - Embeded JavaScript
+* [React](https://reactjs.org/) -Frontend Framework
 * [Node](https://nodejs.org/en/) - Backend
-* [Express](https://expressjs.com/) - Web Framework
+* [Express](https://expressjs.com/) - Backend Framework
+* [MongoDB](https://www.mongodb.com/) - Database
+* [Mongoose](https://mongoosejs.com/) - ODM
 
 ### Other Node Packages
 * [body-parser](https://www.npmjs.com/package/body-parser) - Reading Forms
