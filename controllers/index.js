@@ -4,7 +4,7 @@ const express = require('express')
 
 
 // router.use(require('./settings'))
- router.use(require('./users'))
+ router.use(require('./user'))
 
 
 module.exports = router

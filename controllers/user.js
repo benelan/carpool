@@ -5,9 +5,9 @@ const express = require('express')
 // this is our get method
 // this method fetches all available data in our database
 router.get('/getUser', (req, res) => {
-  user.find((err, user) => {
+  User.find((err, data) => {
     if (err) return res.json({ success: false, error: err });
-    return res.json({ success: true, user: user });
+    return res.json({ success: true, data: data });
   });
 });
 
@@ -31,10 +31,10 @@ router.delete('/deleteUser', (req, res) => {
   });
 });
 
-// this is our create method
+// this is our create methid
 // this method adds new data in our database
 router.post('/putUser', (req, res) => {
-  let user = new User();
+  let data = new User();
 
   const { id, message } = req.body;
 
@@ -44,12 +44,13 @@ router.post('/putUser', (req, res) => {
       error: 'INVALID INPUTS',
     });
   }
-  user.message = message;
-  user.id = id;
-  user.save((err) => {
+  data.message = message;
+  data.id = id;
+  data.save((err) => {
     if (err) return res.json({ success: false, error: err });
     return res.json({ success: true });
   });
 });
+
 
 module.exports = router

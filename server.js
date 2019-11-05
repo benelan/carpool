@@ -6,7 +6,7 @@ const express = require('express')
   , compression = require('compression')
   , cors = require('cors')
   , mongoose = require('mongoose')
-  , port = process.env.PORT || 4200
+  , port = process.env.PORT || 3001
 //   , session = require('express-session')
 //   , { ExpressOIDC } = require('@okta/oidc-middleware')
 
@@ -36,7 +36,8 @@ const express = require('express')
 
 // initialize database
 const dbRoute = process.env.DB_ROUTE;
-mongoose.connect(dbRoute, { useNewUrlParser: true });
+mongoose.connect(dbRoute, { useUnifiedTopology: true, useNewUrlParser: true });
+let db = mongoose.connection;
 db.once('open', () => console.log('connected to the database'));
 // checks if connection with the database is successful
 db.on('error', console.error.bind(console, 'MongoDB connection error:'));

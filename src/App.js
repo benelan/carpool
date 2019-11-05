@@ -1,4 +1,3 @@
-// /client/App.js
 import React, { Component } from 'react';
 import axios from 'axios';
 
@@ -42,7 +41,7 @@ class App extends Component {
   // our first get method that uses our backend api to
   // fetch data from our data base
   getDataFromDb = () => {
-    fetch('http://localhost:4200/getUser')
+    fetch('http://localhost:3001/getUser')
       .then((data) => data.json())
       .then((res) => this.setState({ data: res.data }));
   };
@@ -56,7 +55,7 @@ class App extends Component {
       ++idToBeAdded;
     }
 
-    axios.post('http://localhost:4200/putUser', {
+    axios.post('http://localhost:3001/putUser', {
       id: idToBeAdded,
       message: message,
     });
@@ -73,7 +72,7 @@ class App extends Component {
       }
     });
 
-    axios.delete('http://localhost:4200/deleteUser', {
+    axios.delete('http://localhost:3001/deleteUser', {
       data: {
         id: objIdToDelete,
       },
@@ -91,7 +90,7 @@ class App extends Component {
       }
     });
 
-    axios.post('http://localhost:4200/updateUser', {
+    axios.post('http://localhost:3001/updateUser', {
       id: objIdToUpdate,
       update: { message: updateToApply },
     });
