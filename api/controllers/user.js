@@ -4,7 +4,7 @@ const express = require('express')
 
 // this is our get method
 // this method fetches all available data in our database
-router.get('/getUser', (req, res) => {
+router.get('/api/getAllUsers', (req, res) => {
   User.find((err, data) => {
     if (err) return res.json({ success: false, error: err });
     return res.json({ success: true, data: data });
@@ -13,7 +13,7 @@ router.get('/getUser', (req, res) => {
 
 // this is our update method
 // this method overwrites existing data in our database
-router.post('/updateUser', (req, res) => {
+router.post('/api/updateUser', (req, res) => {
   const { id, update } = req.body;
   User.findByIdAndUpdate(id, update, (err) => {
     if (err) return res.json({ success: false, error: err });
@@ -23,7 +23,7 @@ router.post('/updateUser', (req, res) => {
 
 // this is our delete method
 // this method removes existing data in our database
-router.delete('/deleteUser', (req, res) => {
+router.delete('/api/deleteUser', (req, res) => {
   const { id } = req.body;
   User.findByIdAndRemove(id, (err) => {
     if (err) return res.send(err);
@@ -33,7 +33,7 @@ router.delete('/deleteUser', (req, res) => {
 
 // this is our create methid
 // this method adds new data in our database
-router.post('/putUser', (req, res) => {
+router.post('/api/addUser', (req, res) => {
   let data = new User();
 
   const { id, message } = req.body;

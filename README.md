@@ -8,25 +8,25 @@ To run the web app you must have [Node](https://nodejs.org/en/) installed. With 
 
 ```
 npm install
-node server.js
+npm run
 ```
-Open a modern browser and go to http://localhost:4200/
 
 
 ## TODO
-To do list (Ask to be a collaborator and help me out!)
-* Set up backend - MongoDB/Mongoose
+To do list
 * Create start point feature layer with user id
-* Create user model
 * Create user settings controller
-* Create user settings view
-* Create matched user table view
+* Create React forms component for user settings
+* Create React home/info page
+* Create React data table component
 * Finish setting up Okta auth
 * Stop procrastinating
 
 ## Done List
 completed items from TODO
 * structure app - MVC
+* Set up database/odm - MongoDB/Mongoose
+* Create user model
 
 
 ## Built With MERN Stack

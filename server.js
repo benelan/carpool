@@ -36,7 +36,13 @@ const express = require('express')
 
 // initialize database
 const dbRoute = process.env.DB_ROUTE;
-mongoose.connect(dbRoute, { useUnifiedTopology: true, useNewUrlParser: true });
+mongoose.connect(dbRoute, { 
+  useUnifiedTopology: true, 
+  useNewUrlParser: true,
+  useFindAndModify: false,
+  useCreateIndex: true
+});
+
 let db = mongoose.connection;
 db.once('open', () => console.log('connected to the database'));
 // checks if connection with the database is successful
@@ -44,11 +50,11 @@ db.on('error', console.error.bind(console, 'MongoDB connection error:'));
 
 app.use(cors());
 app.use(helmet())  // security
-app.use(compression()); //Compress all routes
+app.use(compression()); // compress all routes
 app.use(express.static('public'))
 app.use(bodyParser.urlencoded({extended: true}))
 app.use(bodyParser.json())
 
-app.use(require('./controllers'))
+app.use(require('./api/controllers'))
 
 app.listen(port, () => console.log(`Listening on port ${port}`))

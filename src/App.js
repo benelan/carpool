@@ -7,7 +7,7 @@ class App extends Component {
     data: [],
     id: 0,
     message: null,
-    intervalIsSet: false,
+    interval: false,
     idToDelete: null,
     idToUpdate: null,
     objectToUpdate: null,
@@ -18,18 +18,18 @@ class App extends Component {
   // changed and implement those changes into our UI
   componentDidMount() {
     this.getDataFromDb();
-    if (!this.state.intervalIsSet) {
+    if (!this.state.interval) {
       let interval = setInterval(this.getDataFromDb, 1000);
-      this.setState({ intervalIsSet: interval });
+      this.setState({ interval: interval });
     }
   }
 
   // never let a process live forever
   // always kill a process everytime we are done using it
   componentWillUnmount() {
-    if (this.state.intervalIsSet) {
-      clearInterval(this.state.intervalIsSet);
-      this.setState({ intervalIsSet: null });
+    if (this.state.interval) {
+      clearInterval(this.state.interval);
+      this.setState({ interval: null });
     }
   }
 
@@ -41,21 +41,21 @@ class App extends Component {
   // our first get method that uses our backend api to
   // fetch data from our data base
   getDataFromDb = () => {
-    fetch('http://localhost:3001/getUser')
+    fetch('http://localhost:3001/api/getAllUsers')
       .then((data) => data.json())
       .then((res) => this.setState({ data: res.data }));
   };
 
-  // our put method that uses our backend api
+  // our add method that uses our backend api
   // to create new query into our data base
-  putDataToDB = (message) => {
+  addDataToDB = (message) => {
     let currentIds = this.state.data.map((data) => data.id);
     let idToBeAdded = 0;
     while (currentIds.includes(idToBeAdded)) {
       ++idToBeAdded;
     }
 
-    axios.post('http://localhost:3001/putUser', {
+    axios.post('http://localhost:3001/api/addUser', {
       id: idToBeAdded,
       message: message,
     });
@@ -72,7 +72,7 @@ class App extends Component {
       }
     });
 
-    axios.delete('http://localhost:3001/deleteUser', {
+    axios.delete('http://localhost:3001/api/deleteUser', {
       data: {
         id: objIdToDelete,
       },
@@ -90,7 +90,7 @@ class App extends Component {
       }
     });
 
-    axios.post('http://localhost:3001/updateUser', {
+    axios.post('http://localhost:3001/api/updateUser', {
       id: objIdToUpdate,
       update: { message: updateToApply },
     });
@@ -121,7 +121,7 @@ class App extends Component {
             placeholder="add something in the database"
             style={{ width: '200px' }}
           />
-          <button onClick={() => this.putDataToDB(this.state.message)}>
+          <button onClick={() => this.addDataToDB(this.state.message)}>
             ADD
           </button>
         </div>
