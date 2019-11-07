@@ -50,7 +50,7 @@ class Settings2 extends Component {
         });
 
         view.ui.add(searchWidget, {
-          position: "top-right",
+          position: "bottom-right",
           index: 2
         });
       })

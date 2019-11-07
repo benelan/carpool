@@ -1,21 +1,31 @@
 import React, { Component } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './index.css';
+import {
+  BrowserRouter as Router,
+  Switch,
+  Route,
+  Link
+} from "react-router-dom";
 
 import { Header } from './components';
 import Settings from './components/Settings'
 import Settings2 from './components/Settings2'
 
-class App extends Component {
-  render() {
-
+export default function App() {
     return (
-      <div>
+      <Router>
+        <div>
         <Header />
-        <Settings2 />
+        <Switch>
+          <Route exact path="/">
+            <Settings />
+          </Route>
+          <Route exact path="/settings">
+            <Settings2 />
+          </Route>
+        </Switch>
       </div>
+      </Router>
     );
-  }
 }
-
-export default App;
