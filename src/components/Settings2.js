@@ -3,67 +3,53 @@ import { Col, Row, Button, Form, FormGroup, Label, Input } from 'reactstrap';
 
 const Settings2 = (props) => {
   return (
+
     <Form id='settings'>
       <Row form>
-      <Col md={6}>
+      <Col md={3}>
           <FormGroup>
-            <Label for="exampleName">Name</Label>
-            <Input type="name" name="name" id="exampleName" placeholder="name placeholder" />
+            <Label for="userName">Name</Label>
+            <Input type="name" name="name" id="userName" placeholder="John Doe" />
           </FormGroup>
         </Col>
-        <Col md={6}>
+        <Col md={5}>
           <FormGroup>
-            <Label for="exampleEmail">Email</Label>
-            <Input type="email" name="email" id="exampleEmail" placeholder="with a placeholder" />
+            <Label for="userEmail">Email</Label>
+            <Input type="email" name="email" id="userEmail" placeholder="example@esri.com" />
           </FormGroup>
         </Col>     
-      </Row>
-      <Row form>
-      <Col md={6}>
-      <FormGroup>
-        <Label for="exampleAddress">Address</Label>
-        <Input type="text" name="address" id="exampleAddress" placeholder="1234 Main St"/>
-      </FormGroup>
-      </Col>
-      <Col md={6}>
-      <FormGroup>
-        <Label for="exampleSelect">Office Location</Label>
-        <Input type="select" name="office" id="officeSelect">
-          <option>Redlands Main Campus</option>
-          <option>Redlands V Buildings</option>
-          <option>Charrolette</option>
-          <option>Washington D.C.</option>
-          <option>New York City</option>
-          <option>Portland</option>
-        </Input>
-      </FormGroup>
+      <Col md={4}>
+        <FormGroup>
+          <Label for="startLocation">Pickup Location</Label>
+          <Input type="text" name="address" id="Start Location" placeholder="1234 Main St"/>
+        </FormGroup>
       </Col>
       </Row>
       
       <Row form>
-        <Col md={4}>
+    <Col md={3}>
         <FormGroup>
         <Label for="arriveTime">Arrive at Work</Label>
         <Input
           type="time"
           name="time"
           id="arriveTime"
-          placeholder="9"
+          defaultValue="09:00"
         />
       </FormGroup>
-        </Col>
-        <Col md={4}>
+    </Col>
+    <Col md={3}>
         <FormGroup>
         <Label for="leaveTime">Leave Work</Label>
         <Input
           type="time"
           name="time"
           id="leaveTime"
-          placeholder="time placeholder"
+          defaultValue="17:00"
         />
       </FormGroup>
-        </Col>
-        <Col md={4}>
+    </Col>
+    <Col md={2}>
         <FormGroup>
         <Label for="driver">Select</Label>
         <Input type="select" name="select" id="driverSelect">
@@ -71,9 +57,22 @@ const Settings2 = (props) => {
           <option>Passanger</option>
         </Input>
       </FormGroup>
-        </Col>
+    </Col>
+    <Col md={4}>
+      <FormGroup>
+        <Label for="exampleSelect">Office Location</Label>
+        <Input type="select" name="office" id="officeSelect">
+          <option>Redlands Main Campus</option>
+          <option>Redlands V Buildings</option>
+          <option>Charlotte</option>
+          <option>Washington D.C.</option>
+          <option>New York City</option>
+          <option>Portland</option>
+        </Input>
+      </FormGroup>
+    </Col>
       </Row>
-      <Button>Submit</Button>
+      <Button>Save</Button>
     </Form>
   );
 }
