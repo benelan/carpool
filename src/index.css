@@ -17,3 +17,9 @@ code {
 
 	Margin:100px;
 }
+
+#searchWidget {
+  border-radius: 5px;
+  padding: 2px;
+  border: 1px solid lightgrey;
+}
