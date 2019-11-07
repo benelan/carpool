@@ -23,3 +23,10 @@ code {
   padding: 2px;
   border: 1px solid lightgrey;
 }
+
+#viewDiv {
+  padding: 0;
+  margin: 0;
+  height: 275px;
+  width: 100%;
+}

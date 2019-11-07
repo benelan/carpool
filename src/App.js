@@ -13,7 +13,6 @@ class App extends Component {
       <div>
       <Header />
       <Settings2 />
-      <Settings />
       </div>
     );
   }
