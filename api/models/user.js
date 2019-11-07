@@ -12,11 +12,11 @@ const UserSchema = new Schema(
     commute: {
       driver: Boolean,
       start_loc: [Number],
+      start_address: String,
       office_id: Number,
       arrive_work: Number,
       leave_work: Number,
-      route: String,
-      buffer_distance: Number
+      route: String
     }
   },
   { timestamps: true }

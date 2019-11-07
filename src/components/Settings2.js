@@ -1,55 +1,84 @@
-import React from 'react';
+import React, { Component } from 'react';
 import { Col, Row, Button, Form, FormGroup, Label, Input } from 'reactstrap';
 import { loadModules } from 'esri-loader';
 import { loadCss } from 'esri-loader';
-loadCss();
-let map;
-let view;
-let searchWidget;
-loadModules(['esri/views/MapView', 'esri/Map', "esri/widgets/Search"])
-  .then(([MapView, Map, Search]) => {
-    // then we load a web map from an id
-    map = new Map({
-      basemap: "streets"
-    });
-    // and we show that map in a container w/ id #viewDiv
-    view = new MapView({
-      map: map,
-      container: 'viewDiv',
-      center: [-100, 35],
-      zoom: 3
-    });
 
-    searchWidget = new Search({
-      view: view,
-      //searchTerm: 'current address'
-    });
 
-    view.ui.add(searchWidget, {
-      position: "top-right",
-      index: 2
-    });
-  })
-  .catch(err => {
-    // handle any errors
-    console.error(err);
-  });
 
-function submitForm() {
-  searchWidget.search().then((res) => {
-    const lat = res.results[0].results[0].feature.geometry.latitude;
-    const lon = res.results[0].results[0].feature.geometry.longitude;
-    const coord = [lon, lat];
-    const address = res.results[0].results[0].feature.attributes.Match_addr;
-  })
-}
+class Settings2 extends Component {
 
-const Settings2 = (props) => {
-  return (
+  // initialize our state
+  state = {
+    id: null,
+    message: null,
+    name: null,
+    email: null,
+    commute: {
+      driver: null,
+      start_loc: null,
+      start_address: null,
+      office_id: null,
+      arrive_work: '09:00',
+      leave_work: '17:00',
+      route: null
+    }
+  };
+
+  // initialize the map to pick start location
+  initMap = () => {
+    loadCss();
+    let map;
+    let view;
+    let searchWidget;
+    loadModules(['esri/views/MapView', 'esri/Map', "esri/widgets/Search"])
+      .then(([MapView, Map, Search]) => {
+        // then we load a web map from an id
+        map = new Map({
+          basemap: "streets"
+        });
+        // and we show that map in a container w/ id #viewDiv
+        view = new MapView({
+          map: map,
+          container: 'viewDiv',
+          center: [-100, 35],
+          zoom: 3
+        });
+
+        searchWidget = new Search({
+          view: view,
+          //searchTerm: 'current address'
+        });
+
+        view.ui.add(searchWidget, {
+          position: "top-right",
+          index: 2
+        });
+      })
+      .catch(err => {
+        // handle any errors
+        console.error(err);
+      });
+
+  }
+  
+
+  // request info on person and then intialize
+  componentDidMount() {
+    this.setState({ name: 'John Doe' });
+    this.setState({ email: 'example@esri.com' });
+    this.initMap()
+  };
+
+  componentWillUnmount() {
+    console.log('unmount')
+  }
+
+  render() {
+    return (
     <Form id='settings'>
       <Row form>
         <Col md={6}>
-        <Row form>
+          <Row form>
             <Col md={12}>
               <p><b>This information will be used to match you with a carpool buddy!</b></p>
             </Col>
@@ -58,13 +87,13 @@ const Settings2 = (props) => {
             <Col md={6}>
               <FormGroup>
                 <Label for="userName">Name</Label>
-                <Input type="name" name="name" id="userName" placeholder="John Doe" />
+                <Input type="name" name="name" id="userName" placeholder={this.state.name} />
               </FormGroup>
             </Col>
             <Col md={6}>
               <FormGroup>
                 <Label for="userEmail">Email</Label>
-                <Input type="email" name="email" id="userEmail" placeholder="example@esri.com" />
+                <Input type="email" name="email" id="userEmail" placeholder={this.state.email} />
               </FormGroup>
             </Col>
           </Row>
@@ -77,7 +106,7 @@ const Settings2 = (props) => {
                   type="time"
                   name="time"
                   id="arriveTime"
-                  defaultValue="09:00"
+                  defaultValue={this.state.commute.arrive_work}
                 />
               </FormGroup>
             </Col>
@@ -88,7 +117,7 @@ const Settings2 = (props) => {
                   type="time"
                   name="time"
                   id="leaveTime"
-                  defaultValue="17:00"
+                  defaultValue={this.state.commute.leave_work}
                 />
               </FormGroup>
             </Col>
@@ -129,9 +158,9 @@ const Settings2 = (props) => {
           </Row>
         </Col>
       </Row>
-      <Button onClick={submitForm}>Save</Button>
+      <Button>Save</Button>
     </Form>
-  );
+    )};
 }
 
 export default Settings2;
