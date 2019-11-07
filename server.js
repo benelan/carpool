@@ -36,8 +36,8 @@ const express = require('express')
 
 // initialize database
 const dbRoute = process.env.DB_ROUTE;
-mongoose.connect(dbRoute, { 
-  useUnifiedTopology: true, 
+mongoose.connect(dbRoute, {
+  useUnifiedTopology: true,
   useNewUrlParser: true,
   useFindAndModify: false,
   useCreateIndex: true
@@ -52,7 +52,7 @@ app.use(cors());
 app.use(helmet())  // security
 app.use(compression()); // compress all routes
 app.use(express.static('public'))
-app.use(bodyParser.urlencoded({extended: true}))
+app.use(bodyParser.urlencoded({ extended: true }))
 app.use(bodyParser.json())
 
 app.use(require('./api/controllers'))

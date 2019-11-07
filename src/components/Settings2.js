@@ -46,7 +46,6 @@ function submitForm() {
 
 const Settings2 = (props) => {
   return (
-
     <Form id='settings'>
       <Row form>
         <Col md={6}>
@@ -132,7 +131,6 @@ const Settings2 = (props) => {
       </Row>
       <Button onClick={submitForm}>Save</Button>
     </Form>
-
   );
 }
 
