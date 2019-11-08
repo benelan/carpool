@@ -5,6 +5,7 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  background-color: #FFF8EB;
 }
 
 code {
@@ -12,18 +13,15 @@ code {
     monospace;
 }
 
-
-#settings {
-
-	Margin:100px;
+.bg-orange {
+  background-color: #FFAA00;
+  border-color: #FFF8EB;
 }
 
-#searchWidget {
-  border-radius: 5px;
-  padding: 2px;
-  border: 1px solid lightgrey;
+#bodyComp {
+  margin:40px;
+  
 }
-
 #viewDiv {
   padding: 0;
   margin: 0;

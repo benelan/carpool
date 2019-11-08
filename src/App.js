@@ -8,9 +8,10 @@ import {
   Link
 } from "react-router-dom";
 
-import { Header } from './components';
+import Header from './components/Header';
+import Home from './components/Home'
+import Results from './components/Results'
 import Settings from './components/Settings'
-import Settings2 from './components/Settings2'
 
 export default function App() {
     return (
@@ -18,12 +19,9 @@ export default function App() {
         <div>
         <Header />
         <Switch>
-          <Route exact path="/">
-            <Settings />
-          </Route>
-          <Route exact path="/settings">
-            <Settings2 />
-          </Route>
+          <Route exact path="/" component={Home}/>
+          <Route exact path="/results" component={Results}/>
+          <Route exact path="/settings" component={Settings}/>
         </Switch>
       </div>
       </Router>
