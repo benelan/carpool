@@ -28,3 +28,11 @@ code {
   height: 275px;
   width: 100%;
 }
+
+
+#resultComp {
+  background-color: white;
+  margin:40px;
+  border: 2px solid #5cb85c;
+  border-radius: 5px;
+}
