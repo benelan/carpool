@@ -8,7 +8,7 @@ To run the web app you must have [Node](https://nodejs.org/en/) installed. With 
 
 ```
 npm install
-npm run
+npm start
 ```
 
 
