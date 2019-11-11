@@ -9,15 +9,13 @@ const UserSchema = new Schema(
     message: String,
     name: String,
     email: { type: String, trim: true },
-    commute: {
-      driver: Boolean,
-      start_loc: [Number],
-      start_address: String,
-      office_id: Number,
-      arrive_work: Number,
-      leave_work: Number,
-      route: String
-    }
+    driver: Boolean,
+    start_loc: [Number],
+    start_address: String,
+    office_id: Number,
+    arrive_work: String,
+    leave_work: String,
+    route: String
   },
   { timestamps: true }
 );

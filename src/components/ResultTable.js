@@ -11,7 +11,7 @@ class ResultTable extends Component {
   componentDidMount() {
     this.getDataFromDb();
     if (!this.state.interval) {
-      let interval = setInterval(this.getDataFromDb, 1000);
+      let interval = setInterval(this.getDataFromDb, 60000);
       this.setState({ interval: interval });
     }
   }
@@ -46,14 +46,12 @@ class ResultTable extends Component {
                 </tr>
               </thead>
               <tbody>
-              {data.length <= 0
-            ? 'No Matches Found'
-            : data.map((d) => (
+              {data.map((d)=>(
                 <tr key={d.id}>
-                  <td>{d.message}</td> 
-                  <td>{d.commute.driver}</td> 
-                  <td>{d.commute.arrive_work}</td> 
-                  <td>{d.commute.leave_work}</td>
+                  <td>{d.name}</td> 
+                  <td>{d.driver?'Driver':"Passanger"}</td> 
+                  <td>{d.arrive_work}</td> 
+                  <td>{d.leave_work}</td>
                   <td>Not Calculated</td> 
                   <td>{d.email}</td> 
                 </tr>
