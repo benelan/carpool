@@ -151,7 +151,7 @@ class Settings extends Component {
           <Row form>
             <Col md={12}>
               <FormGroup>
-                <Label for="startLocation">Pickup Location (use the search bar)</Label>
+                <Label for="startLocation">Pickup Location (use the search bar. If you have privacy concerns, you can put a cross street or a store near your home)</Label>
                 <div id="viewDiv"></div>
               </FormGroup>
             </Col>
