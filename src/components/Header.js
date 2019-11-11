@@ -7,26 +7,26 @@ import {
   Nav,
   NavItem,
   NavLink,
-  Button } from 'reactstrap';
+  Button
+} from 'reactstrap';
 
-  import logo from '../logo.png';
+import logo from '../logo.png';
 
 const Header = (props) => {
   const [isOpen, setIsOpen] = useState(false);
-
   const toggle = () => setIsOpen(!isOpen);
 
   return (
     <div>
       <Navbar light expand="md" className="bg-orange" >
-      <NavItem className="d-flex align-items-center">
-                <NavLink className="font-weight-bold" href="/">
-                  <img src={logo} alt="logo" className="img-fluid" style={{ width: 100 }} />
-                </NavLink>
-                <NavbarBrand className="d-inline-block p-0" href="/">
-                  <h1 style={{font: 'bold 34px Verdana'}}>carpool</h1>
-                </NavbarBrand>
-              </NavItem>
+        <NavItem className="d-flex align-items-center">
+          <NavLink className="font-weight-bold" href="/">
+            <img src={logo} alt="logo" className="img-fluid" style={{ width: 100 }} />
+          </NavLink>
+          <NavbarBrand className="d-inline-block p-0  align-items-left" href="/">
+            <h1 style={{ font: '38px Arial Black' }}>carpool</h1>
+          </NavbarBrand>
+        </NavItem>
         <NavbarToggler onClick={toggle} />
         <Collapse isOpen={isOpen} navbar>
           <Nav className="ml-auto" navbar>

@@ -6,7 +6,7 @@ const express = require('express')
   , compression = require('compression')
   , cors = require('cors')
   , mongoose = require('mongoose')
-  , port = process.env.PORT || 3001
+  , port = 3001
 //   , session = require('express-session')
 //   , { ExpressOIDC } = require('@okta/oidc-middleware')
 
