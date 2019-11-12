@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import { Col, Row, Button, FormGroup, Label, Input } from 'reactstrap';
-import { loadModules } from 'esri-loader';
-import { loadCss } from 'esri-loader';
+import { loadModules, loadCss } from 'esri-loader';
 import axios from 'axios';
 
 
@@ -9,6 +8,7 @@ class Settings extends Component {
 
   // initialize our state
   state = {
+    searchWidget: null,
     data: [],
     id: 0,
     name: null,
@@ -22,45 +22,19 @@ class Settings extends Component {
     route: null
   };
 
+
   // initialize the map to pick start location
   initMap = () => {
     loadCss();
-    let map;
-    let view;
-    let searchWidget;
-    loadModules(['esri/views/MapView', 'esri/Map', "esri/widgets/Search"])
-      .then(([MapView, Map, Search]) => {
-        // then we load a web map from an id
-        map = new Map({
-          basemap: "streets"
-        });
-        // and we show that map in a container w/ id #viewDiv
-        view = new MapView({
-          map: map,
-          container: 'viewDiv',
-          center: [-100, 35],
-          zoom: 3
-        });
+    loadModules(["esri/widgets/Search"])
+      .then(([Search]) => {
 
-        searchWidget = new Search({
-          view: view,
-          //searchTerm: 'current address'
-        });
-
-        view.ui.add(searchWidget, {
-          position: "bottom-right",
-          index: 2
-        });
-        searchWidget.on("search-complete", function(event){
-          const lat = event.results[0].results[0].feature.geometry.latitude;
-          const lon = event.results[0].results[0].feature.geometry.longitude;
-          const coords = [lon, lat];
-          const addr = event.results[0].results[0].feature.attributes.Match_addr;
-          // this.setState({ start_loc: coords });
-          // this.setState({ start_address: addr });
-         
-          
-        });
+        this.setState({
+          searchWidget: Search({
+            container: document.getElementById("startLoc")
+            //searchTerm: 'current address'
+          })
+        })
       })
       .catch(err => {
         // handle any errors
@@ -78,6 +52,7 @@ class Settings extends Component {
   };
 
   componentWillUnmount() {
+    this.setState({ searchWidget: null });
     console.log('unmount')
   }
 
@@ -88,25 +63,44 @@ class Settings extends Component {
   };
 
   updateDB = () => {
-    let objIdToUpdate = null;
-    this.state.data.forEach((dat) => {
-      if (dat.id == this.state.id) {
-        objIdToUpdate = dat._id;
-      }
-    });
+    loadModules(["esri/widgets/Search"])
+    .then(([Search]) => {
+      let address = document.getElementById("startLoc").value;
     
-    console.log(this.state.office_id)
-    axios.post('http://localhost:3001/api/updateUser', {
-      id: objIdToUpdate,
-      update: { 
-        name: this.state.name, 
-        email: this.state.email, 
-        arrive_work: this.state.arrive_work, 
-        leave_work: this.state.leave_work, 
-        driver: this.state.driver, 
-        office_id: this.state.office_id,
-        start_loc: this.state.start_loc
-      }
+      this.state.searchWidget.search(address).then((event) => {
+        const lat = event.results[0].results[0].feature.geometry.latitude;
+        const lon = event.results[0].results[0].feature.geometry.longitude;
+        const coords = [lon, lat];
+        const addr = event.results[0].results[0].feature.attributes.Match_addr;
+        this.setState({ start_loc: coords });
+        this.setState({ start_address: addr });
+        console.log(this.state.start_address)
+      })
+    });
+
+      let objIdToUpdate = null;
+      this.state.data.forEach((dat) => {
+        if (dat.id == this.state.id) {
+          objIdToUpdate = dat._id;
+        }
+      });
+
+      console.log(this.state.office_id)
+      axios.post('http://localhost:3001/api/updateUser', {
+        id: objIdToUpdate,
+        update: {
+          name: this.state.name,
+          email: this.state.email,
+          arrive_work: this.state.arrive_work,
+          leave_work: this.state.leave_work,
+          driver: this.state.driver,
+          office_id: this.state.office_id,
+          start_loc: this.state.start_loc
+        }
+    })
+    .catch(err => {
+      // handle any errors
+      console.error(err);
     });
   };
 
@@ -114,7 +108,7 @@ class Settings extends Component {
     return (
       <div id='bodyComp'>
         <Row form>
-          <Col md={6}>
+          <Col md={8} className="col-centered">
             <Row form>
               <Col md={12}>
                 <p><b>This information will be used to match you with a carpool buddy!</b></p>
@@ -128,7 +122,7 @@ class Settings extends Component {
                     type="name"
                     name="name"
                     id="userName"
-                    onChange={(e) => this.setState({ name: e.target.value })} 
+                    onChange={(e) => this.setState({ name: e.target.value })}
                     defaultValue={this.state.name}
                   />
                 </FormGroup>
@@ -182,7 +176,7 @@ class Settings extends Component {
                     name="select"
                     id="driverSelect"
                     onChange={(e) => this.setState({ driver: e.target.value })}
-                    >
+                  >
                     <option value={true}>Driver</option>
                     <option value={false}>Passanger</option>
                   </Input>
@@ -195,7 +189,7 @@ class Settings extends Component {
                     type="select"
                     name="office"
                     id="officeSelect"
-                    onChange={(e) => this.setState({ office_id: e.target.value})}
+                    onChange={(e) => this.setState({ office_id: e.target.value })}
                     defaultValue={this.state.office_id}>
                     <option value={1}>Redlands Main Campus</option>
                     <option value={2}>Redlands V Buildings</option>
@@ -207,19 +201,23 @@ class Settings extends Component {
                 </FormGroup>
               </Col>
             </Row>
-          </Col>
-          <Col md={6}>
             <Row form>
               <Col md={12}>
                 <FormGroup>
-                  <Label for="startLocation">Pickup Location (use the search bar. If you have privacy concerns, you can put a cross street or a store near your home)</Label>
-                  <div id="viewDiv"></div>
+                  <Label for="startLocation">Pickup Location (Use the search bar and select a dropdown option. If you have privacy concerns, you can use a cross street or a store)</Label>
+                  
+                  <div id="startLoc"></div>
+                  <Button color="success" className="float-right" onClick={() => this.updateDB()}>Save</Button>
                 </FormGroup>
+               
               </Col>
+             
             </Row>
+            
           </Col>
+         
         </Row>
-        <Button color="success" onClick={() =>this.updateDB()}>Save</Button>
+
       </div>
     )
   };
