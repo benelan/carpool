@@ -15,10 +15,16 @@ import logo from '../logo.png';
 const Header = (props) => {
   const [isOpen, setIsOpen] = useState(false);
   const toggle = () => setIsOpen(!isOpen);
-
+  
+const headerStyle = {
+    backgroundColor: '#FFAA00',
+    borderColor: '#FFF8EB',
+    marginBottom: '40px'
+  }
   return (
+   
     <div>
-      <Navbar light expand="md" className="bg-orange" >
+      <Navbar light expand="md" style={headerStyle} >
         <NavItem className="d-flex align-items-center">
           <NavLink className="font-weight-bold" href="/">
             <img src={logo} alt="logo" className="img-fluid" style={{ width: 100 }} />
@@ -34,7 +40,7 @@ const Header = (props) => {
               <NavLink className="font-weight-bold" href="/results">Results</NavLink>
             </NavItem>
             <NavItem className="d-flex align-items-center">
-              <NavLink className="font-weight-bold" href="/settings">Settings</NavLink>
+              <NavLink className="font-weight-bold" href="https://github.com/benelan/carpool">About</NavLink>
             </NavItem>
             <NavItem className="d-flex align-items-center">
               <NavLink className="font-weight-bold" color="info" href="/login"><Button type="submit" color="success" outline>Login</Button></NavLink>

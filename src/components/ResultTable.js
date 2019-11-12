@@ -28,11 +28,19 @@ class ResultTable extends Component {
       .then((res) => this.setState({ data: res.data }));
   };
 
+
   render() {
     const { data } = this.state;
+    const resultStyle = {
+      backgroundColor: 'white',
+      border: '1px solid lightgrey',
+      borderRadius: '4px',
+      margin: '20px'
+    }  
     return (
       <div >
-        <Row id="resultComp">
+        <Row style={resultStyle}>
+          
           <Col md={12} >
             <Table hover responsive>
               <thead>

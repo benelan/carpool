@@ -1,16 +1,19 @@
 import React, { Component } from 'react';
-import { Col, Row, Button, FormGroup, Label, Input } from 'reactstrap';
+import { Col, Row, Button, FormGroup, Label, Input} from 'reactstrap';
 import { loadModules, loadCss } from 'esri-loader';
 import axios from 'axios';
 
 
 class Settings extends Component {
 
-  // initialize our state
+  //--------------------- STATE---------------------\\
   state = {
     searchWidget: null,
     data: [],
     id: 0,
+    idToDelete: null,
+    idToUpdate: null,
+    objectToUpdate: null,
     name: null,
     email: null,
     driver: true,
@@ -22,9 +25,11 @@ class Settings extends Component {
     route: null
   };
 
-
-  // initialize the map to pick start location
-  initMap = () => {
+//--------------------- LIFE CYCLE FUNCTIONS ---------------------\\
+  componentDidMount() {
+    this.getDataFromDb();
+    
+    // initialize JS API search widget
     loadCss();
     loadModules(["esri/widgets/Search"])
       .then(([Search]) => {
@@ -41,21 +46,17 @@ class Settings extends Component {
         console.error(err);
       });
 
-  }
 
-  // request info on person and then intialize
-  componentDidMount() {
-    this.getDataFromDb();
     this.setState({ name: 'John Doe' });
     this.setState({ email: 'example@esri.com' });
-    this.initMap()
   };
 
   componentWillUnmount() {
     this.setState({ searchWidget: null });
-    console.log('unmount')
   }
 
+
+  //--------------------- CRUD OPERATIONS ---------------------\\
   getDataFromDb = () => {
     fetch('http://localhost:3001/api/getAllUsers')
       .then((data) => data.json())
@@ -63,6 +64,7 @@ class Settings extends Component {
   };
 
   updateDB = () => {
+    console.log(this.state.data)
     loadModules(["esri/widgets/Search"])
     .then(([Search]) => {
       let address = document.getElementById("startLoc").value;
@@ -104,12 +106,50 @@ class Settings extends Component {
     });
   };
 
+  addDataToDB = (message) => {
+    let currentIds = this.state.data.map((data) => data.id);
+    let idToBeAdded = 0;
+    while (currentIds.includes(idToBeAdded)) {
+      ++idToBeAdded;
+    }
+
+    axios.post('http://localhost:3001/api/addUser', {
+      id: idToBeAdded,
+      message: message,
+    });
+  };
+
+  deleteFromDB = (idTodelete) => {
+    parseInt(idTodelete);
+    let objIdToDelete = null;
+    this.state.data.forEach((dat) => {
+      if (dat.id == idTodelete) {
+        objIdToDelete = dat._id;
+      }
+    });
+
+    axios.delete('http://localhost:3001/api/deleteUser', {
+      data: {
+        id: objIdToDelete,
+      },
+    });
+  };
+
+    //--------------------- JSX ---------------------\\
   render() {
+    const startLoc = {
+      backgroundColor: 'white',
+      padding: '1px',
+      border: '1px solid lightgrey',
+      borderRadius: '4px'
+    }
+
+    const settingStyle = {
+      margin: '20px'
+    }  
     return (
-      <div id='bodyComp'>
-        <Row form>
-          <Col md={8} className="col-centered">
-            <Row form>
+      <div style={settingStyle}>
+            <Row>
               <Col md={12}>
                 <p><b>This information will be used to match you with a carpool buddy!</b></p>
               </Col>
@@ -122,6 +162,7 @@ class Settings extends Component {
                     type="name"
                     name="name"
                     id="userName"
+                    readOnly
                     onChange={(e) => this.setState({ name: e.target.value })}
                     defaultValue={this.state.name}
                   />
@@ -134,13 +175,13 @@ class Settings extends Component {
                     type="email"
                     name="email"
                     id="userEmail"
+                    readOnly
                     onChange={(e) => this.setState({ email: e.target.value })}
                     defaultValue={this.state.email}
                   />
                 </FormGroup>
               </Col>
             </Row>
-
             <Row form>
               <Col md={6}>
                 <FormGroup>
@@ -201,22 +242,16 @@ class Settings extends Component {
                 </FormGroup>
               </Col>
             </Row>
-            <Row form>
+            <Row>
               <Col md={12}>
                 <FormGroup>
                   <Label for="startLocation">Pickup Location (Use the search bar and select a dropdown option. If you have privacy concerns, you can use a cross street or a store)</Label>
                   
-                  <div id="startLoc"></div>
+                  <div id="startLoc" style={startLoc}></div>
                   <Button color="success" className="float-right" onClick={() => this.updateDB()}>Save</Button>
                 </FormGroup>
-               
               </Col>
-             
             </Row>
-            
-          </Col>
-         
-        </Row>
 
       </div>
     )

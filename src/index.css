@@ -13,46 +13,10 @@ code {
     monospace;
 }
 
-.bg-orange {
-  background-color: #FFAA00;
-  border-color: #FFF8EB;
-}
 
-#bodyComp {
-  margin:40px;
-  
-}
-#viewDiv {
-  padding: 0;
-  margin: 0;
-  height: 275px;
-  width: 100%;
-}
-
-
-#resultComp {
-  background-color: white;
-  margin:40px;
-  border: 2px solid #5cb85c;
-  border-radius: 5px;
-}
-
-
-#startLoc {
-  background-color: white;
-  padding: 1px;
-  border: 1px solid lightgrey;
-  border-radius: 4px;
-}
 /* 
 .esri-search__submit-button {
   display: none;
   opacity: 0;
   cursor: pointer;
 } */
-
-
-.col-centered{
-  float: none;
-  margin: 0 auto;
-}
