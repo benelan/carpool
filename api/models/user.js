@@ -6,15 +6,15 @@ const Schema = mongoose.Schema;
 const UserSchema = new Schema(
   {
     id: Number,
-    message: String,
     name: String,
-    email: { type: String, trim: true },
-    driver: Boolean,
-    start_loc: [Number],
-    start_address: String,
-    office_id: Number,
+    email: String,
     arrive_work: String,
     leave_work: String,
+    driver: Boolean,
+    office_id: Number,
+    lat: Number,
+    lon: Number,
+    start_addr: String,
     route: String
   },
   { timestamps: true }

@@ -25,7 +25,10 @@ class ResultTable extends Component {
   getDataFromDb = () => {
     fetch('http://localhost:3001/api/getAllUsers')
       .then((data) => data.json())
-      .then((res) => this.setState({ data: res.data }));
+      .then((res) => { 
+        console.log(res.data)
+        this.setState({ data: res.data })
+        });
   };
 
 

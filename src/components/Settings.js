@@ -15,11 +15,7 @@ class Settings extends Component {
     idToUpdate: null,
     objectToUpdate: null,
     username: null,
-    name: null,
-    email: null,
     driver: true,
-    start_loc: null,
-    start_address: null,
     office_id: 1,
     arrive_work: '09:00',
     leave_work: '17:00',
@@ -42,8 +38,16 @@ class Settings extends Component {
         IdentityManager.registerOAuthInfos([info]);
         IdentityManager.getCredential(info.portalUrl + "/sharing");
         IdentityManager.checkSignInStatus(info.portalUrl + "/sharing")
-          .then(e => this.setState({username: e.userId}))
+          .then(e => this.setState({ username: e.userId }))
 
+        var portal = new Portal();
+        // Setting authMode to immediate signs the user in once loaded
+        portal.authMode = "immediate";
+        // Once loaded, user is signed in
+        portal.load().then(function () {
+          document.getElementById('userEmail').value = portal.user.email;
+          document.getElementById('userName').value = portal.user.fullName;
+        });
 
         this.setState({
           searchWidget: Search({
@@ -60,6 +64,15 @@ class Settings extends Component {
 
   componentWillUnmount() {
     this.setState({ searchWidget: null });
+    loadModules(["esri/identity/OAuthInfo", "esri/identity/IdentityManager"])
+      .then(([OAuthInfo, IdentityManager]) => {
+        var info = new OAuthInfo({
+          appId: "n5A1575tmQq5eFPd",
+          popup: false
+        });
+        IdentityManager.registerOAuthInfos([info]);
+        IdentityManager.destroyCredentials();
+      });
     window.location.reload();
   }
 
@@ -72,22 +85,12 @@ class Settings extends Component {
   };
 
   updateDB = () => {
-    console.log(this.state.data)
-    loadModules(["esri/widgets/Search"])
-      .then(([Search]) => {
-        let address = document.getElementById("startLoc").value;
-
-        this.state.searchWidget.search(address).then((event) => {
-          const lat = event.results[0].results[0].feature.geometry.latitude;
-          const lon = event.results[0].results[0].feature.geometry.longitude;
-          const coords = [lon, lat];
-          const addr = event.results[0].results[0].feature.attributes.Match_addr;
-          this.setState({ start_loc: coords });
-          this.setState({ start_address: addr });
-          console.log(this.state.start_address)
-        })
-      });
-
+    const em = document.getElementById('userEmail').value;
+    const na = document.getElementById('userName').value;
+    let coords;
+    let addr;
+    let lat;
+    let lon;
     let objIdToUpdate = null;
     this.state.data.forEach((dat) => {
       if (dat.id == this.state.id) {
@@ -95,22 +98,91 @@ class Settings extends Component {
       }
     });
 
-    console.log(this.state.office_id)
-    axios.post('http://localhost:3001/api/updateUser', {
-      id: objIdToUpdate,
-      update: {
-        name: this.state.name,
-        email: this.state.email,
-        arrive_work: this.state.arrive_work,
-        leave_work: this.state.leave_work,
-        driver: this.state.driver,
-        office_id: this.state.office_id,
-        start_loc: this.state.start_loc
-      }
-    })
-      .catch(err => {
-        // handle any errors
-        console.error(err);
+
+    loadModules(["esri/widgets/Search", "esri/tasks/RouteTask", "esri/tasks/support/RouteParameters", "esri/tasks/support/FeatureSet", "esri/Graphic"])
+      .then(([Search, RouteTask, RouteParameters, FeatureSet, Graphic]) => {
+        let address = document.getElementById("startLoc").value;
+        this.state.searchWidget.search(address).then((event) => {
+          lat = event.results[0].results[0].feature.geometry.latitude;
+          lon = event.results[0].results[0].feature.geometry.longitude;
+          coords = [lon, lat];
+          addr = event.results[0].results[0].feature.attributes.Match_addr;
+
+          var routeTask = new RouteTask({
+            url:
+              "https://utility.arcgis.com/usrsvcs/appservices/w2zxoNZu0ai45kI5/rest/services/World/Route/NAServer/Route_World/solve"
+          });
+          // Setup the route parameters
+          var routeParams = new RouteParameters({
+            stops: new FeatureSet(),
+            outSpatialReference: {
+              // autocasts as new SpatialReference()
+              wkid: 3857
+            }
+          });
+
+          const startPoint = {
+            type: "point", // autocasts as Point
+            longitude: lon,
+            latitude: lat,
+            spatialReference: {
+              wkid: 3857
+            }
+          };
+
+          var start = new Graphic({
+            geometry: startPoint
+          });
+
+          const officeCoords = {
+            1: [-117.1946114, 34.057267],
+            2: [-117.2180851, 34.0692566],
+            3: [-80.7835061, 35.100138],
+            4: [-77.0714945, 38.897275],
+            5: [-73.9947568, 40.7542076]
+          }
+
+          const endPoint = {
+            type: "point", // autocasts as Point
+            longitude: officeCoords[this.state.office_id][0],
+            latitude: officeCoords[this.state.office_id][1],
+            spatialReference: {
+              wkid: 3857
+            }
+          };
+
+          var end = new Graphic({
+            geometry: endPoint
+          });
+
+          routeParams.stops.features.push(start);
+          routeParams.stops.features.push(end);
+
+          routeTask.solve(routeParams).then((res) => {
+            console.log(res.routeResults[0].route.toJSON())
+            console.log(lat)
+            console.log(lon)
+            axios.post('http://localhost:3001/api/updateUser', {
+              id: objIdToUpdate,
+              update: {
+                name: na,
+                email: em,
+                arrive_work: this.state.arrive_work,
+                leave_work: this.state.leave_work,
+                driver: this.state.driver,
+                office_id: this.state.office_id,
+                lat: lat,
+                lon: lon,
+                start_addr: addr,
+                route: JSON.stringify(res.routeResults[0].route.toJSON())
+              }
+            })
+              .catch(err => {
+                // handle any errors
+                console.error(err);
+              });
+          })
+        });
       });
   };
 
@@ -171,7 +243,6 @@ class Settings extends Component {
                 name="name"
                 id="userName"
                 readOnly
-                defaultValue={this.state.username}
               />
             </FormGroup>
           </Col>
@@ -182,8 +253,7 @@ class Settings extends Component {
                 type="email"
                 name="email"
                 id="userEmail"
-                onChange={(e) => this.setState({ email: e.target.value })}
-                defaultValue={this.state.email}
+                readOnly
               />
             </FormGroup>
           </Col>
@@ -243,7 +313,6 @@ class Settings extends Component {
                 <option value={3}>Charlotte</option>
                 <option value={4}>Washington D.C.</option>
                 <option value={5}>New York City</option>
-                <option value={6}>Portland</option>
               </Input>
             </FormGroup>
           </Col>
@@ -251,14 +320,13 @@ class Settings extends Component {
         <Row>
           <Col md={12}>
             <FormGroup>
-              <Label for="startLocation">Pickup Location (Use the search bar and select a dropdown option. If you have privacy concerns, you can use a cross street or a store)</Label>
+              <Label for="startLocation">Pickup Location (Use the search bar and select a dropdown option. If you have privacy concerns, you can use a cross street or store)</Label>
 
               <div id="startLoc" style={startLoc}></div>
               <Button color="success" className="float-right" onClick={() => this.updateDB()}>Save</Button>
             </FormGroup>
           </Col>
         </Row>
-
       </div>
     )
   };
