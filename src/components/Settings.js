@@ -15,7 +15,7 @@ class Settings extends Component {
     idToUpdate: null,
     objectToUpdate: null,
     username: null,
-    driver: true,
+    driver: 1,
     office_id: 1,
     arrive_work: '09:00',
     leave_work: '17:00',
@@ -47,6 +47,7 @@ class Settings extends Component {
         portal.load().then(function () {
           document.getElementById('userEmail').value = portal.user.email;
           document.getElementById('userName').value = portal.user.fullName;
+          this.getDataforUser(portal.user.email);
         });
 
         this.setState({
@@ -82,6 +83,19 @@ class Settings extends Component {
     fetch('http://localhost:3001/api/getAllUsers')
       .then((data) => data.json())
       .then((res) => this.setState({ data: res.data }));
+  };
+
+  getDataforUser = (em) => {
+    fetch('http://localhost:3001/api/getOneUser', {
+      email: em
+    }).then((data) => data.json())
+    .then((res) => this.setState({ 
+      arrive_work: res.arrive_work, 
+      leave_work: res.leave_work,
+      office_id: res.office_id,
+      driver: res.driver
+    }));
+  
   };
 
   updateDB = () => {
@@ -159,7 +173,7 @@ class Settings extends Component {
           routeParams.stops.features.push(end);
 
           routeTask.solve(routeParams).then((res) => {
-            console.log(res.routeResults[0].route.toJSON())
+            console.log(res.routeResults[0].toJSON())
             console.log(lat)
             console.log(lon)
             axios.post('http://localhost:3001/api/updateUser', {
@@ -174,7 +188,7 @@ class Settings extends Component {
                 lat: lat,
                 lon: lon,
                 start_addr: addr,
-                route: JSON.stringify(res.routeResults[0].route.toJSON())
+                //route: JSON.stringify(res.routeResults[0].route.toJSON())
               }
             })
               .catch(err => {
@@ -185,6 +199,23 @@ class Settings extends Component {
         });
       });
   };
+
+
+  // deleteFromDB = (idTodelete) => {
+  //   parseInt(idTodelete);
+  //   let objIdToDelete = null;
+  //   this.state.data.forEach((dat) => {
+  //     if (dat.id == idTodelete) {
+  //       objIdToDelete = dat._id;
+  //     }
+  //   });
+
+  //   axios.delete('http://localhost:3001/api/deleteUser', {
+  //     data: {
+  //       id: objIdToDelete,
+  //     },
+  //   });
+  // };
 
   addDataToDB = (message) => {
     let currentIds = this.state.data.map((data) => data.id);
@@ -199,23 +230,9 @@ class Settings extends Component {
     });
   };
 
-  deleteFromDB = (idTodelete) => {
-    parseInt(idTodelete);
-    let objIdToDelete = null;
-    this.state.data.forEach((dat) => {
-      if (dat.id == idTodelete) {
-        objIdToDelete = dat._id;
-      }
-    });
-
-    axios.delete('http://localhost:3001/api/deleteUser', {
-      data: {
-        id: objIdToDelete,
-      },
-    });
-  };
 
   //--------------------- JSX ---------------------\\
+
   render() {
     const startLoc = {
       backgroundColor: 'white',
@@ -292,10 +309,10 @@ class Settings extends Component {
                 type="select"
                 name="select"
                 id="driverSelect"
-                onChange={(e) => this.setState({ driver: e.target.value })}
-              >
-                <option value={true}>Driver</option>
-                <option value={false}>Passanger</option>
+                onChange={(e) => this.setState({ driver: e.target.value })}>
+                <option value={1}>Driver</option>
+                <option value={2}>Passanger</option>
+                <option value={3}>Either</option>
               </Input>
             </FormGroup>
           </Col>

@@ -11,6 +11,17 @@ router.get('/api/getAllUsers', (req, res) => {
   });
 });
 
+// this is our get get one method
+// this method fetches the user data by email
+router.get('/api/getOneUser', (req, res) => {
+  const { email } = req.body;
+  console.log(email);
+  User.findOne({email: email}, (err, data) => {
+    if (err) return res.json({ success: false, error: err });
+    return res.json({ success: true, data: data });
+  });
+});
+
 // this is our update method
 // this method overwrites existing data in our database
 router.post('/api/updateUser', (req, res) => {
