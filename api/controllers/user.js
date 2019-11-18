@@ -47,16 +47,27 @@ router.delete('/api/deleteUser', (req, res) => {
 router.post('/api/addUser', (req, res) => {
   let data = new User();
 
-  const { id, message } = req.body;
+  const { id, name, email, arrive_work, leave_work, driver, office_id, lat, lon, start_addr, route} = req.body;
 
-  if ((!id && id !== 0) || !message) {
+  if ((!id && id !== 0) || !name || !email || !arrive_work || !leave_work || !driver || !office_id || !lat || !lon || !start_addr || !route) {
     return res.json({
       success: false,
       error: 'INVALID INPUTS',
     });
   }
-  data.message = message;
+
   data.id = id;
+  data.name = name;
+  data.email = email;
+  data.arrive_work = arrive_work;
+  data.leave_work = leave_work;
+  data.driver = driver;
+  data.office_id = office_id;
+  data.lat = lat;
+  data.lon = lon;
+  data.start_addr = start_addr;
+  data.route = route;
+
   data.save((err) => {
     if (err) return res.json({ success: false, error: err });
     return res.json({ success: true });

@@ -39,7 +39,18 @@ class ResultTable extends Component {
       border: '1px solid lightgrey',
       borderRadius: '4px',
       margin: '20px'
-    }  
+    };
+
+    function renderSwitch(param) {
+      switch(param) {
+        case 1:
+          return 'Driver';
+          case 2:
+              return 'Passenger';
+        default:
+          return 'Either';
+      };
+    };
     return (
       <div >
         <Row style={resultStyle}>
@@ -60,7 +71,7 @@ class ResultTable extends Component {
               {data.map((d)=>(
                 <tr key={d.id}>
                   <td>{d.name}</td> 
-                  <td>{d.driver?'Driver':"Passanger"}</td> 
+                  <td>{renderSwitch(d.driver)}</td> 
                   <td>{d.arrive_work}</td> 
                   <td>{d.leave_work}</td>
                   <td>Not Calculated</td> 

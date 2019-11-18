@@ -10,7 +10,7 @@ const UserSchema = new Schema(
     email: String,
     arrive_work: String,
     leave_work: String,
-    driver: Boolean,
+    driver: Number,
     office_id: Number,
     lat: Number,
     lon: Number,

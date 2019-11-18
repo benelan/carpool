@@ -11,9 +11,6 @@ class Settings extends Component {
     searchWidget: null,
     data: [],
     id: 0,
-    idToDelete: null,
-    idToUpdate: null,
-    objectToUpdate: null,
     username: null,
     driver: 1,
     office_id: 1,
@@ -47,6 +44,7 @@ class Settings extends Component {
         portal.load().then(function () {
           document.getElementById('userEmail').value = portal.user.email;
           document.getElementById('userName').value = portal.user.fullName;
+          console.log(portal.user)
           this.getDataforUser(portal.user.email);
         });
 
@@ -89,115 +87,40 @@ class Settings extends Component {
     fetch('http://localhost:3001/api/getOneUser', {
       email: em
     }).then((data) => data.json())
-    .then((res) => this.setState({ 
+    .then((res) => {
+      console.log(res);
+
+      this.setState({ 
       arrive_work: res.arrive_work, 
       leave_work: res.leave_work,
       office_id: res.office_id,
       driver: res.driver
-    }));
+    
+    })
+  });
   
   };
 
-  updateDB = () => {
-    const em = document.getElementById('userEmail').value;
-    const na = document.getElementById('userName').value;
-    let coords;
-    let addr;
-    let lat;
-    let lon;
-    let objIdToUpdate = null;
-    this.state.data.forEach((dat) => {
-      if (dat.id == this.state.id) {
-        objIdToUpdate = dat._id;
-      }
-    });
-
-
-    loadModules(["esri/widgets/Search", "esri/tasks/RouteTask", "esri/tasks/support/RouteParameters", "esri/tasks/support/FeatureSet", "esri/Graphic"])
-      .then(([Search, RouteTask, RouteParameters, FeatureSet, Graphic]) => {
-        let address = document.getElementById("startLoc").value;
-        this.state.searchWidget.search(address).then((event) => {
-          lat = event.results[0].results[0].feature.geometry.latitude;
-          lon = event.results[0].results[0].feature.geometry.longitude;
-          coords = [lon, lat];
-          addr = event.results[0].results[0].feature.attributes.Match_addr;
-
-          var routeTask = new RouteTask({
-            url:
-              "https://utility.arcgis.com/usrsvcs/appservices/w2zxoNZu0ai45kI5/rest/services/World/Route/NAServer/Route_World/solve"
-          });
-          // Setup the route parameters
-          var routeParams = new RouteParameters({
-            stops: new FeatureSet(),
-            outSpatialReference: {
-              // autocasts as new SpatialReference()
-              wkid: 3857
-            }
-          });
-
-          const startPoint = {
-            type: "point", // autocasts as Point
-            longitude: lon,
-            latitude: lat,
-            spatialReference: {
-              wkid: 3857
-            }
-          };
-
-          var start = new Graphic({
-            geometry: startPoint
-          });
-
-          const officeCoords = {
-            1: [-117.1946114, 34.057267],
-            2: [-117.2180851, 34.0692566],
-            3: [-80.7835061, 35.100138],
-            4: [-77.0714945, 38.897275],
-            5: [-73.9947568, 40.7542076]
-          }
-
-          const endPoint = {
-            type: "point", // autocasts as Point
-            longitude: officeCoords[this.state.office_id][0],
-            latitude: officeCoords[this.state.office_id][1],
-            spatialReference: {
-              wkid: 3857
-            }
-          };
-
-          var end = new Graphic({
-            geometry: endPoint
-          });
-
-          routeParams.stops.features.push(start);
-          routeParams.stops.features.push(end);
-
-          routeTask.solve(routeParams).then((res) => {
-            console.log(res.routeResults[0].toJSON())
-            console.log(lat)
-            console.log(lon)
-            axios.post('http://localhost:3001/api/updateUser', {
-              id: objIdToUpdate,
-              update: {
-                name: na,
-                email: em,
-                arrive_work: this.state.arrive_work,
-                leave_work: this.state.leave_work,
-                driver: this.state.driver,
-                office_id: this.state.office_id,
-                lat: lat,
-                lon: lon,
-                start_addr: addr,
-                //route: JSON.stringify(res.routeResults[0].route.toJSON())
-              }
-            })
-              .catch(err => {
-                // handle any errors
-                console.error(err);
-              });
-          })
+  updateDB = (mid, na, em, arrive, leave, driver, office, lat, lon, start, rt) => {
+      axios.post('http://localhost:3001/api/updateUser', {
+        id: mid,
+        update: {
+          name: na,
+          email: em,
+          arrive_work: arrive,
+          leave_work: leave,
+          driver: parseInt(driver),
+          office_id: parseInt(office),
+          lat: lat,
+          lon: lon,
+          start_addr: start,
+          route: rt
+        }
+      })
+        .catch(err => {
+          // handle any errors
+          console.error(err);
         });
-      });
   };
 
 
@@ -217,19 +140,125 @@ class Settings extends Component {
   //   });
   // };
 
-  addDataToDB = (message) => {
+  addDataToDB = (na, em, arrive, leave, driver, office, lat, lon, start, rt) => {
+    // find the user's id
     let currentIds = this.state.data.map((data) => data.id);
     let idToBeAdded = 0;
     while (currentIds.includes(idToBeAdded)) {
       ++idToBeAdded;
     }
-
+    // post data
     axios.post('http://localhost:3001/api/addUser', {
       id: idToBeAdded,
-      message: message,
-    });
+      name: na,
+      email: em,
+      arrive_work: arrive,
+      leave_work: leave,
+      driver: parseInt(driver),
+      office_id: parseInt(office),
+      lat: lat,
+      lon: lon,
+      start_addr: start,
+      route: rt
+    })
+      .catch(err => {
+        // handle any errors
+        console.error(err);
+      });
   };
 
+  submitF = () => {
+    // variables
+    const em = document.getElementById('userEmail').value;
+    const na = document.getElementById('userName').value;
+    const address = document.getElementById("startLoc").value;
+    let addr;
+    let lat;
+    let lon;
+
+    // load esri modules
+    loadModules(["esri/widgets/Search", "esri/tasks/RouteTask", "esri/tasks/support/RouteParameters", "esri/tasks/support/FeatureSet", "esri/Graphic"])
+      .then(([Search, RouteTask, RouteParameters, FeatureSet, Graphic]) => {
+        // search the address that was input
+        this.state.searchWidget.search(address).then((event) => {
+          // get the lat/lon and address
+          lat = event.results[0].results[0].feature.geometry.latitude;
+          lon = event.results[0].results[0].feature.geometry.longitude;
+          addr = event.results[0].results[0].feature.attributes.Match_addr;
+
+          // var routeTask = new RouteTask({
+          //   url:
+          //     "https://utility.arcgis.com/usrsvcs/appservices/w2zxoNZu0ai45kI5/rest/services/World/Route/NAServer/Route_World/solve"
+          // });
+          // // Setup the route parameters
+          // var routeParams = new RouteParameters({
+          //   stops: new FeatureSet(),
+          //   outSpatialReference: {
+          //     // autocasts as new SpatialReference()
+          //     wkid: 3857
+          //   }
+          // });
+
+          // const startPoint = {
+          //   type: "point", // autocasts as Point
+          //   longitude: lon,
+          //   latitude: lat,
+          //   spatialReference: {
+          //     wkid: 3857
+          //   }
+          // };
+
+          // var start = new Graphic({
+          //   geometry: startPoint
+          // });
+
+          // const officeCoords = {
+          //   1: [-117.1946114, 34.057267],
+          //   2: [-117.2180851, 34.0692566],
+          //   3: [-80.7835061, 35.100138],
+          //   4: [-77.0714945, 38.897275],
+          //   5: [-73.9947568, 40.7542076]
+          // }
+
+          // const endPoint = {
+          //   type: "point", // autocasts as Point
+          //   longitude: officeCoords[this.state.office_id][0],
+          //   latitude: officeCoords[this.state.office_id][1],
+          //   spatialReference: {
+          //     wkid: 3857
+          //   }
+          // };
+
+          // var end = new Graphic({
+          //   geometry: endPoint
+          // });
+
+                    // routeParams.stops.features.push(start);
+          // routeParams.stops.features.push(end);
+          // routeTask.solve(routeParams).then((res) => {
+          //     //REST CALLS HERE
+          // })
+          
+          let objIdToUpdate = null;
+          this.state.data.forEach((dat) => { // check to see if email is already in db
+            if (dat.email == em) {
+              objIdToUpdate = dat._id; // if it is get the user's id
+            }
+          });
+
+          if (objIdToUpdate === null) {  // if the user is not in the db
+            // add the user
+            this.addDataToDB(na, em, this.state.arrive_work, this.state.leave_work, this.state.driver, this.state.office_id, lat, lon, addr, 'testing')
+          }
+          else {  // if the user is in the db
+            // update the user info
+            this.updateDB(objIdToUpdate, na, em, this.state.arrive_work, this.state.leave_work, this.state.driver, this.state.office_id, lat, lon, addr, 'null')
+          }
+
+
+        });
+      });
+  }
 
   //--------------------- JSX ---------------------\\
 
@@ -259,7 +288,7 @@ class Settings extends Component {
                 type="name"
                 name="name"
                 id="userName"
-                readOnly
+                //readOnly
               />
             </FormGroup>
           </Col>
@@ -270,7 +299,7 @@ class Settings extends Component {
                 type="email"
                 name="email"
                 id="userEmail"
-                readOnly
+                //readOnly
               />
             </FormGroup>
           </Col>
@@ -340,7 +369,7 @@ class Settings extends Component {
               <Label for="startLocation">Pickup Location (Use the search bar and select a dropdown option. If you have privacy concerns, you can use a cross street or store)</Label>
 
               <div id="startLoc" style={startLoc}></div>
-              <Button color="success" className="float-right" onClick={() => this.updateDB()}>Save</Button>
+              <Button color="success" className="float-right" onClick={() => this.submitF()}>Save</Button>
             </FormGroup>
           </Col>
         </Row>
