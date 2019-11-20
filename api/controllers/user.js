@@ -5,6 +5,8 @@ const express = require('express')
 // this is our get method
 // this method fetches all available data in our database
 router.get('/api/getAllUsers', (req, res) => {
+  //User.findOneAndRemove({email:'belan@esri.com'}, (err, data) => {})
+  
   User.find((err, data) => {
     if (err) return res.json({ success: false, error: err });
     return res.json({ success: true, data: data });
@@ -14,9 +16,9 @@ router.get('/api/getAllUsers', (req, res) => {
 // this is our get get one method
 // this method fetches the user data by email
 router.get('/api/getOneUser', (req, res) => {
-  const { email } = req.body;
-  console.log(email);
-  User.findOne({email: email}, (err, data) => {
+  const em = req.query.email;
+
+  User.findOne({email: em}, (err, data) => {
     if (err) return res.json({ success: false, error: err });
     return res.json({ success: true, data: data });
   });

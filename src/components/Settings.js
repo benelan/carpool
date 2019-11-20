@@ -10,14 +10,18 @@ class Settings extends Component {
   state = {
     searchWidget: null,
     data: [],
-    id: 0,
-    username: null,
+    name: null,
+    email: null,
     driver: 1,
     office_id: 1,
     arrive_work: '09:00',
     leave_work: '17:00',
-    route: null
+    lat: null,
+    lon: null,
+    start_addr: null,
+    route: 'testing'
   };
+
 
   //--------------------- LIFE CYCLE FUNCTIONS ---------------------\\
   componentDidMount() {
@@ -27,38 +31,67 @@ class Settings extends Component {
     loadCss();
     loadModules(["esri/portal/Portal", "esri/identity/OAuthInfo", "esri/identity/IdentityManager", "esri/widgets/Search"])
       .then(([Portal, OAuthInfo, IdentityManager, Search]) => {
-
-        var info = new OAuthInfo({
-          appId: "n5A1575tmQq5eFPd",
-          popup: false
-        });
-        IdentityManager.registerOAuthInfos([info]);
-        IdentityManager.getCredential(info.portalUrl + "/sharing");
-        IdentityManager.checkSignInStatus(info.portalUrl + "/sharing")
-          .then(e => this.setState({ username: e.userId }))
-
-        var portal = new Portal();
-        // Setting authMode to immediate signs the user in once loaded
-        portal.authMode = "immediate";
-        // Once loaded, user is signed in
-        portal.load().then(function () {
-          document.getElementById('userEmail').value = portal.user.email;
-          document.getElementById('userName').value = portal.user.fullName;
-          console.log(portal.user)
-          this.getDataforUser(portal.user.email);
-        });
-
         this.setState({
           searchWidget: Search({
             container: document.getElementById("startLoc")
             //searchTerm: 'current address'
           })
         })
+
+        var info = new OAuthInfo({
+          appId: "n5A1575tmQq5eFPd",
+          popup: false
+        });
+
+        var that = this;
+
+        IdentityManager.registerOAuthInfos([info]);
+        IdentityManager.getCredential(info.portalUrl + "/sharing");
+        IdentityManager.checkSignInStatus(info.portalUrl + "/sharing")
+          .then((e) => {
+            var portal = new Portal();
+            // Setting authMode to immediate signs the user in once loaded
+            portal.authMode = "immediate";
+            // Once loaded, user is signed in
+            portal.load().then(function () {
+              // set state and form of email and name
+              that.setState({
+                name: portal.user.fullName,
+                email: portal.user.email
+              });
+
+              // get user info based on email
+              axios.get('http://localhost:3001/api/getOneUser', {
+                params: {
+                  email: portal.user.email
+                }
+              }).then((res) => {
+                const user = res.data.data;
+                // fill in form and state with settings saved in db
+                if (!!user) { // check to see if user is already saved
+                  that.setState({
+                    office_id: user.office_id,
+                    driver: user.driver,
+                    arrive_work: user.arrive_work,
+                    leave_work: user.leave_work,
+                  });
+
+                  // the request promise seems to resolve after the component mounts
+                  // so need to manually change the form values
+                  document.getElementById('officeSelect').value = user.office_id;
+                  document.getElementById('driverSelect').value = user.driver;
+                  document.getElementById('arriveTime').value = user.arrive_work;
+                  document.getElementById('leaveTime').value = user.leave_work;
+                }
+              });
+            });
+          })
       })
       .catch(err => {
         // handle any errors
         console.error(err);
       });
+
   };
 
   componentWillUnmount() {
@@ -83,64 +116,29 @@ class Settings extends Component {
       .then((res) => this.setState({ data: res.data }));
   };
 
-  getDataforUser = (em) => {
-    fetch('http://localhost:3001/api/getOneUser', {
-      email: em
-    }).then((data) => data.json())
-    .then((res) => {
-      console.log(res);
-
-      this.setState({ 
-      arrive_work: res.arrive_work, 
-      leave_work: res.leave_work,
-      office_id: res.office_id,
-      driver: res.driver
-    
+  updateDB = (mid) => {
+    axios.post('http://localhost:3001/api/updateUser', {
+      id: mid,
+      update: {
+        name: this.state.name,
+        email: this.state.email,
+        arrive_work: this.state.arrive_work,
+        leave_work: this.state.leave_work,
+        driver: parseInt(this.state.driver),
+        office_id: parseInt(this.state.office_id),
+        lat: this.state.lat,
+        lon: this.state.lon,
+        start_addr: this.state.start_addr,
+        route: this.state.route
+      }
     })
-  });
-  
+      .catch(err => {
+        // handle any errors
+        console.error(err);
+      });
   };
 
-  updateDB = (mid, na, em, arrive, leave, driver, office, lat, lon, start, rt) => {
-      axios.post('http://localhost:3001/api/updateUser', {
-        id: mid,
-        update: {
-          name: na,
-          email: em,
-          arrive_work: arrive,
-          leave_work: leave,
-          driver: parseInt(driver),
-          office_id: parseInt(office),
-          lat: lat,
-          lon: lon,
-          start_addr: start,
-          route: rt
-        }
-      })
-        .catch(err => {
-          // handle any errors
-          console.error(err);
-        });
-  };
-
-
-  // deleteFromDB = (idTodelete) => {
-  //   parseInt(idTodelete);
-  //   let objIdToDelete = null;
-  //   this.state.data.forEach((dat) => {
-  //     if (dat.id == idTodelete) {
-  //       objIdToDelete = dat._id;
-  //     }
-  //   });
-
-  //   axios.delete('http://localhost:3001/api/deleteUser', {
-  //     data: {
-  //       id: objIdToDelete,
-  //     },
-  //   });
-  // };
-
-  addDataToDB = (na, em, arrive, leave, driver, office, lat, lon, start, rt) => {
+  addDataToDB = () => {
     // find the user's id
     let currentIds = this.state.data.map((data) => data.id);
     let idToBeAdded = 0;
@@ -150,16 +148,16 @@ class Settings extends Component {
     // post data
     axios.post('http://localhost:3001/api/addUser', {
       id: idToBeAdded,
-      name: na,
-      email: em,
-      arrive_work: arrive,
-      leave_work: leave,
-      driver: parseInt(driver),
-      office_id: parseInt(office),
-      lat: lat,
-      lon: lon,
-      start_addr: start,
-      route: rt
+      name: this.state.name,
+      email: this.state.email,
+      arrive_work: this.state.arrive_work,
+      leave_work: this.state.leave_work,
+      driver: parseInt(this.state.driver),
+      office_id: parseInt(this.state.office_id),
+      lat: this.state.lat,
+      lon: this.state.lon,
+      start_addr: this.state.start_addr,
+      route: this.state.route
     })
       .catch(err => {
         // handle any errors
@@ -167,24 +165,26 @@ class Settings extends Component {
       });
   };
 
-  submitF = () => {
-    // variables
-    const em = document.getElementById('userEmail').value;
-    const na = document.getElementById('userName').value;
-    const address = document.getElementById("startLoc").value;
-    let addr;
-    let lat;
-    let lon;
 
+  //--------------------- SUBMIT HANDLER ---------------------\\
+  submitF = () => {
     // load esri modules
     loadModules(["esri/widgets/Search", "esri/tasks/RouteTask", "esri/tasks/support/RouteParameters", "esri/tasks/support/FeatureSet", "esri/Graphic"])
       .then(([Search, RouteTask, RouteParameters, FeatureSet, Graphic]) => {
+        var that = this;
+        const address = document.getElementById("startLoc").value;
         // search the address that was input
         this.state.searchWidget.search(address).then((event) => {
           // get the lat/lon and address
-          lat = event.results[0].results[0].feature.geometry.latitude;
-          lon = event.results[0].results[0].feature.geometry.longitude;
-          addr = event.results[0].results[0].feature.attributes.Match_addr;
+          const lat = event.results[0].results[0].feature.geometry.latitude;
+          const lon = event.results[0].results[0].feature.geometry.longitude;
+          const addr = event.results[0].results[0].feature.attributes.Match_addr;
+
+          that.setState({
+            lat: lat,
+            lon: lon,
+            start_addr: addr
+          });
 
           // var routeTask = new RouteTask({
           //   url:
@@ -233,35 +233,32 @@ class Settings extends Component {
           //   geometry: endPoint
           // });
 
-                    // routeParams.stops.features.push(start);
+          // routeParams.stops.features.push(start);
           // routeParams.stops.features.push(end);
           // routeTask.solve(routeParams).then((res) => {
           //     //REST CALLS HERE
           // })
-          
+
           let objIdToUpdate = null;
           this.state.data.forEach((dat) => { // check to see if email is already in db
-            if (dat.email == em) {
+            if (dat.email == this.state.email) {
               objIdToUpdate = dat._id; // if it is get the user's id
             }
           });
 
           if (objIdToUpdate === null) {  // if the user is not in the db
             // add the user
-            this.addDataToDB(na, em, this.state.arrive_work, this.state.leave_work, this.state.driver, this.state.office_id, lat, lon, addr, 'testing')
+            this.addDataToDB()
           }
           else {  // if the user is in the db
             // update the user info
-            this.updateDB(objIdToUpdate, na, em, this.state.arrive_work, this.state.leave_work, this.state.driver, this.state.office_id, lat, lon, addr, 'null')
+            this.updateDB(objIdToUpdate)
           }
-
-
         });
       });
   }
 
   //--------------------- JSX ---------------------\\
-
   render() {
     const startLoc = {
       backgroundColor: 'white',
@@ -289,6 +286,7 @@ class Settings extends Component {
                 name="name"
                 id="userName"
                 //readOnly
+                defaultValue={this.state.name}
               />
             </FormGroup>
           </Col>
@@ -300,6 +298,7 @@ class Settings extends Component {
                 name="email"
                 id="userEmail"
                 //readOnly
+                defaultValue={this.state.email}
               />
             </FormGroup>
           </Col>
