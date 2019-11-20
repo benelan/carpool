@@ -35,6 +35,9 @@ const headerStyle = {
         <NavbarToggler onClick={toggle} />
         <Collapse isOpen={isOpen} navbar>
           <Nav className="ml-auto" navbar>
+          <NavItem className="d-flex align-items-center">
+              <NavLink className="font-weight-bold" href="/settings">Settings</NavLink>
+            </NavItem>
             <NavItem className="d-flex align-items-center">
               <NavLink className="font-weight-bold" href="/results">Results</NavLink>
             </NavItem>
