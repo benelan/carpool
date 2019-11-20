@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { Col, Row, Button, FormGroup, Label, Input } from "reactstrap";
+import { Col, Row, Button, FormGroup, Label, Input, UncontrolledPopover, PopoverHeader, PopoverBody } from "reactstrap";
 import { loadModules, loadCss } from "esri-loader";
 import axios from "axios";
 
@@ -23,7 +23,6 @@ class Settings extends Component {
   //--------------------- LIFE CYCLE FUNCTIONS ---------------------\\
   componentDidMount() {
     this.getDataFromDb();
-    console.log(this.props)
     // initialize JS API search widget
     loadCss();
     loadModules(["esri/widgets/Search"])
@@ -39,10 +38,10 @@ class Settings extends Component {
 
         // get user info based on email
         axios.get("http://localhost:3001/api/getOneUser", {
-            params: {
-              email: this.state.email
-            }
-          })
+          params: {
+            email: this.state.email
+          }
+        })
           .then(res => {
             const user = res.data.data;
             // fill in form and state with settings saved in db
@@ -207,7 +206,7 @@ class Settings extends Component {
         // routeParams.stops.features.push(start);
         // routeParams.stops.features.push(end);
         // routeTask.solve(routeParams).then((res) => {
-        //     //REST CALLS HERE
+        //     // REST CALLS HERE
         // })
 
         let objIdToUpdate = null;
@@ -219,12 +218,10 @@ class Settings extends Component {
         });
 
         if (objIdToUpdate === null) {
-          // if the user is not in the db
-          // add the user
+          // if the user is not in the db, add the user
           this.addDataToDB();
         } else {
-          // if the user is in the db
-          // update the user info
+          // if the user is in the db, update the user info
           this.updateDB(objIdToUpdate);
         }
       });
@@ -237,7 +234,17 @@ class Settings extends Component {
       backgroundColor: "white",
       padding: "1px",
       border: "1px solid lightgrey",
-      borderRadius: "4px"
+      borderRadius: "4px",
+      width: "75%"
+    };
+
+    const submitB = {
+      position: 'absolute',
+      bottom: '15px',
+      right: '20px'
+    };
+    const infoB = {
+     margin: "0 0 0 5px"
     };
 
     const settingStyle = {
@@ -342,23 +349,26 @@ class Settings extends Component {
           </Col>
         </Row>
         <Row>
-          <Col md={12}>
+          <Col md={8}>
             <FormGroup>
-              <Label for="startLocation">
-                Pickup Location (Use the search bar and select a dropdown
+              <Label for="startLocation">Pickup Location</Label>
+              <Button id="PopoverFocus" size="sm" color="link" style={infoB}>help</Button>
+              <UncontrolledPopover trigger="focus" placement="top" target="PopoverFocus">
+                <PopoverHeader>Pickup Location Info</PopoverHeader>
+                <PopoverBody> Use the search bar below and select a dropdown
                 option. If you have privacy concerns, you can use a cross street
-                or store)
-              </Label>
-
-              <div id="startLoc" style={startLoc}></div>
-              <Button
-                color="success"
-                className="float-right"
-                onClick={() => this.submitF()}
-              >
-                Save
-              </Button>
+                or store</PopoverBody>
+              </UncontrolledPopover>
+              <div id="startLoc" style={startLoc} className="form-control"></div>
             </FormGroup>
+          </Col>
+          <Col md={4}>
+            <Button
+              color="success"
+              style={submitB}
+              className='float-right'
+              onClick={() => this.submitF()}>Save
+            </Button>
           </Col>
         </Row>
       </div>
