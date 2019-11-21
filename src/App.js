@@ -68,7 +68,7 @@ class App extends Component {
 
   render() {
     const { name, email } = this.state
-    
+
     return (
       <div>
         <Header />

@@ -1,13 +1,15 @@
 import React, { Component } from "react";
-import { Col, Row, Button, FormGroup, Label, Input, UncontrolledPopover, PopoverHeader, PopoverBody } from "reactstrap";
+import { Col, Row, Button, FormGroup, Label, Input, UncontrolledPopover, PopoverBody } from "reactstrap";
+import { Redirect } from "react-router-dom";
 import { loadModules, loadCss } from "esri-loader";
 import axios from "axios";
 
 class Settings extends Component {
   //--------------------- STATE---------------------\\
   state = {
+    new_user: true,
+    form_complete: false,
     searchWidget: null,
-    data: [],
     name: this.props.n,
     email: this.props.e,
     driver: 1,
@@ -22,7 +24,7 @@ class Settings extends Component {
 
   //--------------------- LIFE CYCLE FUNCTIONS ---------------------\\
   componentDidMount() {
-    this.getDataFromDb();
+    this.getUserByEmail();
     // initialize JS API search widget
     loadCss();
     loadModules(["esri/widgets/Search"])
@@ -33,35 +35,6 @@ class Settings extends Component {
             //searchTerm: 'current address'
           })
         });
-
-        var that = this;
-
-        // get user info based on email
-        axios.get("http://localhost:3001/api/getOneUser", {
-          params: {
-            email: this.state.email
-          }
-        })
-          .then(res => {
-            const user = res.data.data;
-            // fill in form and state with settings saved in db
-            if (!!user) {
-              // check to see if user is already saved
-              that.setState({
-                office_id: user.office_id,
-                driver: user.driver,
-                arrive_work: user.arrive_work,
-                leave_work: user.leave_work
-              });
-
-              // the request promise seems to resolve after the component mounts
-              // so need to manually change the form values
-              document.getElementById("officeSelect").value = user.office_id;
-              document.getElementById("driverSelect").value = user.driver;
-              document.getElementById("arriveTime").value = user.arrive_work;
-              document.getElementById("leaveTime").value = user.leave_work;
-            }
-          });
       })
       .catch(err => {
         // handle any errors
@@ -74,16 +47,40 @@ class Settings extends Component {
   }
 
   //--------------------- CRUD OPERATIONS ---------------------\\
-  getDataFromDb = () => {
-    fetch("http://localhost:3001/api/getAllUsers")
-      .then(data => data.json())
-      .then(res => this.setState({ data: res.data }));
-  };
+  getUserByEmail = () => {
+    // get user info by email
+    axios.get("http://localhost:3001/api/getOneUser", {
+      params: {
+        email: this.state.email
+      }
+    })
+      .then(res => {
+        const user = res.data.data;
+        // fill in form and state with settings saved in db
+        if (!!user) {
+          // check to see if user is already saved
+          this.setState({
+            office_id: user.office_id,
+            driver: user.driver,
+            arrive_work: user.arrive_work,
+            leave_work: user.leave_work,
+            new_user: false
+          });
 
-  updateDB = mid => {
+          // the request promise seems to resolve after the component mounts
+          // so need to manually change the form values
+          document.getElementById("officeSelect").value = user.office_id;
+          document.getElementById("driverSelect").value = user.driver;
+          document.getElementById("arriveTime").value = user.arrive_work;
+          document.getElementById("leaveTime").value = user.leave_work;
+        }
+      });
+  }
+
+  updateUser = mid => {
     axios
       .post("http://localhost:3001/api/updateUser", {
-        id: mid,
+        em: mid,
         update: {
           name: this.state.name,
           email: this.state.email,
@@ -97,23 +94,18 @@ class Settings extends Component {
           route: this.state.route
         }
       })
+      .then(()=> {
+        this.setState({ form_complete: true });
+      })
       .catch(err => {
         // handle any errors
         console.error(err);
       });
   };
 
-  addDataToDB = () => {
-    // find the user's id
-    let currentIds = this.state.data.map(data => data.id);
-    let idToBeAdded = 0;
-    while (currentIds.includes(idToBeAdded)) {
-      ++idToBeAdded;
-    }
-    // post data
+  addUser = () => {
     axios
       .post("http://localhost:3001/api/addUser", {
-        id: idToBeAdded,
         name: this.state.name,
         email: this.state.email,
         arrive_work: this.state.arrive_work,
@@ -124,6 +116,9 @@ class Settings extends Component {
         lon: this.state.lon,
         start_addr: this.state.start_addr,
         route: this.state.route
+      })
+      .then(()=> {
+        this.setState({ form_complete: true });
       })
       .catch(err => {
         // handle any errors
@@ -209,20 +204,12 @@ class Settings extends Component {
         //     // REST CALLS HERE
         // })
 
-        let objIdToUpdate = null;
-        this.state.data.forEach(dat => {
-          // check to see if email is already in db
-          if (dat.email == this.state.email) {
-            objIdToUpdate = dat._id; // if it is get the user's id
-          }
-        });
-
-        if (objIdToUpdate === null) {
+        if (this.state.new_user) {
           // if the user is not in the db, add the user
-          this.addDataToDB();
+          this.addUser();
         } else {
           // if the user is in the db, update the user info
-          this.updateDB(objIdToUpdate);
+          this.updateUser(this.state.email);
         }
       });
     });
@@ -244,12 +231,16 @@ class Settings extends Component {
       right: '20px'
     };
     const infoB = {
-     margin: "0 0 0 5px"
+      margin: "0 0 0 5px"
     };
 
     const settingStyle = {
       margin: "20px"
     };
+
+    if (this.state.form_complete === true) {
+      return <Redirect to='/results' />
+    }
     return (
       <div style={settingStyle}>
         <Row>
@@ -270,6 +261,7 @@ class Settings extends Component {
                 name="name"
                 id="userName"
                 //readOnly
+                onChange={e => this.setState({ new_user: true, name: e.target.value })}
                 defaultValue={this.state.name}
               />
             </FormGroup>
@@ -282,6 +274,7 @@ class Settings extends Component {
                 name="email"
                 id="userEmail"
                 //readOnly
+                onChange={e => this.setState({ new_user: true, email: e.target.value })}
                 defaultValue={this.state.email}
               />
             </FormGroup>
@@ -324,7 +317,7 @@ class Settings extends Component {
                 onChange={e => this.setState({ driver: e.target.value })}
               >
                 <option value={1}>Driver</option>
-                <option value={2}>Passanger</option>
+                <option value={2}>Passenger</option>
                 <option value={3}>Either</option>
               </Input>
             </FormGroup>
@@ -353,8 +346,7 @@ class Settings extends Component {
             <FormGroup>
               <Label for="startLocation">Pickup Location</Label>
               <Button id="PopoverFocus" size="sm" color="link" style={infoB}>help</Button>
-              <UncontrolledPopover trigger="focus" placement="top" target="PopoverFocus">
-                <PopoverHeader>Pickup Location Info</PopoverHeader>
+              <UncontrolledPopover trigger="focus" placement="auto" target="PopoverFocus">
                 <PopoverBody> Use the search bar below and select a dropdown
                 option. If you have privacy concerns, you can use a cross street
                 or store</PopoverBody>
