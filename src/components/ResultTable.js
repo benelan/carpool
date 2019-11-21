@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { Col, Row, Table, Button, Form, FormGroup, Label, Input, InputGroup, InputGroupAddon, InputGroupText } from "reactstrap";
+import { Col, Row, Table, Button, Form, FormGroup, Input, InputGroup, InputGroupAddon, InputGroupText } from "reactstrap";
 
 class ResultTable extends Component {
 

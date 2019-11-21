@@ -11,14 +11,8 @@ npm install
 npm start
 ```
 
-This branch uses ArcGIS Online as the backend
-
 ## Built With
-* [Bootstrap](https://getbootstrap.com/) - Frontend
-* [React](https://reactjs.org/) -Frontend Framework
+This branch uses ArcGIS Online as the backend
 * [ArcGIS](https://developers.arcgis.com/javascript/) - Spatial Analysis
-
-### Other Node Packages
-* [body-parser](https://www.npmjs.com/package/body-parser) - Reading Forms
-* [helmet](https://helmetjs.github.io/) - Express Security
-* [compression](https://www.npmjs.com/package/compression) - Route Compression
+* [React](https://reactjs.org/) -Frontend Framework
+* [Bootstrap](https://getbootstrap.com/) - Frontend UI
