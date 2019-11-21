@@ -15,11 +15,9 @@ npm start
 ## TODO
 To do list
 * Create start point feature layer with user id
-* Create user settings controller
-* Create React forms component for user settings
+* Filter results table based on distance, time, and driver/passenger
 * Create React home/info page
-* Create React data table component
-* Finish setting up Okta auth
+* Finish setting up Okta auth, or use jwt
 * Stop procrastinating
 
 ## Done List
@@ -27,7 +25,9 @@ completed items from TODO
 * structure app - MVC
 * Set up database/odm - MongoDB/Mongoose
 * Create user model
-
+* Create user settings controller
+* Create React forms component for user settings
+* Create React data table component
 
 ## Built With MERN Stack
 * [Bootstrap](https://getbootstrap.com/) - Frontend
@@ -36,9 +36,9 @@ completed items from TODO
 * [Express](https://expressjs.com/) - Backend Framework
 * [MongoDB](https://www.mongodb.com/) - Database
 * [Mongoose](https://mongoosejs.com/) - ODM
+* [ArcGIS](https://developers.arcgis.com/javascript/) - Spatial Analysis
 
 ### Other Node Packages
 * [body-parser](https://www.npmjs.com/package/body-parser) - Reading Forms
-* [express-validator](https://express-validator.github.io/docs/) - Data Validation
 * [helmet](https://helmetjs.github.io/) - Express Security
 * [compression](https://www.npmjs.com/package/compression) - Route Compression

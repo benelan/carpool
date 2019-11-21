@@ -6,8 +6,7 @@ import {
   NavbarBrand,
   Nav,
   NavItem,
-  NavLink,
-  Button
+  NavLink
 } from 'reactstrap';
 
 import logo from '../logo.png';
@@ -36,14 +35,14 @@ const headerStyle = {
         <NavbarToggler onClick={toggle} />
         <Collapse isOpen={isOpen} navbar>
           <Nav className="ml-auto" navbar>
+          <NavItem className="d-flex align-items-center">
+              <NavLink className="font-weight-bold" href="/settings">Settings</NavLink>
+            </NavItem>
             <NavItem className="d-flex align-items-center">
               <NavLink className="font-weight-bold" href="/results">Results</NavLink>
             </NavItem>
             <NavItem className="d-flex align-items-center">
-              <NavLink className="font-weight-bold" href="https://github.com/benelan/carpool">About</NavLink>
-            </NavItem>
-            <NavItem className="d-flex align-items-center">
-              <NavLink className="font-weight-bold" color="info" href="/login"><Button type="submit" color="success" outline>Login</Button></NavLink>
+              <NavLink className="font-weight-bold" href="https://github.com/benelan/carpool">Github</NavLink>
             </NavItem>
           </Nav>
         </Collapse>
