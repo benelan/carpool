@@ -11,6 +11,7 @@ class Settings extends Component {
     form_complete: false,
     searchWidget: null,
     name: this.props.n,
+    username: this.props.un,
     email: this.props.e,
     driver: 1,
     office_id: 1,
@@ -163,7 +164,7 @@ class Settings extends Component {
     const data = {
       "f": "json",
       "returnGeometry": true,
-      'where': '1=1',
+      'where': 'username='+this.state.username,
       'outFields': "*"
     };
 
@@ -176,7 +177,7 @@ class Settings extends Component {
     axios.get(serviceUrl)
       .then(res => {
         console.log(res.data.features)
-        const users = res.data.features;
+        const user = res.data.features[0];
         // fill in form and state with settings saved in db
         if (!!user) {
           // check to see if user is already saved

@@ -59,7 +59,6 @@ class ResultTable extends Component {
         console.log(res.data.features)
         const users = res.data.features;
         // fill in form and state with settings saved in db
-        
           this.setState({ data: users });
       });
   };
