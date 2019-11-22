@@ -12,7 +12,6 @@ import ResultTable from "./components/ResultTable";
 class App extends Component {
 
   state = {
-    username: null,
     name: null,
     email: null
   }
@@ -40,8 +39,7 @@ class App extends Component {
               // set state and form of email and name
               that.setState({
                 name: portal.user.fullName,
-                email: portal.user.email,
-                username: portal.user.username
+                email: portal.user.email
               });
             });
           })
@@ -69,22 +67,22 @@ class App extends Component {
 
 
   render() {
-    const { name, username, email } = this.state
+    const {username, name, email } = this.state
 
     return (
       <div>
         <Header />
-        <div>{!!email && !!name && !!username ?
+        <div>{!!email && !!name ?
           <Router>
             <Switch>
               <Route exact path="/">
-                <Home n={this.state.name} un={this.state.username} e={this.state.email} />
+                <Home n={this.state.name} e={this.state.email} />
               </Route>
               <Route exact path="/settings">
                 <Settings n={this.state.name} e={this.state.email} />
               </Route>
               <Route exact path="/results">
-                <ResultTable n={this.state.name} n={this.state.username} e={this.state.email} />
+                <ResultTable n={this.state.name} e={this.state.email} />
               </Route>
             </Switch>
           </Router>

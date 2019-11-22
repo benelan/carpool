@@ -34,12 +34,13 @@ class ResultTable extends Component {
       .then((data) => data.json())
       .then((res) => {
         console.log(res.data)
+        console.log(res.data[0])
         this.setState({ data: res.data })
       });
   };
 
   getData = () => {
-    let serviceUrl = 'https://belan2.esri.com/DotNet/proxy.ashx?https://services.arcgis.com/Wl7Y1m92PbjtJs5n/arcgis/rest/services/carpoolPoints/FeatureServer/0/query?';
+    let serviceUrl = 'https://belan2.esri.com/DotNet/proxy.ashx?https://services.arcgis.com/Wl7Y1m92PbjtJs5n/arcgis/rest/services/carpoolData/FeatureServer/0/query?';
 
     const data = {
       "f": "json",

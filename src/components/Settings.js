@@ -11,8 +11,8 @@ class Settings extends Component {
     form_complete: false,
     searchWidget: null,
     name: this.props.n,
-    username: this.props.un,
     email: this.props.e,
+    id: null,
     driver: 1,
     office_id: 1,
     arrive_work: "09:00",
@@ -48,76 +48,43 @@ class Settings extends Component {
   }
 
   //--------------------- CRUD OPERATIONS ---------------------\\
-  getUserByEmailApi = () => {
-    // get user info by email
-    axios.get("http://localhost:3001/api/getOneUser", {
-      params: {
-        email: this.state.email
+  addUser = () => {
+    let serviceUrl = "https://belan2.esri.com/DotNet/proxy.ashx?https://services.arcgis.com/Wl7Y1m92PbjtJs5n/arcgis/rest/services/carpoolData/FeatureServer/0/addFeatures?f=json&features=";
+
+    const data = [{
+      "geometry": {
+        "x": this.state.lon,
+        "y": this.state.lat,
+        "spatialReference": {
+          "wkid": 4326
+        }
+      },
+      'attributes': {
+        'name': this.state.name,
+        'email': this.state.email,
+        'arrive_work': this.state.arrive_work,
+        'leave_work': this.state.leave_work,
+        'driver': parseInt(this.state.driver),
+        'office_id': parseInt(this.state.office_id),
+        // 'lat': this.state.lat,
+        // 'lon': this.state.lon,
+        'start_addr': this.state.start_addr
+        //'route': this.state.route
       }
-    })
-      .then(res => {
-        const user = res.data.data;
-        // fill in form and state with settings saved in db
-        if (!!user) {
-          // check to see if user is already saved
-          this.setState({
-            office_id: user.office_id,
-            driver: user.driver,
-            arrive_work: user.arrive_work,
-            leave_work: user.leave_work,
-            new_user: false
-          });
+    }]
 
-          // the request promise seems to resolve after the component mounts
-          // so need to manually change the form values
-          document.getElementById("officeSelect").value = user.office_id;
-          document.getElementById("driverSelect").value = user.driver;
-          document.getElementById("arriveTime").value = user.arrive_work;
-          document.getElementById("leaveTime").value = user.leave_work;
-        }
-      });
-  }
+    console.log(data)
 
-  updateUserApi = () => {
+    serviceUrl += JSON.stringify(data)
+
     axios
-      .post("http://localhost:3001/api/updateUser", {
-        em: this.state.email,
-        update: {
-          name: this.state.name,
-          email: this.state.email,
-          arrive_work: this.state.arrive_work,
-          leave_work: this.state.leave_work,
-          driver: parseInt(this.state.driver),
-          office_id: parseInt(this.state.office_id),
-          lat: this.state.lat,
-          lon: this.state.lon,
-          start_addr: this.state.start_addr,
-          route: this.state.route
-        }
-      })
-      .then(() => {
-        this.setState({ form_complete: true });
-      })
-      .catch(err => {
-        // handle any errors
-        console.error(err);
-      });
-  };
+      .post(serviceUrl, JSON.stringify(data))//, {
+        //data: JSON.stringify(data),
+        // headers: {
+        //   'Content-Type': 'application/x-www-form-urlencoded'
+        // },
 
-  addUserApi = () => {
-    axios
-      .post("http://localhost:3001/api/addUser", {
-        name: this.state.name,
-        email: this.state.email,
-        arrive_work: this.state.arrive_work,
-        leave_work: this.state.leave_work,
-        driver: parseInt(this.state.driver),
-        office_id: parseInt(this.state.office_id),
-        lat: this.state.lat,
-        lon: this.state.lon,
-        start_addr: this.state.start_addr,
-        route: this.state.route
-      })
+      //})
       .then(() => {
         this.setState({ form_complete: true });
       })
@@ -128,43 +95,50 @@ class Settings extends Component {
   };
 
   updateUser = () => {
-    let serviceUrl = 'https://belan2.esri.com/DotNet/proxy.ashx?https://services.arcgis.com/Wl7Y1m92PbjtJs5n/arcgis/rest/services/carpoolPoints/FeatureServer/0/updateFeatures?f=json&features=';
-    
+    let serviceUrl = 'https://belan2.esri.com/DotNet/proxy.ashx?https://services.arcgis.com/Wl7Y1m92PbjtJs5n/arcgis/rest/services/carpoolData/FeatureServer/0/updateFeatures?f=json&features=';
+
     const data = [{
+      "geometry": {
+        "x": this.state.lon,
+        "y": this.state.lat,
+        "spatialReference": {
+          "wkid": 4326
+        }
+      },
       'attributes': {
+        'OBJECTID': this.state.id,
         'name': this.state.name,
-          'email': this.state.email,
-          'arrive_work': this.state.arrive_work,
-          'leave_work': this.state.leave_work,
-          'driver': parseInt(this.state.driver),
-          'office_id': parseInt(this.state.office_id),
-          'lat': this.state.lat,
-          'lon': this.state.lon,
-          'start_addr': this.state.start_addr,
-          'route': this.state.route
+        'email': this.state.email,
+        'arrive_work': this.state.arrive_work,
+        'leave_work': this.state.leave_work,
+        'driver': parseInt(this.state.driver),
+        'office_id': parseInt(this.state.office_id),
+        //'lat': this.state.lat,
+        //'lon': this.state.lon,
+        'start_addr': this.state.start_addr
+        //'route': this.state.route
       }
     }];
 
     serviceUrl += JSON.stringify(data)
 
     axios
-    .post(serviceUrl)
-    .then(() => {
-      this.setState({ form_complete: true });
-    })
-    .catch(err => {
-      // handle any errors
-      console.error(err);
-    });
+      .post(serviceUrl, JSON.stringify(data))
+      .then(() => {
+        this.setState({ form_complete: true });
+      })
+      .catch(err => {
+        // handle any errors
+        console.error(err);
+      });
   };
 
   getUserByEmail = () => {
-    let serviceUrl = 'https://belan2.esri.com/DotNet/proxy.ashx?https://services.arcgis.com/Wl7Y1m92PbjtJs5n/arcgis/rest/services/carpoolPoints/FeatureServer/0/query?';
+    let serviceUrl = 'https://belan2.esri.com/DotNet/proxy.ashx?https://services.arcgis.com/Wl7Y1m92PbjtJs5n/arcgis/rest/services/carpoolData/FeatureServer/0/query?';
 
     const data = {
       "f": "json",
-      "returnGeometry": true,
-      'where': 'username='+this.state.username,
+      'where': "email='" + this.state.email +"'",
       'outFields': "*"
     };
 
@@ -176,12 +150,13 @@ class Settings extends Component {
 
     axios.get(serviceUrl)
       .then(res => {
-        console.log(res.data.features)
-        const user = res.data.features[0];
+        const users = res.data.features;
         // fill in form and state with settings saved in db
-        if (!!user) {
+        if (users.length > 0) {
+          const user = users[0].attributes
           // check to see if user is already saved
           this.setState({
+            id: user.OBJECTID,
             office_id: user.office_id,
             driver: user.driver,
             arrive_work: user.arrive_work,
