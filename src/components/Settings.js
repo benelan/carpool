@@ -49,7 +49,9 @@ class Settings extends Component {
 
   //--------------------- CRUD OPERATIONS ---------------------\\
   addUser = () => {
-    let serviceUrl = "https://belan2.esri.com/DotNet/proxy.ashx?https://services.arcgis.com/Wl7Y1m92PbjtJs5n/arcgis/rest/services/carpoolData/FeatureServer/0/addFeatures?f=json&features=";
+    const serviceUrl = 'https://services.arcgis.com/Wl7Y1m92PbjtJs5n/arcgis/rest/services/carpoolData/FeatureServer/0/addFeatures?f=json&features=';
+    const proxyUrl = 'https://belan2.esri.com/DotNet/proxy.ashx?'
+    let url = serviceUrl + proxyUrl;
 
     const data = [{
       "geometry": {
@@ -75,16 +77,10 @@ class Settings extends Component {
 
     console.log(data)
 
-    serviceUrl += JSON.stringify(data)
+    url += JSON.stringify(data)
 
     axios
-      .post(serviceUrl, JSON.stringify(data))//, {
-        //data: JSON.stringify(data),
-        // headers: {
-        //   'Content-Type': 'application/x-www-form-urlencoded'
-        // },
-
-      //})
+      .post(url, JSON.stringify(data))
       .then(() => {
         this.setState({ form_complete: true });
       })
@@ -95,7 +91,9 @@ class Settings extends Component {
   };
 
   updateUser = () => {
-    let serviceUrl = 'https://belan2.esri.com/DotNet/proxy.ashx?https://services.arcgis.com/Wl7Y1m92PbjtJs5n/arcgis/rest/services/carpoolData/FeatureServer/0/updateFeatures?f=json&features=';
+    const serviceUrl = 'https://services.arcgis.com/Wl7Y1m92PbjtJs5n/arcgis/rest/services/carpoolData/FeatureServer/0/updateFeatures?f=json&features=';
+    const proxyUrl = 'https://belan2.esri.com/DotNet/proxy.ashx?'
+    let url = serviceUrl + proxyUrl;
 
     const data = [{
       "geometry": {
@@ -120,10 +118,10 @@ class Settings extends Component {
       }
     }];
 
-    serviceUrl += JSON.stringify(data)
+    url += JSON.stringify(data)
 
     axios
-      .post(serviceUrl, JSON.stringify(data))
+      .post(url, JSON.stringify(data))
       .then(() => {
         this.setState({ form_complete: true });
       })
@@ -134,11 +132,12 @@ class Settings extends Component {
   };
 
   getUserByEmail = () => {
-    let serviceUrl = 'https://belan2.esri.com/DotNet/proxy.ashx?https://services.arcgis.com/Wl7Y1m92PbjtJs5n/arcgis/rest/services/carpoolData/FeatureServer/0/query?';
-
+    const serviceUrl = 'https://services.arcgis.com/Wl7Y1m92PbjtJs5n/arcgis/rest/services/carpoolData/FeatureServer/0/query?';
+    const proxyUrl = 'https://belan2.esri.com/DotNet/proxy.ashx?'
+    let url = proxyUrl + serviceUrl;
     const data = {
       "f": "json",
-      'where': "email='" + this.state.email +"'",
+      'where': "email='" + this.state.email + "'",
       'outFields': "*"
     };
 
@@ -146,9 +145,9 @@ class Settings extends Component {
       .map(k => encodeURIComponent(k) + '=' + encodeURIComponent(data[k]))
       .join('&');
 
-    serviceUrl = serviceUrl + query;
+    url = url + query;
 
-    axios.get(serviceUrl)
+    axios.get(url)
       .then(res => {
         const users = res.data.features;
         // fill in form and state with settings saved in db
@@ -291,128 +290,130 @@ class Settings extends Component {
       return <Redirect to='/results' />
     }
     return (
-      <div style={settingStyle}>
-        <Row>
-          <Col md={12}>
-            <p>
-              <b>
-                This information will be used to match you with a carpool buddy!
+      <Row className="justify-content-md-center" style={settingStyle}>
+        <Col md={8}>
+          <Row>
+            <Col md={12}>
+              <p>
+                <b>
+                  This information will be used to match you with a carpool buddy!
               </b>
-            </p>
-          </Col>
-        </Row>
-        <Row form>
-          <Col md={6}>
-            <FormGroup>
-              <Label for="userName">Name</Label>
-              <Input
-                type="name"
-                name="name"
-                id="userName"
-                //readOnly
-                onChange={e => this.setState({ new_user: true, name: e.target.value })}
-                defaultValue={this.state.name}
-              />
-            </FormGroup>
-          </Col>
-          <Col md={6}>
-            <FormGroup>
-              <Label for="userEmail">Email</Label>
-              <Input
-                type="email"
-                name="email"
-                id="userEmail"
-                //readOnly
-                onChange={e => this.setState({ new_user: true, email: e.target.value })}
-                defaultValue={this.state.email}
-              />
-            </FormGroup>
-          </Col>
-        </Row>
-        <Row form>
-          <Col md={6}>
-            <FormGroup>
-              <Label for="arriveTime">Arrive at Work</Label>
-              <Input
-                type="time"
-                name="time"
-                id="arriveTime"
-                onChange={e => this.setState({ arrive_work: e.target.value })}
-                defaultValue={this.state.arrive_work}
-              />
-            </FormGroup>
-          </Col>
-          <Col md={6}>
-            <FormGroup>
-              <Label for="leaveTime">Leave Work</Label>
-              <Input
-                type="time"
-                name="time"
-                id="leaveTime"
-                onChange={e => this.setState({ leave_work: e.target.value })}
-                defaultValue={this.state.leave_work}
-              />
-            </FormGroup>
-          </Col>
-        </Row>
-        <Row form>
-          <Col md={6}>
-            <FormGroup>
-              <Label for="driver">Select</Label>
-              <Input
-                type="select"
-                name="select"
-                id="driverSelect"
-                onChange={e => this.setState({ driver: e.target.value })}
-              >
-                <option value={1}>Driver</option>
-                <option value={2}>Passenger</option>
-                <option value={3}>Either</option>
-              </Input>
-            </FormGroup>
-          </Col>
-          <Col md={6}>
-            <FormGroup>
-              <Label for="exampleSelect">Office Location</Label>
-              <Input
-                type="select"
-                name="office"
-                id="officeSelect"
-                onChange={e => this.setState({ office_id: e.target.value })}
-                defaultValue={this.state.office_id}
-              >
-                <option value={1}>Redlands Main Campus</option>
-                <option value={2}>Redlands V Buildings</option>
-                <option value={3}>Charlotte</option>
-                <option value={4}>Washington D.C.</option>
-                <option value={5}>New York City</option>
-              </Input>
-            </FormGroup>
-          </Col>
-        </Row>
-        <Row>
-          <Col md={8}>
-            <FormGroup>
-              <Label for="startLocation">Pickup Location</Label>
-              <Button id="PopoverFocus" size="sm" color="link" style={infoB}>help</Button>
-              <UncontrolledPopover trigger="focus" placement="auto" target="PopoverFocus">
-                <PopoverBody> Use the search bar below and select a dropdown
-                option. If you have privacy concerns, you can use a cross street
+              </p>
+            </Col>
+          </Row>
+          <Row form>
+            <Col md={6}>
+              <FormGroup>
+                <Label for="userName">Name</Label>
+                <Input
+                  type="name"
+                  name="name"
+                  id="userName"
+                  //readOnly
+                  onChange={e => this.setState({ new_user: true, name: e.target.value })}
+                  defaultValue={this.state.name}
+                />
+              </FormGroup>
+            </Col>
+            <Col md={6}>
+              <FormGroup>
+                <Label for="userEmail">Email</Label>
+                <Input
+                  type="email"
+                  name="email"
+                  id="userEmail"
+                  //readOnly
+                  onChange={e => this.setState({ new_user: true, email: e.target.value })}
+                  defaultValue={this.state.email}
+                />
+              </FormGroup>
+            </Col>
+          </Row>
+          <Row form>
+            <Col md={6}>
+              <FormGroup>
+                <Label for="arriveTime">Arrive at Work</Label>
+                <Input
+                  type="time"
+                  name="time"
+                  id="arriveTime"
+                  onChange={e => this.setState({ arrive_work: e.target.value })}
+                  defaultValue={this.state.arrive_work}
+                />
+              </FormGroup>
+            </Col>
+            <Col md={6}>
+              <FormGroup>
+                <Label for="leaveTime">Leave Work</Label>
+                <Input
+                  type="time"
+                  name="time"
+                  id="leaveTime"
+                  onChange={e => this.setState({ leave_work: e.target.value })}
+                  defaultValue={this.state.leave_work}
+                />
+              </FormGroup>
+            </Col>
+          </Row>
+          <Row form>
+            <Col md={6}>
+              <FormGroup>
+                <Label for="driver">Select</Label>
+                <Input
+                  type="select"
+                  name="select"
+                  id="driverSelect"
+                  onChange={e => this.setState({ driver: e.target.value })}
+                >
+                  <option value={1}>Driver</option>
+                  <option value={2}>Passenger</option>
+                  <option value={3}>Either</option>
+                </Input>
+              </FormGroup>
+            </Col>
+            <Col md={6}>
+              <FormGroup>
+                <Label for="exampleSelect">Office Location</Label>
+                <Input
+                  type="select"
+                  name="office"
+                  id="officeSelect"
+                  onChange={e => this.setState({ office_id: e.target.value })}
+                  defaultValue={this.state.office_id}
+                >
+                  <option value={1}>Redlands Main Campus</option>
+                  <option value={2}>Redlands V Buildings</option>
+                  <option value={3}>Charlotte</option>
+                  <option value={4}>Washington D.C.</option>
+                  <option value={5}>New York City</option>
+                </Input>
+              </FormGroup>
+            </Col>
+          </Row>
+          <Row>
+            <Col md={8}>
+              <FormGroup>
+                <Label for="startLocation">Pickup Location</Label>
+                <Button id="PopoverFocus" size="sm" color="link" style={infoB}>help</Button>
+                <UncontrolledPopover trigger="focus" placement="auto" target="PopoverFocus">
+                  <PopoverBody> Use the search bar below and select a dropdown
+                  option. If you have privacy concerns, you can use a cross street
                 or store</PopoverBody>
-              </UncontrolledPopover>
-              <div id="startLoc" style={startLoc} className="form-control"></div>
-            </FormGroup>
-          </Col>
-          <Col md={4}>
-            <Button
-              color="success"
-              style={submitB}
-              className='float-right'
-              onClick={() => this.submitF()}>Save
+                </UncontrolledPopover>
+                <div id="startLoc" style={startLoc} className="form-control"></div>
+              </FormGroup>
+            </Col>
+            <Col md={4}>
+              <Button
+                color="success"
+                style={submitB}
+                className='float-right'
+                onClick={() => this.submitF()}>Save
             </Button>
-          </Col>
-        </Row>
-      </div>
+            </Col>
+          </Row>
+        </Col>
+      </Row>
     );
   }
 }

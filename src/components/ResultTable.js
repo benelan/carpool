@@ -1,6 +1,7 @@
 import React, { Component } from "react";
 import { Col, Row, Table, Button, Form, FormGroup, Input, InputGroup, InputGroupAddon, InputGroupText } from "reactstrap";
 import axios from "axios";
+import { convertTime } from "../helpers"
 
 class ResultTable extends Component {
 
@@ -29,19 +30,11 @@ class ResultTable extends Component {
     }
   }
 
-  getDataFromDb = () => {
-    fetch('http://localhost:3001/api/getAllUsers')
-      .then((data) => data.json())
-      .then((res) => {
-        console.log(res.data)
-        console.log(res.data[0])
-        this.setState({ data: res.data })
-      });
-  };
 
   getData = () => {
-    let serviceUrl = 'https://belan2.esri.com/DotNet/proxy.ashx?https://services.arcgis.com/Wl7Y1m92PbjtJs5n/arcgis/rest/services/carpoolData/FeatureServer/0/query?';
-
+    const serviceUrl = 'https://services.arcgis.com/Wl7Y1m92PbjtJs5n/arcgis/rest/services/carpoolData/FeatureServer/0/query?';
+    const proxyUrl = 'https://belan2.esri.com/DotNet/proxy.ashx?'
+    let url = proxyUrl + serviceUrl;
     const data = {
       "f": "json",
       "returnGeometry": true,
@@ -53,17 +46,15 @@ class ResultTable extends Component {
       .map(k => encodeURIComponent(k) + '=' + encodeURIComponent(data[k]))
       .join('&');
 
-    serviceUrl = serviceUrl + query;
+    url = url + query;
 
-    axios.get(serviceUrl)
+    axios.get(url)
       .then(res => {
         console.log(res.data.features)
-        const users = res.data.features;
         // fill in form and state with settings saved in db
-          this.setState({ data: users });
+        this.setState({ data: res.data.features });
       });
   };
-
 
 
   filterF = () => {
@@ -102,6 +93,7 @@ class ResultTable extends Component {
           return 'Either';
       };
     };
+
     return (
       <div>
         <Row style={resultStyle}>
@@ -165,10 +157,10 @@ class ResultTable extends Component {
               <thead>
                 <tr>
                   <th>Name</th>
-                  <th>Ride Preference</th>
                   <th>Arrive At Work</th>
                   <th>Leave Work</th>
                   <th>Miles from Route</th>
+                  <th>Ride Preference</th>
                   <th>Email</th>
                 </tr>
               </thead>
@@ -176,8 +168,8 @@ class ResultTable extends Component {
                 {data.map((d) => (
                   <tr key={d.attributes.OBJECTID}>
                     <td>{d.attributes.name}</td>
-                    <td>{d.attributes.arrive_work}</td>
-                    <td>{d.attributes.leave_work}</td>
+                    <td>{convertTime(d.attributes.arrive_work)}</td>
+                    <td>{convertTime(d.attributes.leave_work)}</td>
                     <td>Not Calculated</td>
                     <td>{renderSwitch(d.attributes.driver)}</td>
                     <td>{d.attributes.email}</td>
