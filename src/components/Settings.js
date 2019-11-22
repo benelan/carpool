@@ -47,7 +47,7 @@ class Settings extends Component {
   }
 
   //--------------------- CRUD OPERATIONS ---------------------\\
-  getUserByEmail = () => {
+  getUserByEmailApi = () => {
     // get user info by email
     axios.get("http://localhost:3001/api/getOneUser", {
       params: {
@@ -77,10 +77,10 @@ class Settings extends Component {
       });
   }
 
-  updateUser = mid => {
+  updateUserApi = () => {
     axios
       .post("http://localhost:3001/api/updateUser", {
-        em: mid,
+        em: this.state.email,
         update: {
           name: this.state.name,
           email: this.state.email,
@@ -94,7 +94,7 @@ class Settings extends Component {
           route: this.state.route
         }
       })
-      .then(()=> {
+      .then(() => {
         this.setState({ form_complete: true });
       })
       .catch(err => {
@@ -103,7 +103,7 @@ class Settings extends Component {
       });
   };
 
-  addUser = () => {
+  addUserApi = () => {
     axios
       .post("http://localhost:3001/api/addUser", {
         name: this.state.name,
@@ -117,7 +117,7 @@ class Settings extends Component {
         start_addr: this.state.start_addr,
         route: this.state.route
       })
-      .then(()=> {
+      .then(() => {
         this.setState({ form_complete: true });
       })
       .catch(err => {
@@ -125,6 +125,79 @@ class Settings extends Component {
         console.error(err);
       });
   };
+
+  updateUser = () => {
+    let serviceUrl = 'https://belan2.esri.com/DotNet/proxy.ashx?https://services.arcgis.com/Wl7Y1m92PbjtJs5n/arcgis/rest/services/carpoolPoints/FeatureServer/0/updateFeatures?f=json&features=';
+    
+    const data = [{
+      'attributes': {
+        'name': this.state.name,
+          'email': this.state.email,
+          'arrive_work': this.state.arrive_work,
+          'leave_work': this.state.leave_work,
+          'driver': parseInt(this.state.driver),
+          'office_id': parseInt(this.state.office_id),
+          'lat': this.state.lat,
+          'lon': this.state.lon,
+          'start_addr': this.state.start_addr,
+          'route': this.state.route
+      }
+    }];
+
+    serviceUrl += JSON.stringify(data)
+
+    axios
+    .post(serviceUrl)
+    .then(() => {
+      this.setState({ form_complete: true });
+    })
+    .catch(err => {
+      // handle any errors
+      console.error(err);
+    });
+  };
+
+  getUserByEmail = () => {
+    let serviceUrl = 'https://belan2.esri.com/DotNet/proxy.ashx?https://services.arcgis.com/Wl7Y1m92PbjtJs5n/arcgis/rest/services/carpoolPoints/FeatureServer/0/query?';
+
+    const data = {
+      "f": "json",
+      "returnGeometry": true,
+      'where': '1=1',
+      'outFields': "*"
+    };
+
+    const query = Object.keys(data)
+      .map(k => encodeURIComponent(k) + '=' + encodeURIComponent(data[k]))
+      .join('&');
+
+    serviceUrl = serviceUrl + query;
+
+    axios.get(serviceUrl)
+      .then(res => {
+        console.log(res.data.features)
+        const users = res.data.features;
+        // fill in form and state with settings saved in db
+        if (!!user) {
+          // check to see if user is already saved
+          this.setState({
+            office_id: user.office_id,
+            driver: user.driver,
+            arrive_work: user.arrive_work,
+            leave_work: user.leave_work,
+            new_user: false
+          });
+
+          // the request promise seems to resolve after the component mounts
+          // so need to manually change the form values
+          document.getElementById("officeSelect").value = user.office_id;
+          document.getElementById("driverSelect").value = user.driver;
+          document.getElementById("arriveTime").value = user.arrive_work;
+          document.getElementById("leaveTime").value = user.leave_work;
+        }
+      });
+  };
+
 
   //--------------------- SUBMIT HANDLER ---------------------\\
   submitF = () => {
@@ -209,7 +282,7 @@ class Settings extends Component {
           this.addUser();
         } else {
           // if the user is in the db, update the user info
-          this.updateUser(this.state.email);
+          this.updateUser();
         }
       });
     });

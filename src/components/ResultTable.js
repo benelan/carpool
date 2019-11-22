@@ -1,5 +1,6 @@
 import React, { Component } from "react";
 import { Col, Row, Table, Button, Form, FormGroup, Input, InputGroup, InputGroupAddon, InputGroupText } from "reactstrap";
+import axios from "axios";
 
 class ResultTable extends Component {
 
@@ -15,7 +16,7 @@ class ResultTable extends Component {
   };
 
   componentDidMount() {
-    this.getDataFromDb();
+    this.getData();
     // if (!this.state.interval) {
     //   let interval = setInterval(this.getDataFromDb, 60000);
     //   this.setState({ interval: interval });
@@ -36,6 +37,34 @@ class ResultTable extends Component {
         this.setState({ data: res.data })
       });
   };
+
+  getData = () => {
+    let serviceUrl = 'https://belan2.esri.com/DotNet/proxy.ashx?https://services.arcgis.com/Wl7Y1m92PbjtJs5n/arcgis/rest/services/carpoolPoints/FeatureServer/0/query?';
+
+    const data = {
+      "f": "json",
+      "returnGeometry": true,
+      'where': '1=1',
+      'outFields': "*"
+    };
+
+    const query = Object.keys(data)
+      .map(k => encodeURIComponent(k) + '=' + encodeURIComponent(data[k]))
+      .join('&');
+
+    serviceUrl = serviceUrl + query;
+
+    axios.get(serviceUrl)
+      .then(res => {
+        console.log(res.data.features)
+        const users = res.data.features;
+        // fill in form and state with settings saved in db
+        
+          this.setState({ data: users });
+      });
+  };
+
+
 
   filterF = () => {
     alert("Filter")
@@ -145,13 +174,13 @@ class ResultTable extends Component {
               </thead>
               <tbody>
                 {data.map((d) => (
-                  <tr key={d._id}>
-                    <td>{d.name}</td>
-                    <td>{d.arrive_work}</td>
-                    <td>{d.leave_work}</td>
+                  <tr key={d.attributes.OBJECTID}>
+                    <td>{d.attributes.name}</td>
+                    <td>{d.attributes.arrive_work}</td>
+                    <td>{d.attributes.leave_work}</td>
                     <td>Not Calculated</td>
-                    <td>{renderSwitch(d.driver)}</td>
-                    <td>{d.email}</td>
+                    <td>{renderSwitch(d.attributes.driver)}</td>
+                    <td>{d.attributes.email}</td>
                   </tr>
                 ))}
               </tbody>
