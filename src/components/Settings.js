@@ -12,7 +12,8 @@ class Settings extends Component {
     searchWidget: null,
     name: this.props.n,
     email: this.props.e,
-    id: null,
+    point_id: null,
+    line_id: null,
     driver: 1,
     office_id: 1,
     arrive_work: "09:00",
@@ -20,27 +21,13 @@ class Settings extends Component {
     lat: null,
     lon: null,
     start_addr: null,
-    route: "testing"
+    route: null
   };
 
   //--------------------- LIFE CYCLE FUNCTIONS ---------------------\\
   componentDidMount() {
-    this.getUserByEmail();
-    // initialize JS API search widget
     loadCss();
-    loadModules(["esri/widgets/Search"])
-      .then(([Search]) => {
-        this.setState({
-          searchWidget: Search({
-            container: document.getElementById("startLoc")
-            //searchTerm: 'current address'
-          })
-        });
-      })
-      .catch(err => {
-        // handle any errors
-        console.error(err);
-      });
+    this.getUserByEmail();
   }
 
   componentWillUnmount() {
@@ -49,9 +36,36 @@ class Settings extends Component {
 
   //--------------------- CRUD OPERATIONS ---------------------\\
   addUser = () => {
+    //--------------------- ROUTE ---------------------\\
+    if (!!this.state.route) {
+      const serviceUrl2 = 'https://services.arcgis.com/Wl7Y1m92PbjtJs5n/arcgis/rest/services/carpoolData/FeatureServer/1/addFeatures?f=json';
+      const proxyUrl2 = 'https://belan2.esri.com/DotNet/proxy.ashx?'
+      let url2 = proxyUrl2 + serviceUrl2;
+      console.log("adding user", this.state.route.attributes.Total_TravelTime)
+      const data2 = [{
+        "geometry": this.state.route.geometry,
+        'attributes': {
+          'email': this.state.email,
+          'travel_minutes': this.state.route.attributes.Total_TravelTime,
+          'travel_miles': this.state.route.attributes.Total_Miles,
+        }
+      }];
+
+      
+      //url2 += JSON.stringify(data2)
+      const querystring2 = 'features=' + JSON.stringify(data2);
+      axios
+        .post(url2, querystring2)
+        .catch(err => {
+          // handle any errors
+          console.error(err);
+        });
+    }
+
+    //--------------------- Line ---------------------\\
     const serviceUrl = 'https://services.arcgis.com/Wl7Y1m92PbjtJs5n/arcgis/rest/services/carpoolData/FeatureServer/0/addFeatures?f=json&features=';
     const proxyUrl = 'https://belan2.esri.com/DotNet/proxy.ashx?'
-    let url = serviceUrl + proxyUrl;
+    let url = proxyUrl + serviceUrl;
 
     const data = [{
       "geometry": {
@@ -68,10 +82,7 @@ class Settings extends Component {
         'leave_work': this.state.leave_work,
         'driver': parseInt(this.state.driver),
         'office_id': parseInt(this.state.office_id),
-        // 'lat': this.state.lat,
-        // 'lon': this.state.lon,
-        'start_addr': this.state.start_addr
-        //'route': this.state.route
+        'start_addr': encodeURIComponent(this.state.start_addr)
       }
     }]
 
@@ -82,7 +93,7 @@ class Settings extends Component {
     axios
       .post(url, JSON.stringify(data))
       .then(() => {
-        this.setState({ form_complete: true });
+        //this.setState({ form_complete: true });
       })
       .catch(err => {
         // handle any errors
@@ -91,9 +102,37 @@ class Settings extends Component {
   };
 
   updateUser = () => {
+    //--------------------- ROUTE ---------------------\\
+    if (!!this.state.route) {
+      const serviceUrl2 = 'https://services.arcgis.com/Wl7Y1m92PbjtJs5n/arcgis/rest/services/carpoolData/FeatureServer/1/updateFeatures?f=json';
+      const proxyUrl2 = 'https://belan2.esri.com/DotNet/proxy.ashx?'
+      let url2 = proxyUrl2 + serviceUrl2;
+      console.log('updating user', this.state.route.attributes.Total_TravelTime)
+      const data2 = [{
+        "geometry": this.state.route.geometry,
+        'attributes': {
+          'OBJECTID': this.state.line_id,
+          'email': this.state.email,
+          'travel_minutes': this.state.route.attributes.Total_TravelTime,
+          'travel_miles': this.state.route.attributes.Total_Miles,
+        }
+      }];
+
+      //url2 += JSON.stringify(data2)
+      const querystring2 = 'features=' + JSON.stringify(data2);
+      axios
+        .post(url2, querystring2)
+        .catch(err => {
+          // handle any errors
+          console.error(err);
+        });
+    }
+
+
+    //--------------------- POINT ---------------------\\
     const serviceUrl = 'https://services.arcgis.com/Wl7Y1m92PbjtJs5n/arcgis/rest/services/carpoolData/FeatureServer/0/updateFeatures?f=json&features=';
     const proxyUrl = 'https://belan2.esri.com/DotNet/proxy.ashx?'
-    let url = serviceUrl + proxyUrl;
+    let url = proxyUrl + serviceUrl;
 
     const data = [{
       "geometry": {
@@ -104,17 +143,14 @@ class Settings extends Component {
         }
       },
       'attributes': {
-        'OBJECTID': this.state.id,
+        'OBJECTID': this.state.point_id,
         'name': this.state.name,
         'email': this.state.email,
         'arrive_work': this.state.arrive_work,
         'leave_work': this.state.leave_work,
         'driver': parseInt(this.state.driver),
         'office_id': parseInt(this.state.office_id),
-        //'lat': this.state.lat,
-        //'lon': this.state.lon,
-        'start_addr': this.state.start_addr
-        //'route': this.state.route
+        'start_addr': encodeURIComponent(this.state.start_addr)
       }
     }];
 
@@ -123,7 +159,7 @@ class Settings extends Component {
     axios
       .post(url, JSON.stringify(data))
       .then(() => {
-        this.setState({ form_complete: true });
+        //this.setState({ form_complete: true });
       })
       .catch(err => {
         // handle any errors
@@ -132,9 +168,11 @@ class Settings extends Component {
   };
 
   getUserByEmail = () => {
+    //--------------------- POINT ---------------------\\
     const serviceUrl = 'https://services.arcgis.com/Wl7Y1m92PbjtJs5n/arcgis/rest/services/carpoolData/FeatureServer/0/query?';
     const proxyUrl = 'https://belan2.esri.com/DotNet/proxy.ashx?'
     let url = proxyUrl + serviceUrl;
+
     const data = {
       "f": "json",
       'where': "email='" + this.state.email + "'",
@@ -151,28 +189,74 @@ class Settings extends Component {
       .then(res => {
         const users = res.data.features;
         // fill in form and state with settings saved in db
-        if (users.length > 0) {
-          const user = users[0].attributes
-          // check to see if user is already saved
-          this.setState({
-            id: user.OBJECTID,
-            office_id: user.office_id,
-            driver: user.driver,
-            arrive_work: user.arrive_work,
-            leave_work: user.leave_work,
-            new_user: false
-          });
+        loadModules(["esri/widgets/Search"])
+          .then(([Search]) => {
+            if (users.length > 0) {  // check to see if user is already saved
+              const user = users[0].attributes
 
-          // the request promise seems to resolve after the component mounts
-          // so need to manually change the form values
-          document.getElementById("officeSelect").value = user.office_id;
-          document.getElementById("driverSelect").value = user.driver;
-          document.getElementById("arriveTime").value = user.arrive_work;
-          document.getElementById("leaveTime").value = user.leave_work;
+              // populate form with user data
+              this.setState({
+                point_id: user.OBJECTID,
+                office_id: user.office_id,
+                driver: user.driver,
+                arrive_work: user.arrive_work,
+                leave_work: user.leave_work,
+                new_user: false,
+                start_addr: user.start_addr,
+                searchWidget: Search({
+                  container: document.getElementById("startLoc"),
+                  searchTerm: user.start_addr
+                })
+              });
+
+              // the request promise seems to resolve after the component mounts
+              // so need to manually change the form values
+              document.getElementById("officeSelect").value = user.office_id;
+              document.getElementById("driverSelect").value = user.driver;
+              document.getElementById("arriveTime").value = user.arrive_work;
+              document.getElementById("leaveTime").value = user.leave_work;
+            }
+            else {
+              // set up blank Search Widget if new user
+              this.setState({
+                searchWidget: Search({
+                  container: document.getElementById("startLoc")
+                })
+              });
+            }
+          });
+      });
+    //--------------------- POINT ---------------------\\
+    const serviceUrl2 = 'https://services.arcgis.com/Wl7Y1m92PbjtJs5n/arcgis/rest/services/carpoolData/FeatureServer/1/query?';
+    const proxyUrl2 = 'https://belan2.esri.com/DotNet/proxy.ashx?'
+    let url2 = proxyUrl2 + serviceUrl2;
+
+    const data2 = {
+      "f": "json",
+      'where': "email='" + this.state.email + "'",
+      'outFields': "*"
+    };
+
+    const query2 = Object.keys(data2)
+      .map(k => encodeURIComponent(k) + '=' + encodeURIComponent(data2[k]))
+      .join('&');
+
+    url2 = url2 + query2;
+
+    axios.get(url2)
+      .then(res => {
+        const users = res.data.features;
+        // fill in form and state with settings saved in db
+        if (users.length > 0) {  // check to see if user is already saved
+          const user = users[0].attributes
+
+          // populate form with user data
+          this.setState({
+            line_id: user.OBJECTID,
+          });
         }
       });
   };
-
 
   //--------------------- SUBMIT HANDLER ---------------------\\
   submitF = () => {
@@ -193,71 +277,92 @@ class Settings extends Component {
         const lon = event.results[0].results[0].feature.geometry.longitude;
         const addr = event.results[0].results[0].feature.attributes.Match_addr;
 
-        that.setState({
-          lat: lat,
-          lon: lon,
-          start_addr: addr
-        });
 
-        // var routeTask = new RouteTask({
-        //   url:
-        //     "https://utility.arcgis.com/usrsvcs/appservices/w2zxoNZu0ai45kI5/rest/services/World/Route/NAServer/Route_World/solve"
-        // });
-        // // Setup the route parameters
-        // var routeParams = new RouteParameters({
-        //   stops: new FeatureSet(),
-        //   outSpatialReference: {
-        //     // autocasts as new SpatialReference()
-        //     wkid: 3857
-        //   }
-        // });
+        // if the address didn't change
+        if (addr === this.state.start_addr) {
+          // REST CALLS HERE
+          if (that.state.new_user) {
+            // if the user is not in the db, add the user
+            this.addUser();
+          } else {
+            // if the user is in the db, update the user info
+            this.updateUser();
+          }
+        }
 
-        // const startPoint = {
-        //   type: "point", // autocasts as Point
-        //   longitude: lon,
-        //   latitude: lat,
-        //   spatialReference: {
-        //     wkid: 3857
-        //   }
-        // };
+        // if the address changed
+        else {
+          that.setState({
+            lat: lat,
+            lon: lon,
+            start_addr: addr
+          });
 
-        // var start = new Graphic({
-        //   geometry: startPoint
-        // });
 
-        // const officeCoords = {
-        //   1: [-117.1946114, 34.057267],
-        //   2: [-117.2180851, 34.0692566],
-        //   3: [-80.7835061, 35.100138],
-        //   4: [-77.0714945, 38.897275],
-        //   5: [-73.9947568, 40.7542076]
-        // }
+          var routeTask = new RouteTask({
+            url:
+              "https://utility.arcgis.com/usrsvcs/appservices/w2zxoNZu0ai45kI5/rest/services/World/Route/NAServer/Route_World/solve"
+          });
 
-        // const endPoint = {
-        //   type: "point", // autocasts as Point
-        //   longitude: officeCoords[this.state.office_id][0],
-        //   latitude: officeCoords[this.state.office_id][1],
-        //   spatialReference: {
-        //     wkid: 3857
-        //   }
-        // };
+          // Setup the route parameters
+          var routeParams = new RouteParameters({
+            stops: new FeatureSet(),
+            outSpatialReference: {
+              // autocasts as new SpatialReference()
+              wkid: 4326
+            }
+          });
 
-        // var end = new Graphic({
-        //   geometry: endPoint
-        // });
+          const startPoint = {
+            type: "point", // autocasts as Point
+            longitude: lon,
+            latitude: lat,
+            spatialReference: {
+              wkid: 4326
+            }
+          };
 
-        // routeParams.stops.features.push(start);
-        // routeParams.stops.features.push(end);
-        // routeTask.solve(routeParams).then((res) => {
-        //     // REST CALLS HERE
-        // })
+          var start = new Graphic({
+            geometry: startPoint
+          });
 
-        if (this.state.new_user) {
-          // if the user is not in the db, add the user
-          this.addUser();
-        } else {
-          // if the user is in the db, update the user info
-          this.updateUser();
+          const officeCoords = {
+            1: [-117.1946114, 34.057267],
+            2: [-117.2180851, 34.0692566],
+            3: [-80.7835061, 35.100138],
+            4: [-77.0714945, 38.897275],
+            5: [-73.9947568, 40.7542076]
+          }
+
+          const endPoint = {
+            type: "point", // autocasts as Point
+            longitude: officeCoords[that.state.office_id][0],
+            latitude: officeCoords[that.state.office_id][1],
+            spatialReference: {
+              wkid: 4326
+            }
+          };
+
+          var end = new Graphic({
+            geometry: endPoint
+          });
+
+          // add start/office stops
+          routeParams.stops.features.push(start);
+          routeParams.stops.features.push(end);
+          // calc route
+          routeTask.solve(routeParams).then((res) => {
+            console.log(res.routeResults[0].route.toJSON()) // route results
+            that.setState({ route: res.routeResults[0].route });
+            // REST CALLS HERE
+            if (that.state.new_user) {
+              // if the user is not in the db, add the user
+              this.addUser();
+            } else {
+              // if the user is in the db, update the user info
+              this.updateUser();
+            }
+          })
         }
       });
     });
