@@ -41,7 +41,7 @@ class Settings extends Component {
       const serviceUrl2 = 'https://services.arcgis.com/Wl7Y1m92PbjtJs5n/arcgis/rest/services/carpoolData/FeatureServer/1/addFeatures?f=json';
       const proxyUrl2 = 'https://belan2.esri.com/DotNet/proxy.ashx?'
       let url2 = proxyUrl2 + serviceUrl2;
-      console.log("adding user", this.state.route.attributes.Total_TravelTime)
+
       const data2 = [{
         "geometry": this.state.route.geometry,
         'attributes': {
@@ -51,8 +51,6 @@ class Settings extends Component {
         }
       }];
 
-      
-      //url2 += JSON.stringify(data2)
       const querystring2 = 'features=' + JSON.stringify(data2);
       axios
         .post(url2, querystring2)
@@ -86,8 +84,6 @@ class Settings extends Component {
       }
     }]
 
-    console.log(data)
-
     url += JSON.stringify(data)
 
     axios
@@ -107,7 +103,7 @@ class Settings extends Component {
       const serviceUrl2 = 'https://services.arcgis.com/Wl7Y1m92PbjtJs5n/arcgis/rest/services/carpoolData/FeatureServer/1/updateFeatures?f=json';
       const proxyUrl2 = 'https://belan2.esri.com/DotNet/proxy.ashx?'
       let url2 = proxyUrl2 + serviceUrl2;
-      console.log('updating user', this.state.route.attributes.Total_TravelTime)
+
       const data2 = [{
         "geometry": this.state.route.geometry,
         'attributes': {
@@ -118,7 +114,6 @@ class Settings extends Component {
         }
       }];
 
-      //url2 += JSON.stringify(data2)
       const querystring2 = 'features=' + JSON.stringify(data2);
       axios
         .post(url2, querystring2)

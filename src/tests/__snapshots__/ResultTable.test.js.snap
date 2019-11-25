@@ -1,0 +1,181 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`ResultTable snapshot 1`] = `
+<div>
+  <Row
+    style={
+      Object {
+        "margin": "20px",
+      }
+    }
+    tag="div"
+  >
+    <Form
+      inline={true}
+      tag="form"
+    >
+      <FormGroup
+        tag="div"
+      >
+        <Input
+          bsSize="sm"
+          defaultValue={5}
+          id="distF"
+          name="distF"
+          onChange={[Function]}
+          style={
+            Object {
+              "width": "130px",
+            }
+          }
+          type="number"
+        />
+      </FormGroup>
+      <div
+        style={
+          Object {
+            "margin": "0 50px 0 0",
+          }
+        }
+      >
+        <FormGroup
+          tag="div"
+        >
+          <Input
+            bsSize="sm"
+            defaultValue="miles"
+            id="unitF"
+            name="unitF"
+            onChange={[Function]}
+            type="select"
+          >
+            <option
+              value={1}
+            >
+              miles
+            </option>
+            <option
+              value={2}
+            >
+              feet
+            </option>
+            <option
+              value={3}
+            >
+              kilometers
+            </option>
+            <option
+              value={4}
+            >
+              meters
+            </option>
+          </Input>
+        </FormGroup>
+      </div>
+      <div
+        style={
+          Object {
+            "margin": "0 50px 0 0",
+          }
+        }
+      >
+        <FormGroup
+          tag="div"
+        >
+          <InputGroup
+            size="sm"
+            tag="div"
+          >
+            <Input
+              bsSize="sm"
+              defaultValue={30}
+              id="timeF"
+              name="timeF"
+              onChange={[Function]}
+              type="number"
+            />
+            <InputGroupAddon
+              addonType="append"
+              tag="div"
+            >
+              <InputGroupText
+                tag="span"
+              >
+                minutes
+              </InputGroupText>
+            </InputGroupAddon>
+          </InputGroup>
+        </FormGroup>
+      </div>
+      <FormGroup
+        tag="div"
+      >
+        <Button
+          color="success"
+          onClick={[Function]}
+          size="sm"
+          tag="button"
+        >
+          Filter
+        </Button>
+      </FormGroup>
+    </Form>
+  </Row>
+  <Row
+    style={
+      Object {
+        "backgroundColor": "white",
+        "border": "1px solid lightgrey",
+        "borderRadius": "4px",
+        "margin": "20px",
+      }
+    }
+    tag="div"
+  >
+    <Col
+      md={12}
+      tag="div"
+      widths={
+        Array [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+        ]
+      }
+    >
+      <Table
+        hover={true}
+        responsive={true}
+        responsiveTag="div"
+        tag="table"
+      >
+        <thead>
+          <tr>
+            <th>
+              Name
+            </th>
+            <th>
+              Arrive At Work
+            </th>
+            <th>
+              Leave Work
+            </th>
+            <th>
+              Miles from Route
+            </th>
+            <th>
+              Ride Preference
+            </th>
+            <th>
+              Email
+            </th>
+          </tr>
+        </thead>
+        <tbody />
+      </Table>
+    </Col>
+  </Row>
+</div>
+`;
