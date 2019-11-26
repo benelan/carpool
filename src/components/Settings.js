@@ -120,6 +120,9 @@ class Settings extends Component {
         .catch(err => {
           // handle any errors
           console.error(err);
+        })
+        .catch(err => {
+          console.log(err)
         });
     }
 
@@ -159,6 +162,9 @@ class Settings extends Component {
       .catch(err => {
         // handle any errors
         console.error(err);
+      })
+      .catch(err => {
+        console.log(err)
       });
   };
 
@@ -220,8 +226,11 @@ class Settings extends Component {
               });
             }
           });
+      })
+      .catch(err => {
+        console.log(err)
       });
-    //--------------------- POINT ---------------------\\
+    //--------------------- Line ---------------------\\
     const serviceUrl2 = 'https://services.arcgis.com/Wl7Y1m92PbjtJs5n/arcgis/rest/services/carpoolData/FeatureServer/1/query?';
     const proxyUrl2 = 'https://belan2.esri.com/DotNet/proxy.ashx?'
     let url2 = proxyUrl2 + serviceUrl2;
@@ -250,6 +259,9 @@ class Settings extends Component {
             line_id: user.OBJECTID,
           });
         }
+      })
+      .catch(err => {
+        console.log(err)
       });
   };
 
@@ -395,9 +407,7 @@ class Settings extends Component {
           <Row>
             <Col md={12}>
               <p>
-                <b>
-                  This information will be used to match you with a carpool buddy!
-              </b>
+                <b>This information will be used to match you with a carpool buddy!</b>
               </p>
             </Col>
           </Row>

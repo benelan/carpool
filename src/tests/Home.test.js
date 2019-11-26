@@ -7,6 +7,5 @@ it('works', () => {
     const wrap = shallow(
       <Home n='test name' e='name@test.com' />
     )
-  
     expect(wrap.find('h2').text()).toEqual('Welcome test name')
   })
