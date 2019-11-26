@@ -3,7 +3,7 @@ import { Redirect } from "react-router-dom";
 import { Col, Row, Table, Button, Form, FormGroup, Input, InputGroup, InputGroupAddon, InputGroupText } from "reactstrap";
 import axios from "axios";
 import { loadModules } from "esri-loader";
-import { convertTime } from "../helpers"
+import { convertTime, filterTime } from "../helpers"
 
 class ResultTable extends Component {
 
@@ -284,15 +284,17 @@ class ResultTable extends Component {
                 </tr>
               </thead>
               <tbody>
-                {data.map((d) => (
-                  <tr key={d.attributes.OBJECTID}>
-                    <td>{d.attributes.name}</td>
-                    <td>{convertTime(d.attributes.arrive_work)}</td>
-                    <td>{convertTime(d.attributes.leave_work)}</td>
-                    <td>{renderSwitch(d.attributes.driver)}</td>
-                    <td>{d.attributes.email}</td>
-                  </tr>
-                ))}
+                {data.filter(d => filterTime(this.state.arrive_work, this.state.leave_work, d.attributes.arrive_work, d.attributes.leave_work, this.state.time))
+                  .map((fd) => (
+                    <tr key={fd.attributes.OBJECTID}>
+                      <td>{fd.attributes.name}</td>
+                      <td>{convertTime(fd.attributes.arrive_work)}</td>
+                      <td>{convertTime(fd.attributes.leave_work)}</td>
+                      <td>{renderSwitch(fd.attributes.driver)}</td>
+                      <td>{fd.attributes.email}</td>
+                    </tr>
+                  ))
+                }
               </tbody>
             </Table>
           </Col>
