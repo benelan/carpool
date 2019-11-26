@@ -9,7 +9,6 @@ class ResultTable extends Component {
 
   state = {
     data: [],
-    fData: [],
     name: this.props.n,
     email: this.props.e,
     new_user: false,
@@ -21,7 +20,7 @@ class ResultTable extends Component {
     leave_work: null,
     user_route: null,
     distance: 5,
-    units: 'miles',
+    units: 1,
     time: 30,
 
   };
@@ -124,7 +123,7 @@ class ResultTable extends Component {
         const users = res.data.features;
         // fill in form and state with settings saved in db
         if (users.length > 0) {  // check to see if user is already saved
-          const user = users[0]
+          const user = users[0];
 
           // populate form with user data
           this.setState({
@@ -135,6 +134,7 @@ class ResultTable extends Component {
               type: 'polyline'
             }
           });
+          this.filterF();
         }
       })
       .catch(err => {
@@ -160,67 +160,22 @@ class ResultTable extends Component {
       const featureLayer = new FeatureLayer(serviceUrl);
 
       var query = featureLayer.createQuery();
-      query.geometry = this.state.user_route.geometry;  // the point location of the pointer
+      query.geometry = this.state.user_route;  // the point location of the pointer
       query.distance = Math.abs(this.state.distance);
       query.units = unitLookup[this.state.units];
       query.spatialRelationship = "intersects";  // this is the default
       query.returnGeometry = true;
       query.outFields = ["*"];
-      query.where = "(office_id=" + this.state.office_id + ") AND (NOT driver=" + this.state.driver + ")";
+      query.where = "(office_id=" + this.state.office_id + ") AND (NOT driver=" + this.state.driver + " OR driver=3) AND (NOT OBJECTID=" + this.state.point_id + ")";
 
       const that = this;
 
       featureLayer.queryFeatures(query)
         .then(function (response) {
           // returns a feature set
-          console.log(response.features)
           that.setState({ data: response.features });
         });
     });
-
-    // const proxyUrl = 'https://belan2.esri.com/DotNet/proxy.ashx?'
-    // let url = proxyUrl + serviceUrl;
-
-    // const unitLookup = {
-    //   1: 'esriSRUnit_StatuteMile',
-    //   2: 'esriSRUnit_Foot',
-    //   3: 'esriSRUnit_Kilometer',
-    //   4: 'esriSRUnit_Meter'
-    // }
-
-    // const data = {
-    //   "f": "json",
-    //   'where': "office_id=" + this.state.office_id + "AND driver !=" + this.state.driver,
-    //   'outFields': "*",
-    //   'inSR': 102100,
-    //   'outSR': 102100,
-    //   'geometry': this.state.user_route,
-    //   'distance': this.state.distance
-    // };
-
-    // const query = Object.keys(data)
-    //   .map(k => encodeURIComponent(k) + '=' + encodeURIComponent(data[k]))
-    //   .join('&');
-
-    // url = url + query;
-
-    // axios.get(url)
-    //   .then(res => {
-    //     const users = res.data.features;
-    //     console.log(users)
-    //     if (users.length > 0) {  // check to see if user is already saved
-    //       this.setState({
-    //         fData: users
-    //       })
-    //     }
-    //     else {
-    //       console.log('no users')
-    //     }
-    //   })
-    //   .catch(err => {
-    //     console.log(err)
-    //   });
-
   };
 
   render() {
@@ -324,7 +279,6 @@ class ResultTable extends Component {
                   <th>Name</th>
                   <th>Arrive At Work</th>
                   <th>Leave Work</th>
-                  <th>Miles from Route</th>
                   <th>Ride Preference</th>
                   <th>Email</th>
                 </tr>
@@ -335,7 +289,6 @@ class ResultTable extends Component {
                     <td>{d.attributes.name}</td>
                     <td>{convertTime(d.attributes.arrive_work)}</td>
                     <td>{convertTime(d.attributes.leave_work)}</td>
-                    <td>Not Calculated</td>
                     <td>{renderSwitch(d.attributes.driver)}</td>
                     <td>{d.attributes.email}</td>
                   </tr>
