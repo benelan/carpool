@@ -12,7 +12,7 @@ npm start
 ```
 
 ## Built With
-This branch uses ArcGIS Online as the backend
+This branch uses ArcGIS Online as the backend. The master branch uses the MERN Stack.
 * [ArcGIS](https://developers.arcgis.com/javascript/) - Spatial Analysis
 * [React](https://reactjs.org/) -Frontend Framework
 * [Bootstrap](https://getbootstrap.com/) - Frontend UI

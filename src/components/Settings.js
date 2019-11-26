@@ -89,7 +89,7 @@ class Settings extends Component {
     axios
       .post(url, JSON.stringify(data))
       .then(() => {
-        //this.setState({ form_complete: true });
+        this.setState({ form_complete: true });
       })
       .catch(err => {
         // handle any errors
@@ -157,7 +157,7 @@ class Settings extends Component {
     axios
       .post(url, JSON.stringify(data))
       .then(() => {
-        //this.setState({ form_complete: true });
+        this.setState({ form_complete: true });
       })
       .catch(err => {
         // handle any errors
@@ -359,7 +359,6 @@ class Settings extends Component {
           routeParams.stops.features.push(end);
           // calc route
           routeTask.solve(routeParams).then((res) => {
-            console.log(res.routeResults[0].route.toJSON()) // route results
             that.setState({ route: res.routeResults[0].route });
             // REST CALLS HERE
             if (that.state.new_user) {
@@ -370,6 +369,9 @@ class Settings extends Component {
               this.updateUser();
             }
           })
+          .catch((err) => {
+            alert(err.message)
+        });
         }
       });
     });
@@ -419,9 +421,9 @@ class Settings extends Component {
                   type="name"
                   name="name"
                   id="userName"
-                  //readOnly
-                  onChange={e => this.setState({ new_user: true, name: e.target.value })}
-                  defaultValue={this.state.name}
+                  readOnly
+                  //onChange={e => this.setState({ new_user: true, name: e.target.value })}
+                  defaultValue={this.props.n}
                 />
               </FormGroup>
             </Col>
@@ -432,9 +434,9 @@ class Settings extends Component {
                   type="email"
                   name="email"
                   id="userEmail"
-                  //readOnly
-                  onChange={e => this.setState({ new_user: true, email: e.target.value })}
-                  defaultValue={this.state.email}
+                  readOnly
+                  //onChange={e => this.setState({ new_user: true, email: e.target.value })}
+                  defaultValue={this.props.e}
                 />
               </FormGroup>
             </Col>

@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import { Redirect } from "react-router-dom";
-import { Col, Row, Table, Button, Form, FormGroup, Input, InputGroup, InputGroupAddon, InputGroupText } from "reactstrap";
+import { Col, Row, Table, Form, FormGroup, Input, InputGroup, InputGroupAddon, InputGroupText } from "reactstrap";
 import axios from "axios";
 import { loadModules } from "esri-loader";
 import { convertTime, filterTime } from "../helpers"
@@ -11,7 +11,8 @@ class ResultTable extends Component {
     data: [],
     name: this.props.n,
     email: this.props.e,
-    new_user: false,
+    new_user_p: false,
+    new_user_l: false,
     point_id: null,
     line_id: null,
     office_id: null,
@@ -21,13 +22,13 @@ class ResultTable extends Component {
     user_route: null,
     distance: 5,
     units: 1,
-    time: 30,
-
+    time: 30
   };
 
   componentDidMount() {
-    this.getUserByEmail()
+    this.getUserByEmail();
   }
+
   componentWillUnmount() {
 
   }
@@ -89,11 +90,11 @@ class ResultTable extends Component {
             arrive_work: user.arrive_work,
             leave_work: user.leave_work
           })
+          this.filterF();
         }
         else {
-          // set up blank Search Widget if new user
           this.setState({
-            new_user: true
+            new_user_p: true
           });
         }
       })
@@ -136,6 +137,12 @@ class ResultTable extends Component {
           });
           this.filterF();
         }
+
+        else {
+          this.setState({
+            new_user_l: true
+          });
+        }
       })
       .catch(err => {
         console.log(err)
@@ -174,6 +181,9 @@ class ResultTable extends Component {
         .then(function (response) {
           // returns a feature set
           that.setState({ data: response.features });
+        })
+        .catch((err) => {
+          alert(err.message)
         });
     });
   };
@@ -210,96 +220,95 @@ class ResultTable extends Component {
       };
     };
 
-    if (this.state.new_user === true) {
+    if (this.state.new_user_l === true && this.state.new_user_p === true) {
+      alert('Fill out your Settings in order to find a carpool buddy')
       return <Redirect to='/settings' />
     }
 
     return (
       <div>
-        <Row style={resultStyle}>
-          <Form inline>
-            <FormGroup>
-              <Input
-                type="number"
-                name="distF"
-                id="distF"
-                bsSize="sm"
-                style={distF}
-                onChange={e => this.setState({ distance: Math.abs(e.target.value) })}
-                defaultValue={this.state.distance}
-              />
-            </FormGroup>
-            <div style={mRight}>
-              <FormGroup>
-                <Input
-                  type="select"
-                  name="unitF"
-                  id="unitF"
-                  bsSize="sm"
-                  onChange={e => this.setState({ units: e.target.value })}
-                  defaultValue={this.state.units}>
-                  <option value={1}>miles</option>
-                  <option value={2}>feet</option>
-                  <option value={3}>kilometers</option>
-                  <option value={4}>meters</option>
-                </Input>
-              </FormGroup>
-            </div>
-            <div style={mRight}>
-              <FormGroup>
-                <InputGroup size="sm">
+        <Row className="justify-content-md-center">
+          <Col md={8}>
+            <Row style={resultStyle}>
+              <Form inline>
+                <FormGroup>
                   <Input
                     type="number"
-                    name="timeF"
-                    id="timeF"
+                    name="distF"
+                    id="distF"
                     bsSize="sm"
-                    onChange={e => this.setState({ time: Math.abs(e.target.value) })}
-                    defaultValue={this.state.time}
+                    style={distF}
+                    onChange={e => { this.setState({ distance: Math.abs(e.target.value) }); this.filterF() }}
+                    defaultValue={this.state.distance}
                   />
-                  <InputGroupAddon addonType="append" >
-                    <InputGroupText>minutes</InputGroupText>
-                  </InputGroupAddon>
-                </InputGroup>
-              </FormGroup>
-            </div>
-            <FormGroup>
-              <Button
-                onClick={() => this.filterF()}
-                size="sm"
-                color="success">Filter
-            </Button>
-            </FormGroup>
-          </Form>
-        </Row>
-        <Row style={tableStyle}>
-          <Col md={12} >
-            <Table hover responsive>
-              <thead>
-                <tr>
-                  <th>Name</th>
-                  <th>Arrive At Work</th>
-                  <th>Leave Work</th>
-                  <th>Ride Preference</th>
-                  <th>Email</th>
-                </tr>
-              </thead>
-              <tbody>
-                {data.filter(d => filterTime(this.state.arrive_work, this.state.leave_work, d.attributes.arrive_work, d.attributes.leave_work, this.state.time))
-                  .map((fd) => (
-                    <tr key={fd.attributes.OBJECTID}>
-                      <td>{fd.attributes.name}</td>
-                      <td>{convertTime(fd.attributes.arrive_work)}</td>
-                      <td>{convertTime(fd.attributes.leave_work)}</td>
-                      <td>{renderSwitch(fd.attributes.driver)}</td>
-                      <td>{fd.attributes.email}</td>
+                </FormGroup>
+                <div style={mRight}>
+                  <FormGroup>
+                    <Input
+                      type="select"
+                      name="unitF"
+                      id="unitF"
+                      bsSize="sm"
+                      onChange={e => { this.setState({ units: e.target.value }); this.filterF() }}
+                      defaultValue={this.state.units}>
+                      <option value={1}>miles</option>
+                      <option value={2}>feet</option>
+                      <option value={3}>kilometers</option>
+                      <option value={4}>meters</option>
+                    </Input>
+                  </FormGroup>
+                </div>
+                <div style={mRight}>
+                  <FormGroup>
+                    <InputGroup size="sm">
+                      <Input
+                        type="number"
+                        name="timeF"
+                        id="timeF"
+                        bsSize="sm"
+                        onChange={e => this.setState({ time: Math.abs(e.target.value) })}
+                        defaultValue={this.state.time}
+                      />
+                      <InputGroupAddon addonType="append" >
+                        <InputGroupText>minutes</InputGroupText>
+                      </InputGroupAddon>
+                    </InputGroup>
+                  </FormGroup>
+                </div>
+              </Form>
+            </Row>
+            <Row style={tableStyle}>
+              <Col md={12} >
+                <Table hover responsive>
+                  <thead>
+                    <tr>
+                      <th>Name</th>
+                      <th>Arrive At Work</th>
+                      <th>Leave Work</th>
+                      <th>Ride Preference</th>
+                      <th>Email</th>
                     </tr>
-                  ))
-                }
-              </tbody>
-            </Table>
+                  </thead>
+                  <tbody>
+                    {data.filter(d => filterTime(this.state.arrive_work, this.state.leave_work, d.attributes.arrive_work, d.attributes.leave_work, this.state.time))
+                      .map((fd) => (
+                        <tr key={fd.attributes.OBJECTID}>
+                          <td>{fd.attributes.name}</td>
+                          <td>{convertTime(fd.attributes.arrive_work)}</td>
+                          <td>{convertTime(fd.attributes.leave_work)}</td>
+                          <td>{renderSwitch(fd.attributes.driver)}</td>
+                          <td>{fd.attributes.email}</td>
+                        </tr>
+                      ))
+                    }
+                  </tbody>
+                </Table>
+                <div id="msg"></div>
+              </Col>
+            </Row>
           </Col>
         </Row>
-      </div>
+      </div >
     );
   };
 }
