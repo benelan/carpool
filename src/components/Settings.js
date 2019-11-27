@@ -16,6 +16,7 @@ class Settings extends Component {
     line_id: null,
     driver: 1,
     office_id: 1,
+    office_old: null,
     arrive_work: "09:00",
     leave_work: "17:00",
     lat: null,
@@ -199,6 +200,7 @@ class Settings extends Component {
               this.setState({
                 point_id: user.OBJECTID,
                 office_id: user.office_id,
+                office_old: user.office_id,
                 driver: user.driver,
                 arrive_work: user.arrive_work,
                 leave_work: user.leave_work,
@@ -284,16 +286,21 @@ class Settings extends Component {
         const lon = event.results[0].results[0].feature.geometry.longitude;
         const addr = event.results[0].results[0].feature.attributes.Match_addr;
 
-
         // if the address didn't change
-        if (addr === this.state.start_addr) {
+        if ((addr === that.state.start_addr) && (that.state.office_id === that.state.office_old)) {
+          that.setState({
+            lat: lat,
+            lon: lon,
+            start_addr: addr
+          });
+
           // REST CALLS HERE
           if (that.state.new_user) {
             // if the user is not in the db, add the user
-            this.addUser();
+            that.addUser();
           } else {
             // if the user is in the db, update the user info
-            this.updateUser();
+            that.updateUser();
           }
         }
 
@@ -304,8 +311,6 @@ class Settings extends Component {
             lon: lon,
             start_addr: addr
           });
-
-
           var routeTask = new RouteTask({
             url:
               "https://utility.arcgis.com/usrsvcs/appservices/w2zxoNZu0ai45kI5/rest/services/World/Route/NAServer/Route_World/solve"
@@ -363,15 +368,15 @@ class Settings extends Component {
             // REST CALLS HERE
             if (that.state.new_user) {
               // if the user is not in the db, add the user
-              this.addUser();
+              that.addUser();
             } else {
               // if the user is in the db, update the user info
-              this.updateUser();
+              that.updateUser();
             }
           })
-          .catch((err) => {
-            alert(err.message)
-        });
+            .catch((err) => {
+              alert(err.message)
+            });
         }
       });
     });
