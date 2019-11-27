@@ -1,0 +1,3 @@
+{
+    "routes": [{ "src": "/settings", "dest": "/index.html" }, { "src": "/results", "dest": "/index.html" }]
+  }

@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import { Redirect } from "react-router-dom";
-import { Col, Row, Table, Form, FormGroup, Input, InputGroup, InputGroupAddon, InputGroupText } from "reactstrap";
+import { Col, Row, Table, Form, FormGroup, Input, InputGroup, InputGroupAddon, InputGroupText, Button } from "reactstrap";
 import axios from "axios";
 import { loadModules } from "esri-loader";
 import { convertTime, filterTime } from "../helpers"
@@ -225,6 +225,9 @@ class ResultTable extends Component {
       return <Redirect to='/settings' />
     }
 
+     const subject = encodeURIComponent("Lets Carpool!");
+    
+    
     return (
       <div>
         <Row className="justify-content-md-center">
@@ -297,7 +300,10 @@ class ResultTable extends Component {
                           <td>{convertTime(fd.attributes.arrive_work)}</td>
                           <td>{convertTime(fd.attributes.leave_work)}</td>
                           <td>{renderSwitch(fd.attributes.driver)}</td>
-                          <td>{fd.attributes.email}</td>
+                          <td> 
+                            <Button 
+                              href={"mailto:" + fd.attributes.email + "?subject=" + subject + "&body=" + encodeURIComponent("Hello " + fd.attributes.name +", \n\nI show up to work at " + convertTime(this.state.arrive_work) + " and leave at " + convertTime(this.state.leave_work) + ". I work in the same office as you, would you like to carpool? You can contact me by replying to this email.\n\nThanks,\n" + this.state.name)} 
+                              color="link" >{fd.attributes.email}</Button></td>
                         </tr>
                       ))
                     }
