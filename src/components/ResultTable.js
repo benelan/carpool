@@ -9,8 +9,6 @@ class ResultTable extends Component {
 
   state = {
     data: [],
-    name: this.props.n,
-    email: this.props.e,
     new_user_p: false,
     new_user_l: false,
     point_id: null,
@@ -67,7 +65,7 @@ class ResultTable extends Component {
 
     const data = {
       "f": "json",
-      'where': "email='" + this.state.email + "'",
+      'where': "email='" + this.props.e + "'",
       'outFields': "*"
     };
 
@@ -108,7 +106,7 @@ class ResultTable extends Component {
 
     const data2 = {
       "f": "json",
-      'where': "email='" + this.state.email + "'",
+      'where': "email='" + this.props.e + "'",
       'outFields': "*",
       'returnGeometry': true
     };
@@ -302,7 +300,7 @@ class ResultTable extends Component {
                           <td>{renderSwitch(fd.attributes.driver)}</td>
                           <td> 
                             <Button 
-                              href={"mailto:" + fd.attributes.email + "?subject=" + subject + "&body=" + encodeURIComponent("Hello " + fd.attributes.name +", \n\nI show up to work at " + convertTime(this.state.arrive_work) + " and leave at " + convertTime(this.state.leave_work) + ". I work in the same office as you, would you like to carpool? You can contact me by replying to this email.\n\nThanks,\n" + this.state.name)} 
+                              href={"mailto:" + fd.attributes.email + "?subject=" + subject + "&body=" + encodeURIComponent("Hello " + fd.attributes.name +", \n\nI show up to work at " + convertTime(this.state.arrive_work) + " and leave at " + convertTime(this.state.leave_work) + ". I work in the same office as you, would you like to carpool? You can contact me by replying to this email.\n\nThanks,\n" + this.props.n)} 
                               color="link" >{fd.attributes.email}</Button></td>
                         </tr>
                       ))

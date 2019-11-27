@@ -10,8 +10,6 @@ class Settings extends Component {
     new_user: true,
     form_complete: false,
     searchWidget: null,
-    name: this.props.n,
-    email: this.props.e,
     point_id: null,
     line_id: null,
     driver: 1,
@@ -46,7 +44,7 @@ class Settings extends Component {
       const data2 = [{
         "geometry": this.state.route.geometry,
         'attributes': {
-          'email': this.state.email,
+          'email': this.props.e,
           'travel_minutes': this.state.route.attributes.Total_TravelTime,
           'travel_miles': this.state.route.attributes.Total_Miles,
         }
@@ -75,8 +73,8 @@ class Settings extends Component {
         }
       },
       'attributes': {
-        'name': this.state.name,
-        'email': this.state.email,
+        'name': this.props.n,
+        'email': this.props.e,
         'arrive_work': this.state.arrive_work,
         'leave_work': this.state.leave_work,
         'driver': parseInt(this.state.driver),
@@ -90,7 +88,7 @@ class Settings extends Component {
     axios
       .post(url, JSON.stringify(data))
       .then(() => {
-        this.setState({ form_complete: true });
+        this.setState({ new_user: false, form_complete: true });
       })
       .catch(err => {
         // handle any errors
@@ -109,7 +107,7 @@ class Settings extends Component {
         "geometry": this.state.route.geometry,
         'attributes': {
           'OBJECTID': this.state.line_id,
-          'email': this.state.email,
+          'email': this.props.e,
           'travel_minutes': this.state.route.attributes.Total_TravelTime,
           'travel_miles': this.state.route.attributes.Total_Miles,
         }
@@ -143,8 +141,8 @@ class Settings extends Component {
       },
       'attributes': {
         'OBJECTID': this.state.point_id,
-        'name': this.state.name,
-        'email': this.state.email,
+        'name': this.props.n,
+        'email': this.props.e,
         'arrive_work': this.state.arrive_work,
         'leave_work': this.state.leave_work,
         'driver': parseInt(this.state.driver),
@@ -177,7 +175,7 @@ class Settings extends Component {
 
     const data = {
       "f": "json",
-      'where': "email='" + this.state.email + "'",
+      'where': "email='" + this.props.e + "'",
       'outFields': "*"
     };
 
@@ -239,7 +237,7 @@ class Settings extends Component {
 
     const data2 = {
       "f": "json",
-      'where': "email='" + this.state.email + "'",
+      'where': "email='" + this.props.e + "'",
       'outFields': "*"
     };
 
