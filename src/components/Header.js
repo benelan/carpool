@@ -29,7 +29,7 @@ const Header = (props) => {
             <img src={logo} alt="logo" className="img-fluid" style={{ width: 100 }} />
           </NavLink>
           <NavbarBrand className="d-inline-block p-0  align-items-left" href="/">
-            <h1 style={{ font: '36px Arial Black' }}>arcpool</h1>
+            <h1 style={{ font: '36px Arial Black' }}>arcpool beta</h1>
           </NavbarBrand>
         </NavItem>
         <NavbarToggler onClick={toggle} />
