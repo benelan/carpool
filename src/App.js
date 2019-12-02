@@ -61,7 +61,6 @@ class App extends Component {
         IdentityManager.registerOAuthInfos([info]);
         IdentityManager.destroyCredentials();
       });
-
     window.location.reload();
   }
 

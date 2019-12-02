@@ -11,10 +11,7 @@ const UserSchema = new Schema(
     leave_work: String,
     driver: Number,
     office_id: Number,
-    lat: Number,
-    lon: Number,
-    start_addr: String,
-    route: String
+    successful: Boolean
   },
   { timestamps: true }
 );

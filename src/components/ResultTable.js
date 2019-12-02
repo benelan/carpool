@@ -17,7 +17,6 @@ class ResultTable extends Component {
   };
 
   componentDidMount() {
-    this.getData();
     this.getUserByEmail();
   }
 
@@ -26,12 +25,20 @@ class ResultTable extends Component {
   }
 
   getData = () => {
-    fetch('http://localhost:3001/api/getAllUsers')
-      .then((data) => data.json())
-      .then((res) => {
-        console.log(res.data)
-        this.setState({ data: res.data })
-      });
+    axios.get("http://localhost:3001/api/queryUsers", {
+      params: {
+        email: this.props.e,
+        driver: this.state.driver,
+        office: this.state.office_id
+      }
+    })
+    .then(res => {
+      console.log(res.data.data)
+      this.setState({ data: res.data.data })
+    })
+    .catch((err) => {
+      console.log(err);
+    })
   };
 
   getUserByEmail = () => {
@@ -52,6 +59,7 @@ class ResultTable extends Component {
             arrive_work: user.arrive_work,
             leave_work: user.leave_work
           });
+          this.getData();
         }
         else {
           this.setState({
@@ -89,10 +97,10 @@ class ResultTable extends Component {
       };
     };
 
-    // if (this.state.new_user === true) {
-    //   alert('Fill out your Settings in order to find a carpool buddy')
-    //   return <Redirect to='/settings' />
-    // }
+    if (this.state.new_user === true) {
+      alert('Fill out your Settings in order to find a carpool buddy')
+      return <Redirect to='/settings' />
+    }
 
     const subject = encodeURIComponent("Lets Carpool!");
 

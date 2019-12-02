@@ -92,6 +92,10 @@ class Settings extends Component {
           document.getElementById("arriveTime").value = user.arrive_work;
           document.getElementById("leaveTime").value = user.leave_work;
         }
+      })
+      .catch(err => {
+        // handle any errors
+        console.error(err);
       });
   }
   //--------------------- SUBMIT HANDLER ---------------------\\

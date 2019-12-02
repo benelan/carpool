@@ -1,10 +1,6 @@
 const express = require('express')
-  , router = express.Router()
-  , path = require('path')
+    , router = express.Router()
 
-
-// router.use(require('./settings'))
- router.use(require('./user'))
-
+router.use(require('./user'))
 
 module.exports = router
