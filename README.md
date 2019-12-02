@@ -14,17 +14,17 @@ The api and the react app will start concurrently.
 
 ## TODO
 To do list
-[x] structure app - MVC
-[x] Set up database/odm - MongoDB/Mongoose
-[x] Create user model
-[x] Create user settings controller
-[x] Create React forms component for user settings
-[x] Create React data table component
-[ ] Filter results table based on distance, time, and driver/passenger
-[ ] Create React home/info page
-[ ] Finish setting up Okta auth, or use jwt
-[ ] Create option to remove yourself from list
-[ ] Stop procrastinating
+- [x] structure app - MVC
+- [x] Set up database/odm - MongoDB/Mongoose
+- [x] Create user model
+- [x] Create user settings controller
+- [x] Create React forms component for user settings
+- [x] Create React data table component
+- [ ] Filter results table based on distance, time, and driver/passenger
+- [ ] Create React home/info page
+- [ ] Finish setting up Okta auth, or use jwt
+- [ ] Create option to remove yourself from list
+- [ ] Stop procrastinating
 
 ## Built With MERN Stack
 * [Bootstrap](https://getbootstrap.com/) - Frontend
