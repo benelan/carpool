@@ -1,6 +1,6 @@
 # Carpool
 
-A carpool matcher app for Esri employees
+A carpool matcher app for Esri employees. This branch creates a route from the user's home to their office. The user can then spatially filter the results table by creating a buffer around their route and finding colleagues that intersect the buffer. The 'master' branch does not filter spatially, but uses a custom backend api.
 
 ## Prerequisites
 
@@ -15,4 +15,4 @@ npm start
 This branch uses ArcGIS Online as the backend. The master branch uses the MERN Stack.
 * [ArcGIS](https://developers.arcgis.com/javascript/) - Spatial Analysis
 * [React](https://reactjs.org/) -Frontend Framework
-* [Bootstrap](https://getbootstrap.com/) - Frontend UI
+* [Reactstrap](https://reactstrap.github.io/) - Bootstrap for React
