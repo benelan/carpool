@@ -10,24 +10,21 @@ To run the web app you must have [Node](https://nodejs.org/en/) installed. With 
 npm install
 npm start
 ```
-
+The api and the react app will start concurrently.
 
 ## TODO
 To do list
-* Create start point feature layer with user id
-* Filter results table based on distance, time, and driver/passenger
-* Create React home/info page
-* Finish setting up Okta auth, or use jwt
-* Stop procrastinating
-
-## Done List
-completed items from TODO
-* structure app - MVC
-* Set up database/odm - MongoDB/Mongoose
-* Create user model
-* Create user settings controller
-* Create React forms component for user settings
-* Create React data table component
+- [x] structure app - MVC
+- [x] Set up database/odm - MongoDB/Mongoose
+- [x] Create user model
+- [x] Create user settings controller
+- [x] Create React forms component for user settings
+- [x] Create React data table component
+- [ ] Filter results table based on distance, time, and driver/passenger
+- [ ] Create React home/info page
+- [ ] Finish setting up Okta auth, or use jwt
+- [ ] Create option to remove yourself from list
+- [ ] Stop procrastinating
 
 ## Built With MERN Stack
 * [Bootstrap](https://getbootstrap.com/) - Frontend
@@ -36,7 +33,6 @@ completed items from TODO
 * [Express](https://expressjs.com/) - Backend Framework
 * [MongoDB](https://www.mongodb.com/) - Database
 * [Mongoose](https://mongoosejs.com/) - ODM
-* [ArcGIS](https://developers.arcgis.com/javascript/) - Spatial Analysis
 
 ### Other Node Packages
 * [body-parser](https://www.npmjs.com/package/body-parser) - Reading Forms

@@ -1,34 +1,31 @@
 import React, { Component } from "react";
-import { Col, Row, Table, Button, Form, FormGroup, Label, Input, InputGroup, InputGroupAddon, InputGroupText } from "reactstrap";
+import { Redirect } from "react-router-dom";
+import { Col, Row, Table, Form, FormGroup, Input, InputGroup, InputGroupAddon, InputGroupText, Button } from "reactstrap";
+import axios from "axios";
+import { convertTime, filterTime } from "../helpers"
 
 class ResultTable extends Component {
 
   state = {
     data: [],
-    fData: [],
-    name: this.props.n,
-    email: this.props.e,
-    distance: 5,
-    units: 'miles',
-    time: 30,
-    //interval: false
+    new_user: false,
+    office_id: null,
+    driver: null,
+    arrive_work: null,
+    leave_work: null,
+    time: 30
   };
 
   componentDidMount() {
-    this.getDataFromDb();
-    // if (!this.state.interval) {
-    //   let interval = setInterval(this.getDataFromDb, 60000);
-    //   this.setState({ interval: interval });
-    // }
-  }
-  componentWillUnmount() {
-    if (this.state.interval) {
-      clearInterval(this.state.interval);
-      this.setState({ interval: null });
-    }
+    this.getData();
+    this.getUserByEmail();
   }
 
-  getDataFromDb = () => {
+  componentWillUnmount() {
+
+  }
+
+  getData = () => {
     fetch('http://localhost:3001/api/getAllUsers')
       .then((data) => data.json())
       .then((res) => {
@@ -37,10 +34,32 @@ class ResultTable extends Component {
       });
   };
 
-  filterF = () => {
-    alert("Filter")
-  };
-
+  getUserByEmail = () => {
+    // get user info by email
+    axios.get("http://localhost:3001/api/getOneUser", {
+      params: {
+        email: this.props.e
+      }
+    })
+      .then(res => {
+        const user = res.data.data;
+        // fill in form and state with settings saved in db
+        if (!!user) {
+          // check to see if user is already saved
+          this.setState({
+            office_id: user.office_id,
+            driver: user.driver,
+            arrive_work: user.arrive_work,
+            leave_work: user.leave_work
+          });
+        }
+        else {
+          this.setState({
+            new_user: true
+          });
+        }
+      });
+  }
 
   render() {
     const { data } = this.state;
@@ -59,10 +78,6 @@ class ResultTable extends Component {
       margin: "20px"
     };
 
-    const distF = {
-      width: '130px'
-    };
-
     function renderSwitch(param) {
       switch (param) {
         case 1:
@@ -73,92 +88,71 @@ class ResultTable extends Component {
           return 'Either';
       };
     };
+
+    // if (this.state.new_user === true) {
+    //   alert('Fill out your Settings in order to find a carpool buddy')
+    //   return <Redirect to='/settings' />
+    // }
+
+    const subject = encodeURIComponent("Lets Carpool!");
+
     return (
-      <div>
-        <Row style={resultStyle}>
-          <Form inline>
-            <FormGroup>
-              <Input
-                type="number"
-                name="distF"
-                id="distF"
-                bsSize="sm"
-                style={distF}
-                onChange={e => this.setState({ distance: Math.abs(e.target.value) })}
-                defaultValue={this.state.distance}
-              />
-            </FormGroup>
-            <div style={mRight}>
-              <FormGroup>
-                <Input
-                  type="select"
-                  name="unitF"
-                  id="unitF"
-                  bsSize="sm"
-                  onChange={e => this.setState({ units: e.target.value })}
-                  defaultValue={this.state.units}>
-                  <option value={1}>miles</option>
-                  <option value={2}>feet</option>
-                  <option value={3}>kilometers</option>
-                  <option value={4}>meters</option>
-                </Input>
-              </FormGroup>
-            </div>
-            <div style={mRight}>
-              <FormGroup>
-                <InputGroup size="sm">
-                  <Input
-                    type="number"
-                    name="timeF"
-                    id="timeF"
-                    bsSize="sm"
-                    onChange={e => this.setState({ time: Math.abs(e.target.value) })}
-                    defaultValue={this.state.time}
-                  />
-                  <InputGroupAddon addonType="append" >
-                    <InputGroupText>minutes</InputGroupText>
-                  </InputGroupAddon>
-                </InputGroup>
-              </FormGroup>
-            </div>
-            <FormGroup>
-              <Button
-                onClick={() => this.filterF()}
-                size="sm"
-                color="success">Filter
-            </Button>
-            </FormGroup>
-          </Form>
-        </Row>
-        <Row style={tableStyle}>
-          <Col md={12} >
-            <Table hover responsive>
-              <thead>
-                <tr>
-                  <th>Name</th>
-                  <th>Ride Preference</th>
-                  <th>Arrive At Work</th>
-                  <th>Leave Work</th>
-                  <th>Miles from Route</th>
-                  <th>Email</th>
-                </tr>
-              </thead>
-              <tbody>
-                {data.map((d) => (
-                  <tr key={d._id}>
-                    <td>{d.name}</td>
-                    <td>{d.arrive_work}</td>
-                    <td>{d.leave_work}</td>
-                    <td>Not Calculated</td>
-                    <td>{renderSwitch(d.driver)}</td>
-                    <td>{d.email}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </Table>
+      <React.Fragment>
+        <Row className="justify-content-md-center">
+          <Col md={8}>
+            <Row style={resultStyle}>
+              <Form inline>
+                <FormGroup style={mRight}>
+                  <InputGroup size="sm">
+                    <Input
+                      type="number"
+                      name="timeF"
+                      id="timeF"
+                      bsSize="sm"
+                      onChange={e => this.setState({ time: Math.abs(e.target.value) })}
+                      defaultValue={this.state.time}
+                    />
+                    <InputGroupAddon addonType="append" >
+                      <InputGroupText>minutes</InputGroupText>
+                    </InputGroupAddon>
+                  </InputGroup>
+                </FormGroup>
+              </Form>
+            </Row>
+            <Row style={tableStyle}>
+              <Col md={12} >
+                <Table hover responsive>
+                  <thead>
+                    <tr>
+                      <th>Name</th>
+                      <th>Arrive At Work</th>
+                      <th>Leave Work</th>
+                      <th>Ride Preference</th>
+                      <th>Email</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {data.filter(d => filterTime(this.state.arrive_work, this.state.leave_work, d.arrive_work, d.leave_work, this.state.time))
+                      .map((fd) => (
+                        <tr key={fd.email}>
+                          <td>{fd.name}</td>
+                          <td>{convertTime(fd.arrive_work)}</td>
+                          <td>{convertTime(fd.leave_work)}</td>
+                          <td>{renderSwitch(fd.driver)}</td>
+                          <td>
+                            <Button
+                              href={"mailto:" + fd.email + "?subject=" + subject + "&body=" + encodeURIComponent("Hello " + fd.name + ", \n\nI show up to work at " + convertTime(this.state.arrive_work) + " and leave at " + convertTime(this.state.leave_work) + ". I work in the same office as you, would you like to carpool? You can contact me by replying to this email.\n\nThanks,\n" + this.props.n)}
+                              color="link" >{fd.email}</Button></td>
+                        </tr>
+                      ))
+                    }
+                  </tbody>
+                </Table>
+              </Col>
+            </Row>
           </Col>
         </Row>
-      </div>
+      </React.Fragment >
     );
   };
 }

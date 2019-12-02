@@ -1,7 +1,6 @@
 import React, { Component } from "react";
-import { Col, Row, Button, FormGroup, Label, Input, UncontrolledPopover, PopoverBody } from "reactstrap";
+import { Col, Row, Button, FormGroup, Label, Input } from "reactstrap";
 import { Redirect } from "react-router-dom";
-import { loadModules, loadCss } from "esri-loader";
 import axios from "axios";
 
 class Settings extends Component {
@@ -9,49 +8,68 @@ class Settings extends Component {
   state = {
     new_user: true,
     form_complete: false,
-    searchWidget: null,
-    name: this.props.n,
-    email: this.props.e,
     driver: 1,
     office_id: 1,
     arrive_work: "09:00",
-    leave_work: "17:00",
-    lat: null,
-    lon: null,
-    start_addr: null,
-    route: "testing"
+    leave_work: "17:00"
   };
 
   //--------------------- LIFE CYCLE FUNCTIONS ---------------------\\
   componentDidMount() {
     this.getUserByEmail();
-    // initialize JS API search widget
-    loadCss();
-    loadModules(["esri/widgets/Search"])
-      .then(([Search]) => {
-        this.setState({
-          searchWidget: Search({
-            container: document.getElementById("startLoc")
-            //searchTerm: 'current address'
-          })
-        });
+  }
+
+  componentWillUnmount() {
+  }
+
+  //--------------------- CRUD OPERATIONS ---------------------\\
+  addUser = () => {
+    axios
+      .post("http://localhost:3001/api/addUser", {
+        name: this.props.n,
+        email: this.props.e,
+        arrive_work: this.state.arrive_work,
+        leave_work: this.state.leave_work,
+        driver: parseInt(this.state.driver),
+        office_id: parseInt(this.state.office_id)
+      })
+      .then(() => {
+        this.setState({ form_complete: true });
       })
       .catch(err => {
         // handle any errors
         console.error(err);
       });
-  }
+  };
 
-  componentWillUnmount() {
-    this.setState({ searchWidget: null });
-  }
+  updateUser = () => {
+    axios
+      .post("http://localhost:3001/api/updateUser", {
+        em: this.props.e,
+        update: {
+          name: this.props.n,
+          email: this.props.e,
+          arrive_work: this.state.arrive_work,
+          leave_work: this.state.leave_work,
+          driver: parseInt(this.state.driver),
+          office_id: parseInt(this.state.office_id)
+        }
+      })
+      .then(() => {
+        this.setState({ form_complete: true });
+      })
+      .catch(err => {
+        // handle any errors
+        console.error(err);
+      });
+  };
 
   //--------------------- CRUD OPERATIONS ---------------------\\
   getUserByEmail = () => {
     // get user info by email
     axios.get("http://localhost:3001/api/getOneUser", {
       params: {
-        email: this.state.email
+        email: this.props.e
       }
     })
       .then(res => {
@@ -76,179 +94,34 @@ class Settings extends Component {
         }
       });
   }
-
-  updateUser = mid => {
-    axios
-      .post("http://localhost:3001/api/updateUser", {
-        em: mid,
-        update: {
-          name: this.state.name,
-          email: this.state.email,
-          arrive_work: this.state.arrive_work,
-          leave_work: this.state.leave_work,
-          driver: parseInt(this.state.driver),
-          office_id: parseInt(this.state.office_id),
-          lat: this.state.lat,
-          lon: this.state.lon,
-          start_addr: this.state.start_addr,
-          route: this.state.route
-        }
-      })
-      .then(()=> {
-        this.setState({ form_complete: true });
-      })
-      .catch(err => {
-        // handle any errors
-        console.error(err);
-      });
-  };
-
-  addUser = () => {
-    axios
-      .post("http://localhost:3001/api/addUser", {
-        name: this.state.name,
-        email: this.state.email,
-        arrive_work: this.state.arrive_work,
-        leave_work: this.state.leave_work,
-        driver: parseInt(this.state.driver),
-        office_id: parseInt(this.state.office_id),
-        lat: this.state.lat,
-        lon: this.state.lon,
-        start_addr: this.state.start_addr,
-        route: this.state.route
-      })
-      .then(()=> {
-        this.setState({ form_complete: true });
-      })
-      .catch(err => {
-        // handle any errors
-        console.error(err);
-      });
-  };
-
   //--------------------- SUBMIT HANDLER ---------------------\\
   submitF = () => {
-    // load esri modules
-    loadModules([
-      "esri/widgets/Search",
-      "esri/tasks/RouteTask",
-      "esri/tasks/support/RouteParameters",
-      "esri/tasks/support/FeatureSet",
-      "esri/Graphic"
-    ]).then(([Search, RouteTask, RouteParameters, FeatureSet, Graphic]) => {
-      var that = this;
-      const address = document.getElementById("startLoc").value;
-      // search the address that was input
-      this.state.searchWidget.search(address).then(event => {
-        // get the lat/lon and address
-        const lat = event.results[0].results[0].feature.geometry.latitude;
-        const lon = event.results[0].results[0].feature.geometry.longitude;
-        const addr = event.results[0].results[0].feature.attributes.Match_addr;
+    // REST CALLS HERE
+    if (this.state.new_user) {
+      // if the user is not in the db, add the user
+      this.addUser();
+    } else {
+      // if the user is in the db, update the user info
+      this.updateUser();
+    }
+  }
 
-        that.setState({
-          lat: lat,
-          lon: lon,
-          start_addr: addr
-        });
-
-        // var routeTask = new RouteTask({
-        //   url:
-        //     "https://utility.arcgis.com/usrsvcs/appservices/w2zxoNZu0ai45kI5/rest/services/World/Route/NAServer/Route_World/solve"
-        // });
-        // // Setup the route parameters
-        // var routeParams = new RouteParameters({
-        //   stops: new FeatureSet(),
-        //   outSpatialReference: {
-        //     // autocasts as new SpatialReference()
-        //     wkid: 3857
-        //   }
-        // });
-
-        // const startPoint = {
-        //   type: "point", // autocasts as Point
-        //   longitude: lon,
-        //   latitude: lat,
-        //   spatialReference: {
-        //     wkid: 3857
-        //   }
-        // };
-
-        // var start = new Graphic({
-        //   geometry: startPoint
-        // });
-
-        // const officeCoords = {
-        //   1: [-117.1946114, 34.057267],
-        //   2: [-117.2180851, 34.0692566],
-        //   3: [-80.7835061, 35.100138],
-        //   4: [-77.0714945, 38.897275],
-        //   5: [-73.9947568, 40.7542076]
-        // }
-
-        // const endPoint = {
-        //   type: "point", // autocasts as Point
-        //   longitude: officeCoords[this.state.office_id][0],
-        //   latitude: officeCoords[this.state.office_id][1],
-        //   spatialReference: {
-        //     wkid: 3857
-        //   }
-        // };
-
-        // var end = new Graphic({
-        //   geometry: endPoint
-        // });
-
-        // routeParams.stops.features.push(start);
-        // routeParams.stops.features.push(end);
-        // routeTask.solve(routeParams).then((res) => {
-        //     // REST CALLS HERE
-        // })
-
-        if (this.state.new_user) {
-          // if the user is not in the db, add the user
-          this.addUser();
-        } else {
-          // if the user is in the db, update the user info
-          this.updateUser(this.state.email);
-        }
-      });
-    });
+//--------------------- JSX ---------------------\\
+render() {
+  const settingStyle = {
+    margin: "20px"
   };
 
-  //--------------------- JSX ---------------------\\
-  render() {
-    const startLoc = {
-      backgroundColor: "white",
-      padding: "1px",
-      border: "1px solid lightgrey",
-      borderRadius: "4px",
-      width: "75%"
-    };
-
-    const submitB = {
-      position: 'absolute',
-      bottom: '15px',
-      right: '20px'
-    };
-    const infoB = {
-      margin: "0 0 0 5px"
-    };
-
-    const settingStyle = {
-      margin: "20px"
-    };
-
-    if (this.state.form_complete === true) {
-      return <Redirect to='/results' />
-    }
-    return (
-      <div style={settingStyle}>
+  if (this.state.form_complete === true) {
+    return <Redirect to='/results' />
+  }
+  return (
+    <Row className="justify-content-md-center" style={settingStyle}>
+      <Col md={8}>
         <Row>
           <Col md={12}>
             <p>
-              <b>
-                This information will be used to match you with a carpool buddy!
-              </b>
+              <b>This information will be used to match you with a carpool buddy!</b>
             </p>
           </Col>
         </Row>
@@ -260,9 +133,9 @@ class Settings extends Component {
                 type="name"
                 name="name"
                 id="userName"
-                //readOnly
-                onChange={e => this.setState({ new_user: true, name: e.target.value })}
-                defaultValue={this.state.name}
+                readOnly
+                //onChange={e => this.setState({ new_user: true, name: e.target.value })}
+                defaultValue={this.props.n}
               />
             </FormGroup>
           </Col>
@@ -273,9 +146,9 @@ class Settings extends Component {
                 type="email"
                 name="email"
                 id="userEmail"
-                //readOnly
-                onChange={e => this.setState({ new_user: true, email: e.target.value })}
-                defaultValue={this.state.email}
+                readOnly
+                //onChange={e => this.setState({ new_user: true, email: e.target.value })}
+                defaultValue={this.props.e}
               />
             </FormGroup>
           </Col>
@@ -342,30 +215,17 @@ class Settings extends Component {
           </Col>
         </Row>
         <Row>
-          <Col md={8}>
-            <FormGroup>
-              <Label for="startLocation">Pickup Location</Label>
-              <Button id="PopoverFocus" size="sm" color="link" style={infoB}>help</Button>
-              <UncontrolledPopover trigger="focus" placement="auto" target="PopoverFocus">
-                <PopoverBody> Use the search bar below and select a dropdown
-                option. If you have privacy concerns, you can use a cross street
-                or store</PopoverBody>
-              </UncontrolledPopover>
-              <div id="startLoc" style={startLoc} className="form-control"></div>
-            </FormGroup>
-          </Col>
           <Col md={4}>
             <Button
               color="success"
-              style={submitB}
-              className='float-right'
               onClick={() => this.submitF()}>Save
             </Button>
           </Col>
         </Row>
-      </div>
-    );
-  }
+      </Col>
+    </Row>
+  );
+}
 }
 
 export default Settings;
