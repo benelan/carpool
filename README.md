@@ -3,6 +3,11 @@
 A carpool matcher app for Esri employees. Check out the 'spatial' branch for a more advanced solution. The 'spatial' branch creates a route from the user's home to their office. The user can then spatially filter the results table by creating a buffer around their route and finding colleagues that intersect the buffer. The 'spatial' branch uses ArcGIS Online as the backend api.
 
 ## Prerequisites
+If you don't have one, create an account at [mongoDB Atlas](https://docs.atlas.mongodb.com/getting-started/). Once you set up your account, you will need to create a file in the root directory of this application called '.env'. In the file, add:
+
+```
+DB_ROUTE=<CONNECTION STRING PROVIDED BY ATLAS>
+```
 
 To run the web app you must have [Node](https://nodejs.org/en/) installed. With Node installed, navigate to the root folder of the app and type:
 
