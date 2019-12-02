@@ -227,7 +227,7 @@ class ResultTable extends Component {
     
     
     return (
-      <div>
+      <React.Fragment>
         <Row className="justify-content-md-center">
           <Col md={8}>
             <Row style={resultStyle}>
@@ -243,8 +243,7 @@ class ResultTable extends Component {
                     defaultValue={this.state.distance}
                   />
                 </FormGroup>
-                <div style={mRight}>
-                  <FormGroup>
+                  <FormGroup style={mRight}>
                     <Input
                       type="select"
                       name="unitF"
@@ -258,9 +257,7 @@ class ResultTable extends Component {
                       <option value={4}>meters</option>
                     </Input>
                   </FormGroup>
-                </div>
-                <div style={mRight}>
-                  <FormGroup>
+                  <FormGroup style={mRight}>
                     <InputGroup size="sm">
                       <Input
                         type="number"
@@ -275,7 +272,6 @@ class ResultTable extends Component {
                       </InputGroupAddon>
                     </InputGroup>
                   </FormGroup>
-                </div>
               </Form>
             </Row>
             <Row style={tableStyle}>
@@ -307,12 +303,11 @@ class ResultTable extends Component {
                     }
                   </tbody>
                 </Table>
-                <div id="msg"></div>
               </Col>
             </Row>
           </Col>
         </Row>
-      </div >
+      </React.Fragment >
     );
   };
 }
