@@ -1,7 +1,12 @@
-import React, { Component } from "react";
+import React from "react";
 import { Col, Row, Button } from "reactstrap";
 
-class Home extends Component {
+type MyProps = {
+  e: string,
+  n: string;
+};
+
+class Home extends React.Component<MyProps> {
   // state = {};
 
   // componentDidMount() {}

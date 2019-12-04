@@ -1,13 +1,34 @@
-import React, { Component } from "react";
+import React from "react";
 import { Redirect } from "react-router-dom";
 import { Col, Row, Table, Form, FormGroup, Input, InputGroup, InputGroupAddon, InputGroupText, Button } from "reactstrap";
 import axios from "axios";
 import { loadModules } from "esri-loader";
 import { convertTime, filterTime } from "../helpers"
 
-class ResultTable extends Component {
+// state typing
+type MyState = {
+  data: Array<any>,
+  new_user_p: Boolean,
+  new_user_l: Boolean,
+  point_id: number | null,
+  line_id: number | null,
+  office_id: number | null,
+  driver: number | null,
+  arrive_work: string | null,
+  leave_work: string | null,
+  user_route: any | null,  // needs to cast as geometry for arcgis query
+  distance: number,
+  units: number,
+  time: number;
+};
 
-  state = {
+type MyProps = {
+  e: string,
+  n: string;
+};
+
+class ResultTable extends React.Component<MyProps, MyState> {
+  state: MyState = {
     data: [],
     new_user_p: false,
     new_user_l: false,
@@ -23,6 +44,9 @@ class ResultTable extends Component {
     time: 30
   };
 
+  proxyUrl: string = 'https://belan2.esri.com/DotNet/proxy.ashx?'
+
+//--------------------- Lifecycle ---------------------\\
   componentDidMount() {
     this.getUserByEmail();
   }
@@ -30,19 +54,18 @@ class ResultTable extends Component {
   componentWillUnmount() {
 
   }
-
+  //--------------------- CRUD ---------------------\\
   getData = () => {
-    const serviceUrl = 'https://services.arcgis.com/Wl7Y1m92PbjtJs5n/arcgis/rest/services/carpoolData/FeatureServer/0/query?';
-    const proxyUrl = 'https://belan2.esri.com/DotNet/proxy.ashx?'
-    let url = proxyUrl + serviceUrl;
-    const data = {
+    const serviceUrl: string = 'https://services.arcgis.com/Wl7Y1m92PbjtJs5n/arcgis/rest/services/carpoolData/FeatureServer/0/query?';
+    let url: string = this.proxyUrl + serviceUrl;
+    const data: any = {
       "f": "json",
       "returnGeometry": true,
       'where': '1=1',
       'outFields': "*"
     };
 
-    const query = Object.keys(data)
+    const query: string = Object.keys(data)
       .map(k => encodeURIComponent(k) + '=' + encodeURIComponent(data[k]))
       .join('&');
 
@@ -59,17 +82,17 @@ class ResultTable extends Component {
 
   getUserByEmail = () => {
     //--------------------- POINT ---------------------\\
-    const serviceUrl = 'https://services.arcgis.com/Wl7Y1m92PbjtJs5n/arcgis/rest/services/carpoolData/FeatureServer/0/query?';
-    const proxyUrl = 'https://belan2.esri.com/DotNet/proxy.ashx?'
-    let url = proxyUrl + serviceUrl;
+    const serviceUrl: string = 'https://services.arcgis.com/Wl7Y1m92PbjtJs5n/arcgis/rest/services/carpoolData/FeatureServer/0/query?';
 
-    const data = {
+    let url: string = this.proxyUrl + serviceUrl;
+
+    const data: any = {
       "f": "json",
       'where': "email='" + this.props.e + "'",
       'outFields': "*"
     };
 
-    const query = Object.keys(data)
+    const query: string = Object.keys(data)
       .map(k => encodeURIComponent(k) + '=' + encodeURIComponent(data[k]))
       .join('&');
 
@@ -77,9 +100,9 @@ class ResultTable extends Component {
 
     axios.get(url)
       .then(res => {
-        const users = res.data.features;
+        const users: Array<any> = res.data.features;
         if (users.length > 0) {  // check to see if user is already saved
-          const user = users[0].attributes
+          const user: any = users[0].attributes
           // populate form with user data
           this.setState({
             point_id: user.OBJECTID,
@@ -100,18 +123,17 @@ class ResultTable extends Component {
         console.log(err)
       });
     //--------------------- Line ---------------------\\
-    const serviceUrl2 = 'https://services.arcgis.com/Wl7Y1m92PbjtJs5n/arcgis/rest/services/carpoolData/FeatureServer/1/query?';
-    const proxyUrl2 = 'https://belan2.esri.com/DotNet/proxy.ashx?'
-    let url2 = proxyUrl2 + serviceUrl2;
+    const serviceUrl2: string = 'https://services.arcgis.com/Wl7Y1m92PbjtJs5n/arcgis/rest/services/carpoolData/FeatureServer/1/query?';
+    let url2: string = this.proxyUrl + serviceUrl2;
 
-    const data2 = {
+    const data2: any = {
       "f": "json",
       'where': "email='" + this.props.e + "'",
       'outFields': "*",
       'returnGeometry': true
     };
 
-    const query2 = Object.keys(data2)
+    const query2: string = Object.keys(data2)
       .map(k => encodeURIComponent(k) + '=' + encodeURIComponent(data2[k]))
       .join('&');
 
@@ -119,10 +141,10 @@ class ResultTable extends Component {
 
     axios.get(url2)
       .then(res => {
-        const users = res.data.features;
+        const users: Array<any> = res.data.features;
         // fill in form and state with settings saved in db
         if (users.length > 0) {  // check to see if user is already saved
-          const user = users[0];
+          const user: any = users[0];
 
           // populate form with user data
           this.setState({
@@ -147,45 +169,50 @@ class ResultTable extends Component {
       });
   };
 
-  filterF = () => {
-    const unitLookup = {
+
+//--------------------- Filter Function ---------------------\\
+  async filterF(): Promise<void> {
+    const unitLookup: any = {
       1: 'miles',
       2: 'feet',
       3: 'kilometers',
       4: 'meters'
     }
 
-    loadModules([
-      "esri/layers/FeatureLayer",
-      "esri/config"
-    ]).then(([FeatureLayer, esriConfig]) => {
-      esriConfig.request.proxyUrl = 'https://belan2.esri.com/DotNet/proxy.ashx?';
-      const serviceUrl = 'https://services.arcgis.com/Wl7Y1m92PbjtJs5n/arcgis/rest/services/carpoolData/FeatureServer/0/';
+    // load modules
+    type MapModules = [typeof import("esri/layers/FeatureLayer"), typeof import("esri/config")];
+    const [FeatureLayer, esriConfig] = await (loadModules(["esri/layers/FeatureLayer", "esri/config"]) as Promise<MapModules>);
 
-      const featureLayer = new FeatureLayer(serviceUrl);
+    // use proxy and set service url
+    esriConfig.request.proxyUrl = 'https://belan2.esri.com/DotNet/proxy.ashx?';
+    const serviceUrl: string = 'https://services.arcgis.com/Wl7Y1m92PbjtJs5n/arcgis/rest/services/carpoolData/FeatureServer/0/';
 
-      var query = featureLayer.createQuery();
-      query.geometry = this.state.user_route;  // the point location of the pointer
-      query.distance = Math.abs(this.state.distance);
-      query.units = unitLookup[this.state.units];
-      query.spatialRelationship = "intersects";  // this is the default
-      query.returnGeometry = true;
-      query.outFields = ["*"];
-      query.where = "(office_id=" + this.state.office_id + ") AND (NOT driver=" + this.state.driver + " OR driver=3) AND (NOT OBJECTID=" + this.state.point_id + ")";
+    const featureLayer = new FeatureLayer({ url: serviceUrl });
 
-      const that = this;
 
-      featureLayer.queryFeatures(query)
-        .then(function (response) {
-          // returns a feature set
-          that.setState({ data: response.features });
-        })
-        .catch((err) => {
-          alert(err.message)
-        });
-    });
+    // perform query
+    var query = featureLayer.createQuery();
+    query.geometry = this.state.user_route;  // the point location of the pointer
+    query.distance = Math.abs(this.state.distance);
+    query.units = unitLookup[this.state.units];
+    query.spatialRelationship = "intersects";  // this is the default
+    query.returnGeometry = true;
+    query.outFields = ["*"];
+    query.where = "(office_id=" + this.state.office_id + ") AND (NOT driver=" + this.state.driver + " OR driver=3) AND (NOT OBJECTID=" + this.state.point_id + ")";
+
+    const that = this;
+
+    featureLayer.queryFeatures(query)
+      .then(function (response: any) {
+        // returns a feature set
+        that.setState({ data: response.features });
+      })
+      .catch((err: any) => {
+        alert(err.message)
+      });
   };
 
+//--------------------- JSX ---------------------\\
   render() {
     const { data } = this.state;
     const tableStyle = {
@@ -207,7 +234,7 @@ class ResultTable extends Component {
       width: '130px'
     };
 
-    function renderSwitch(param) {
+    function renderSwitch(param: number) {
       switch (param) {
         case 1:
           return 'Driver';
@@ -218,14 +245,14 @@ class ResultTable extends Component {
       };
     };
 
-    if (this.state.new_user_l === true && this.state.new_user_p === true) {
+    if (this.state.new_user_l && this.state.new_user_p) {
       alert('Fill out your Settings in order to find a carpool buddy')
       return <Redirect to='/settings' />
     }
 
-     const subject = encodeURIComponent("Lets Carpool!");
-    
-    
+    const subject = encodeURIComponent("Lets Carpool!");
+
+
     return (
       <React.Fragment>
         <Row className="justify-content-md-center">
@@ -239,39 +266,39 @@ class ResultTable extends Component {
                     id="distF"
                     bsSize="sm"
                     style={distF}
-                    onChange={e => { this.setState({ distance: Math.abs(e.target.value) }); this.filterF() }}
+                    onChange={e => { this.setState({ distance: Math.abs(parseInt(e.target.value)) }); this.filterF() }}
                     defaultValue={this.state.distance}
                   />
                 </FormGroup>
-                  <FormGroup style={mRight}>
+                <FormGroup style={mRight}>
+                  <Input
+                    type="select"
+                    name="unitF"
+                    id="unitF"
+                    bsSize="sm"
+                    onChange={e => { this.setState({ units: parseInt(e.target.value) }); this.filterF() }}
+                    defaultValue={this.state.units}>
+                    <option value={1}>miles</option>
+                    <option value={2}>feet</option>
+                    <option value={3}>kilometers</option>
+                    <option value={4}>meters</option>
+                  </Input>
+                </FormGroup>
+                <FormGroup style={mRight}>
+                  <InputGroup size="sm">
                     <Input
-                      type="select"
-                      name="unitF"
-                      id="unitF"
+                      type="number"
+                      name="timeF"
+                      id="timeF"
                       bsSize="sm"
-                      onChange={e => { this.setState({ units: e.target.value }); this.filterF() }}
-                      defaultValue={this.state.units}>
-                      <option value={1}>miles</option>
-                      <option value={2}>feet</option>
-                      <option value={3}>kilometers</option>
-                      <option value={4}>meters</option>
-                    </Input>
-                  </FormGroup>
-                  <FormGroup style={mRight}>
-                    <InputGroup size="sm">
-                      <Input
-                        type="number"
-                        name="timeF"
-                        id="timeF"
-                        bsSize="sm"
-                        onChange={e => this.setState({ time: Math.abs(e.target.value) })}
-                        defaultValue={this.state.time}
-                      />
-                      <InputGroupAddon addonType="append" >
-                        <InputGroupText>minutes</InputGroupText>
-                      </InputGroupAddon>
-                    </InputGroup>
-                  </FormGroup>
+                      onChange={e => this.setState({ time: Math.abs(parseInt(e.target.value)) })}
+                      defaultValue={this.state.time}
+                    />
+                    <InputGroupAddon addonType="append" >
+                      <InputGroupText>minutes</InputGroupText>
+                    </InputGroupAddon>
+                  </InputGroup>
+                </FormGroup>
               </Form>
             </Row>
             <Row style={tableStyle}>
@@ -294,9 +321,9 @@ class ResultTable extends Component {
                           <td>{convertTime(fd.attributes.arrive_work)}</td>
                           <td>{convertTime(fd.attributes.leave_work)}</td>
                           <td>{renderSwitch(fd.attributes.driver)}</td>
-                          <td> 
-                            <Button 
-                              href={"mailto:" + fd.attributes.email + "?subject=" + subject + "&body=" + encodeURIComponent("Hello " + fd.attributes.name +", \n\nI show up to work at " + convertTime(this.state.arrive_work) + " and leave at " + convertTime(this.state.leave_work) + ". I work in the same office as you, would you like to carpool? You can contact me by replying to this email.\n\nThanks,\n" + this.props.n)} 
+                          <td>
+                            <Button
+                              href={"mailto:" + fd.attributes.email + "?subject=" + subject + "&body=" + encodeURIComponent("Hello " + fd.attributes.name + ", \n\nI show up to work at " + convertTime(this.state.arrive_work) + " and leave at " + convertTime(this.state.leave_work) + ". I work in the same office as you, would you like to carpool? You can contact me by replying to this email.\n\nThanks,\n" + this.props.n)}
                               color="link" >{fd.attributes.email}</Button></td>
                         </tr>
                       ))

@@ -1,12 +1,34 @@
-import React, { Component } from "react";
+import React from "react";
 import { Col, Row, Button, FormGroup, Label, Input, UncontrolledPopover, PopoverBody } from "reactstrap";
 import { Redirect } from "react-router-dom";
 import { loadModules, loadCss } from "esri-loader";
 import axios from "axios";
 
-class Settings extends Component {
+type MyState = {
+  searchWidget: import("esri/widgets/Search") | null,
+  new_user: Boolean,
+  form_complete: Boolean,
+  point_id: number | null,
+  line_id: number | null,
+  office_id: number,
+  office_old: number | null,
+  driver: number,
+  arrive_work: string,
+  leave_work: string,
+  route: any | null,  // needs to cast as geometry for arcgis query
+  start_addr: string,
+  lon: number | null,
+  lat: number | null;
+};
+
+type MyProps = {
+  e: string,
+  n: string;
+};
+
+class Settings extends React.Component<MyProps, MyState> {
   //--------------------- STATE---------------------\\
-  state = {
+  state: MyState = {
     new_user: true,
     form_complete: false,
     searchWidget: null,
@@ -19,9 +41,11 @@ class Settings extends Component {
     leave_work: "17:00",
     lat: null,
     lon: null,
-    start_addr: null,
+    start_addr: "",
     route: null
   };
+
+  proxyUrl: string = 'https://belan2.esri.com/DotNet/proxy.ashx?'
 
   //--------------------- LIFE CYCLE FUNCTIONS ---------------------\\
   componentDidMount() {
@@ -37,11 +61,10 @@ class Settings extends Component {
   addUser = () => {
     //--------------------- ROUTE ---------------------\\
     if (!!this.state.route) {
-      const serviceUrl2 = 'https://services.arcgis.com/Wl7Y1m92PbjtJs5n/arcgis/rest/services/carpoolData/FeatureServer/1/addFeatures?f=json';
-      const proxyUrl2 = 'https://belan2.esri.com/DotNet/proxy.ashx?'
-      let url2 = proxyUrl2 + serviceUrl2;
+      const serviceUrl2: string = 'https://services.arcgis.com/Wl7Y1m92PbjtJs5n/arcgis/rest/services/carpoolData/FeatureServer/1/addFeatures?f=json';
+      let url2: string = this.proxyUrl + serviceUrl2;
 
-      const data2 = [{
+      const data2: any = [{
         "geometry": this.state.route.geometry,
         'attributes': {
           'email': this.props.e,
@@ -50,21 +73,20 @@ class Settings extends Component {
         }
       }];
 
-      const querystring2 = 'features=' + JSON.stringify(data2);
+      const querystring2: string = 'features=' + JSON.stringify(data2);
       axios
         .post(url2, querystring2)
-        .catch(err => {
+        .catch((err : any) => {
           // handle any errors
           console.error(err);
         });
     }
 
     //--------------------- Line ---------------------\\
-    const serviceUrl = 'https://services.arcgis.com/Wl7Y1m92PbjtJs5n/arcgis/rest/services/carpoolData/FeatureServer/0/addFeatures?f=json&features=';
-    const proxyUrl = 'https://belan2.esri.com/DotNet/proxy.ashx?'
-    let url = proxyUrl + serviceUrl;
+    const serviceUrl: string = 'https://services.arcgis.com/Wl7Y1m92PbjtJs5n/arcgis/rest/services/carpoolData/FeatureServer/0/addFeatures?f=json&features='
+    let url: string = this.proxyUrl + serviceUrl;
 
-    const data = [{
+    const data: any = [{
       "geometry": {
         "x": this.state.lon,
         "y": this.state.lat,
@@ -77,8 +99,8 @@ class Settings extends Component {
         'email': this.props.e,
         'arrive_work': this.state.arrive_work,
         'leave_work': this.state.leave_work,
-        'driver': parseInt(this.state.driver),
-        'office_id': parseInt(this.state.office_id),
+        'driver': this.state.driver,
+        'office_id': this.state.office_id,
         'start_addr': encodeURIComponent(this.state.start_addr)
       }
     }]
@@ -90,20 +112,19 @@ class Settings extends Component {
       .then(() => {
         this.setState({ new_user: false, form_complete: true });
       })
-      .catch(err => {
+      .catch((err : any) => {
         // handle any errors
-        console.error(err);
+        console.log(err);
       });
   };
 
   updateUser = () => {
     //--------------------- ROUTE ---------------------\\
     if (!!this.state.route) {
-      const serviceUrl2 = 'https://services.arcgis.com/Wl7Y1m92PbjtJs5n/arcgis/rest/services/carpoolData/FeatureServer/1/updateFeatures?f=json';
-      const proxyUrl2 = 'https://belan2.esri.com/DotNet/proxy.ashx?'
-      let url2 = proxyUrl2 + serviceUrl2;
+      const serviceUrl2: string = 'https://services.arcgis.com/Wl7Y1m92PbjtJs5n/arcgis/rest/services/carpoolData/FeatureServer/1/updateFeatures?f=json';
+      let url2: string = this.proxyUrl + serviceUrl2;
 
-      const data2 = [{
+      const data2: any = [{
         "geometry": this.state.route.geometry,
         'attributes': {
           'OBJECTID': this.state.line_id,
@@ -113,25 +134,24 @@ class Settings extends Component {
         }
       }];
 
-      const querystring2 = 'features=' + JSON.stringify(data2);
+      const querystring2: string = 'features=' + JSON.stringify(data2);
       axios
         .post(url2, querystring2)
-        .catch(err => {
+        .catch((err : any) => {
           // handle any errors
           console.error(err);
         })
-        .catch(err => {
+        .catch((err : any) => {
           console.log(err)
         });
     }
 
 
     //--------------------- POINT ---------------------\\
-    const serviceUrl = 'https://services.arcgis.com/Wl7Y1m92PbjtJs5n/arcgis/rest/services/carpoolData/FeatureServer/0/updateFeatures?f=json&features=';
-    const proxyUrl = 'https://belan2.esri.com/DotNet/proxy.ashx?'
-    let url = proxyUrl + serviceUrl;
+    const serviceUrl: string = 'https://services.arcgis.com/Wl7Y1m92PbjtJs5n/arcgis/rest/services/carpoolData/FeatureServer/0/updateFeatures?f=json&features='
+    let url: string = this.proxyUrl + serviceUrl;
 
-    const data = [{
+    const data: any = [{
       "geometry": {
         "x": this.state.lon,
         "y": this.state.lat,
@@ -145,8 +165,8 @@ class Settings extends Component {
         'email': this.props.e,
         'arrive_work': this.state.arrive_work,
         'leave_work': this.state.leave_work,
-        'driver': parseInt(this.state.driver),
-        'office_id': parseInt(this.state.office_id),
+        'driver': this.state.driver,
+        'office_id': this.state.office_id,
         'start_addr': encodeURIComponent(this.state.start_addr)
       }
     }];
@@ -158,41 +178,40 @@ class Settings extends Component {
       .then(() => {
         this.setState({ form_complete: true });
       })
-      .catch(err => {
+      .catch((err : any) => {
         // handle any errors
         console.error(err);
       })
-      .catch(err => {
+      .catch((err : any) => {
         console.log(err)
       });
   };
 
   getUserByEmail = () => {
     //--------------------- POINT ---------------------\\
-    const serviceUrl = 'https://services.arcgis.com/Wl7Y1m92PbjtJs5n/arcgis/rest/services/carpoolData/FeatureServer/0/query?';
-    const proxyUrl = 'https://belan2.esri.com/DotNet/proxy.ashx?'
-    let url = proxyUrl + serviceUrl;
+    const serviceUrl: string = 'https://services.arcgis.com/Wl7Y1m92PbjtJs5n/arcgis/rest/services/carpoolData/FeatureServer/0/query?'
+    let url: string = this.proxyUrl + serviceUrl;
 
-    const data = {
+    const data: any = {
       "f": "json",
       'where': "email='" + this.props.e + "'",
       'outFields': "*"
     };
 
-    const query = Object.keys(data)
+    const query: string = Object.keys(data)
       .map(k => encodeURIComponent(k) + '=' + encodeURIComponent(data[k]))
       .join('&');
 
     url = url + query;
 
     axios.get(url)
-      .then(res => {
-        const users = res.data.features;
+      .then((res : any) => {
+        const users: any = res.data.features;
         // fill in form and state with settings saved in db
         loadModules(["esri/widgets/Search"])
           .then(([Search]) => {
             if (users.length > 0) {  // check to see if user is already saved
-              const user = users[0].attributes
+              const user: any = users[0].attributes
 
               // populate form with user data
               this.setState({
@@ -212,10 +231,10 @@ class Settings extends Component {
 
               // the request promise seems to resolve after the component mounts
               // so need to manually change the form values
-              document.getElementById("officeSelect").value = user.office_id;
-              document.getElementById("driverSelect").value = user.driver;
-              document.getElementById("arriveTime").value = user.arrive_work;
-              document.getElementById("leaveTime").value = user.leave_work;
+              (document.getElementById("officeSelect") as HTMLInputElement).value = user.office_id;
+              (document.getElementById("driverSelect") as HTMLInputElement).value = user.driver;
+              (document.getElementById("arriveTime") as HTMLInputElement).value = user.arrive_work;
+              (document.getElementById("leaveTime") as HTMLInputElement).value = user.leave_work;
             }
             else {
               // set up blank Search Widget if new user
@@ -230,12 +249,12 @@ class Settings extends Component {
       .catch(err => {
         console.log(err)
       });
-    //--------------------- Line ---------------------\\
-    const serviceUrl2 = 'https://services.arcgis.com/Wl7Y1m92PbjtJs5n/arcgis/rest/services/carpoolData/FeatureServer/1/query?';
-    const proxyUrl2 = 'https://belan2.esri.com/DotNet/proxy.ashx?'
-    let url2 = proxyUrl2 + serviceUrl2;
 
-    const data2 = {
+    //--------------------- Line ---------------------\\
+    const serviceUrl2: string = 'https://services.arcgis.com/Wl7Y1m92PbjtJs5n/arcgis/rest/services/carpoolData/FeatureServer/1/query?'
+    let url2: string = this.proxyUrl + serviceUrl2;
+
+    const data2: any = {
       "f": "json",
       'where': "email='" + this.props.e + "'",
       'outFields': "*"
@@ -248,11 +267,11 @@ class Settings extends Component {
     url2 = url2 + query2;
 
     axios.get(url2)
-      .then(res => {
-        const users = res.data.features;
+      .then((res : any) => {
+        const users: any = res.data.features;
         // fill in form and state with settings saved in db
         if (users.length > 0) {  // check to see if user is already saved
-          const user = users[0].attributes
+          const user: any = users[0].attributes
 
           // populate form with user data
           this.setState({
@@ -260,29 +279,38 @@ class Settings extends Component {
           });
         }
       })
-      .catch(err => {
+      .catch((err : any) => {
         console.log(err)
       });
   };
 
   //--------------------- SUBMIT HANDLER ---------------------\\
-  submitF = () => {
+  async submitF() : Promise<void> {
     // load esri modules
-    loadModules([
+    type MapModules = [
+      typeof import( "esri/widgets/Search"),
+      typeof import("esri/tasks/RouteTask"),
+      typeof import("esri/tasks/support/RouteParameters"),
+      typeof import("esri/tasks/support/FeatureSet"),
+      typeof import("esri/Graphic")
+    ];
+    const [Search, RouteTask, RouteParameters, FeatureSet, Graphic] = await (loadModules([
       "esri/widgets/Search",
       "esri/tasks/RouteTask",
       "esri/tasks/support/RouteParameters",
       "esri/tasks/support/FeatureSet",
       "esri/Graphic"
-    ]).then(([Search, RouteTask, RouteParameters, FeatureSet, Graphic]) => {
+    ]) as Promise<MapModules>);
+
+   
       var that = this;
-      const address = document.getElementById("startLoc").value;
+      const address = (document.getElementById("startLoc") as HTMLInputElement).value;
       // search the address that was input
-      this.state.searchWidget.search(address).then(event => {
+      this.state.searchWidget!.search(address).then((event : any)=> {
         // get the lat/lon and address
-        const lat = event.results[0].results[0].feature.geometry.latitude;
-        const lon = event.results[0].results[0].feature.geometry.longitude;
-        const addr = event.results[0].results[0].feature.attributes.Match_addr;
+        const lat : number = event.results[0].results[0].feature.geometry.latitude;
+        const lon : number = event.results[0].results[0].feature.geometry.longitude;
+        const addr : string = event.results[0].results[0].feature.attributes.Match_addr;
 
         // if the address didn't change
         if ((addr === that.state.start_addr) && (that.state.office_id === that.state.office_old)) {
@@ -315,7 +343,7 @@ class Settings extends Component {
           });
 
           // Setup the route parameters
-          var routeParams = new RouteParameters({
+          var routeParams : any = new RouteParameters({
             stops: new FeatureSet(),
             outSpatialReference: {
               // autocasts as new SpatialReference()
@@ -336,7 +364,7 @@ class Settings extends Component {
             geometry: startPoint
           });
 
-          const officeCoords = {
+          const officeCoords : any = {
             1: [-117.1946114, 34.057267],
             2: [-117.2180851, 34.0692566],
             3: [-80.7835061, 35.100138],
@@ -361,7 +389,7 @@ class Settings extends Component {
           routeParams.stops.features.push(start);
           routeParams.stops.features.push(end);
           // calc route
-          routeTask.solve(routeParams).then((res) => {
+          routeTask.solve(routeParams).then((res : any) => {
             that.setState({ route: res.routeResults[0].route });
             // REST CALLS HERE
             if (that.state.new_user) {
@@ -372,12 +400,11 @@ class Settings extends Component {
               that.updateUser();
             }
           })
-            .catch((err) => {
+            .catch((err : any) => {
               alert(err.message)
             });
         }
       });
-    });
   };
 
   //--------------------- JSX ---------------------\\
@@ -390,10 +417,10 @@ class Settings extends Component {
       width: "75%"
     };
 
-    const submitB = {
-      position: 'absolute',
-      bottom: '15px',
-      right: '20px'
+    const submitB : any = {
+      position: "absolute",
+      bottom: "15px",
+      right: "20px"
     };
     const infoB = {
       margin: "0 0 0 5px"
@@ -421,7 +448,6 @@ class Settings extends Component {
               <FormGroup>
                 <Label for="userName">Name</Label>
                 <Input
-                  type="name"
                   name="name"
                   id="userName"
                   readOnly
@@ -478,7 +504,7 @@ class Settings extends Component {
                   type="select"
                   name="select"
                   id="driverSelect"
-                  onChange={e => this.setState({ driver: e.target.value })}
+                  onChange={e => this.setState({ driver: parseInt(e.target.value) })}
                 >
                   <option value={1}>Driver</option>
                   <option value={2}>Passenger</option>
@@ -493,7 +519,7 @@ class Settings extends Component {
                   type="select"
                   name="office"
                   id="officeSelect"
-                  onChange={e => this.setState({ office_id: e.target.value })}
+                  onChange={e => this.setState({ office_id: parseInt(e.target.value) })}
                   defaultValue={this.state.office_id}
                 >
                   <option value={1}>Redlands Main Campus</option>

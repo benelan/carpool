@@ -84,8 +84,8 @@ exports[`Settings snapshot 1`] = `
           <Input
             id="userName"
             name="name"
-            onChange={[Function]}
-            type="name"
+            readOnly={true}
+            type="text"
           />
         </FormGroup>
       </Col>
@@ -123,7 +123,7 @@ exports[`Settings snapshot 1`] = `
           <Input
             id="userEmail"
             name="email"
-            onChange={[Function]}
+            readOnly={true}
             type="email"
           />
         </FormGroup>

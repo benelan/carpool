@@ -1,0 +1,268 @@
+{
+    "layers": [
+        {
+            "id": 0,
+            "popupInfo": {
+                "title": "pickups",
+                "fieldInfos": [
+                    {
+                        "fieldName": "OBJECTID",
+                        "label": "OBJECTID",
+                        "isEditable": false,
+                        "tooltip": "",
+                        "visible": false,
+                        "stringFieldOption": "textbox"
+                    },
+                    {
+                        "fieldName": "GlobalID",
+                        "label": "",
+                        "isEditable": false,
+                        "tooltip": "",
+                        "visible": false,
+                        "stringFieldOption": "textbox"
+                    },
+                    {
+                        "fieldName": "CreationDate",
+                        "label": "CreationDate",
+                        "isEditable": false,
+                        "tooltip": "",
+                        "visible": true,
+                        "stringFieldOption": "textbox",
+                        "format": {
+                            "dateFormat": "shortDateShortTime"
+                        }
+                    },
+                    {
+                        "fieldName": "Creator",
+                        "label": "Creator",
+                        "isEditable": false,
+                        "tooltip": "",
+                        "visible": true,
+                        "stringFieldOption": "textbox"
+                    },
+                    {
+                        "fieldName": "EditDate",
+                        "label": "EditDate",
+                        "isEditable": false,
+                        "tooltip": "",
+                        "visible": true,
+                        "stringFieldOption": "textbox",
+                        "format": {
+                            "dateFormat": "shortDateShortTime"
+                        }
+                    },
+                    {
+                        "fieldName": "Editor",
+                        "label": "Editor",
+                        "isEditable": false,
+                        "tooltip": "",
+                        "visible": true,
+                        "stringFieldOption": "textbox"
+                    },
+                    {
+                        "fieldName": "name",
+                        "label": "name",
+                        "isEditable": true,
+                        "tooltip": "",
+                        "visible": true,
+                        "stringFieldOption": "textbox"
+                    },
+                    {
+                        "fieldName": "email",
+                        "label": "email",
+                        "isEditable": true,
+                        "tooltip": "",
+                        "visible": true,
+                        "stringFieldOption": "textbox"
+                    },
+                    {
+                        "fieldName": "driver",
+                        "label": "driver",
+                        "isEditable": true,
+                        "tooltip": "",
+                        "visible": true,
+                        "format": {
+                            "places": 0,
+                            "digitSeparator": true
+                        },
+                        "stringFieldOption": "textbox"
+                    },
+                    {
+                        "fieldName": "office_id",
+                        "label": "office_id",
+                        "isEditable": true,
+                        "tooltip": "",
+                        "visible": true,
+                        "format": {
+                            "places": 0,
+                            "digitSeparator": true
+                        },
+                        "stringFieldOption": "textbox"
+                    },
+                    {
+                        "fieldName": "arrive_work",
+                        "label": "arrive_work",
+                        "isEditable": true,
+                        "tooltip": "",
+                        "visible": true,
+                        "stringFieldOption": "textbox"
+                    },
+                    {
+                        "fieldName": "leave_work",
+                        "label": "leave_work",
+                        "isEditable": true,
+                        "tooltip": "",
+                        "visible": true,
+                        "stringFieldOption": "textbox"
+                    },
+                    {
+                        "fieldName": "start_addr",
+                        "label": "start_addr",
+                        "isEditable": true,
+                        "tooltip": "",
+                        "visible": true,
+                        "stringFieldOption": "textbox"
+                    },
+                    {
+                        "fieldName": "success_bool",
+                        "label": "success_bool",
+                        "isEditable": true,
+                        "tooltip": "",
+                        "visible": true,
+                        "format": {
+                            "places": 0,
+                            "digitSeparator": true
+                        },
+                        "stringFieldOption": "textbox"
+                    }
+                ],
+                "description": null,
+                "showAttachments": true,
+                "mediaInfos": []
+            },
+            "layerDefinition": {
+                "defaultVisibility": true
+            }
+        },
+        {
+            "id": 1,
+            "popupInfo": {
+                "title": "routes",
+                "fieldInfos": [
+                    {
+                        "fieldName": "OBJECTID",
+                        "label": "OBJECTID",
+                        "isEditable": false,
+                        "tooltip": "",
+                        "visible": false,
+                        "stringFieldOption": "textbox"
+                    },
+                    {
+                        "fieldName": "GlobalID",
+                        "label": "",
+                        "isEditable": false,
+                        "tooltip": "",
+                        "visible": false,
+                        "stringFieldOption": "textbox"
+                    },
+                    {
+                        "fieldName": "Shape__Length",
+                        "label": "Shape__Length",
+                        "isEditable": false,
+                        "tooltip": "",
+                        "visible": false,
+                        "stringFieldOption": "textbox",
+                        "format": {
+                            "places": 2,
+                            "digitSeparator": true
+                        }
+                    },
+                    {
+                        "fieldName": "CreationDate",
+                        "label": "CreationDate",
+                        "isEditable": false,
+                        "tooltip": "",
+                        "visible": true,
+                        "stringFieldOption": "textbox",
+                        "format": {
+                            "dateFormat": {
+                                "datePattern": "M/d/y",
+                                "timePattern": "h:mm a",
+                                "timeEnabled": true
+                            }
+                        }
+                    },
+                    {
+                        "fieldName": "Creator",
+                        "label": "Creator",
+                        "isEditable": false,
+                        "tooltip": "",
+                        "visible": true,
+                        "stringFieldOption": "textbox"
+                    },
+                    {
+                        "fieldName": "EditDate",
+                        "label": "EditDate",
+                        "isEditable": false,
+                        "tooltip": "",
+                        "visible": true,
+                        "stringFieldOption": "textbox",
+                        "format": {
+                            "dateFormat": {
+                                "datePattern": "M/d/y",
+                                "timePattern": "h:mm a",
+                                "timeEnabled": true
+                            }
+                        }
+                    },
+                    {
+                        "fieldName": "Editor",
+                        "label": "Editor",
+                        "isEditable": false,
+                        "tooltip": "",
+                        "visible": true,
+                        "stringFieldOption": "textbox"
+                    },
+                    {
+                        "fieldName": "email",
+                        "label": "email",
+                        "isEditable": true,
+                        "tooltip": "",
+                        "visible": true,
+                        "stringFieldOption": "textbox"
+                    },
+                    {
+                        "fieldName": "travel_minutes",
+                        "label": "travel_minutes",
+                        "isEditable": true,
+                        "tooltip": "",
+                        "visible": true,
+                        "format": {
+                            "places": 2,
+                            "digitSeparator": true
+                        },
+                        "stringFieldOption": "textbox"
+                    },
+                    {
+                        "fieldName": "travel_miles",
+                        "label": "travel_miles",
+                        "isEditable": true,
+                        "tooltip": "",
+                        "visible": true,
+                        "format": {
+                            "places": 2,
+                            "digitSeparator": true
+                        },
+                        "stringFieldOption": "textbox"
+                    }
+                ],
+                "description": null,
+                "showAttachments": true,
+                "mediaInfos": []
+            },
+            "layerDefinition": {
+                "defaultVisibility": true
+            }
+        }
+    ]
+}
