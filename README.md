@@ -17,3 +17,4 @@ This branch uses ArcGIS Online as the backend. The master branch uses the MERN S
 * [ArcGIS](https://developers.arcgis.com/javascript/) - Spatial Analysis
 * [React](https://reactjs.org/) -Frontend Framework
 * [Reactstrap](https://reactstrap.github.io/) - Bootstrap for React
+* [TypeScript](https://www.typescriptlang.org/) - JavaScript Typing
