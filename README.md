@@ -3,6 +3,7 @@
 A carpool matcher app for Esri employees. This branch creates a route from the user's home to their office. The user can then spatially filter the results table by creating a buffer around their route and finding colleagues that intersect the buffer. The 'master' branch does not filter spatially, but uses a custom backend api.
 
 ## Prerequisites
+This branch uses the Esri [resource-proxy](https://github.com/Esri/resource-proxy). If you are not on Esri's intranet where my proxy is hosted, it will not work. You will need to set up your own proxy and feature layer.
 
 To run the web app you must have [Node](https://nodejs.org/en/) installed. With Node installed, navigate to the root folder of the app and type:
 
