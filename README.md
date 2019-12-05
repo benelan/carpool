@@ -27,12 +27,13 @@ To do list
 - [x] Create React data table component
 - [x] Filter results table based on distance, time, and driver/passenger
 - [ ] Create React home/info page
-- [ ] Finish setting up Okta auth, or use jwt
+- [ ] Finish setting up Okta auth middleware, or use jwt or [passport](http://www.passportjs.org/packages/passport-oauth2/)
+- [ ] Impmlement a [time range slider](http://react-component.github.io/slider/examples/range.html) for filtering the results
 - [ ] Create option to remove yourself from list
+- [ ] Consider filter algorithm rework: what if people's filters do not match up?
 - [ ] Stop procrastinating
 
 ## Built With MERN Stack
-
 * [MongoDB](https://www.mongodb.com/) - Database
 * [Mongoose](https://mongoosejs.com/) - ODM
 * [Express](https://expressjs.com/) - Backend Framework
