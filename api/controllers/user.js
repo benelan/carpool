@@ -4,7 +4,7 @@ const express = require('express')
 
 // this is our get method
 // this method fetches all available data in our database
-router.get('/api/getAllUsers', (req, res) => {
+router.get('/api/getAllUsers', ensureAuthenticated, (req, res) => {
   //User.findOneAndRemove({email:'belan@esri.com'}, (err, data) => {})
   
   User.find((err, data) => {
@@ -13,7 +13,7 @@ router.get('/api/getAllUsers', (req, res) => {
   });
 });
 
-router.get('/api/queryUsers', (req, res) => {
+router.get('/api/queryUsers', ensureAuthenticated, (req, res) => {
   User.find({
     email: {$ne: req.query.email}, // don't show the user
     office_id: req.query.office, // only show colleagues in the same office
@@ -26,7 +26,7 @@ router.get('/api/queryUsers', (req, res) => {
 
 // this is our get get one method
 // this method fetches the user data by email
-router.get('/api/getOneUser', (req, res) => {
+router.get('/api/getOneUser', ensureAuthenticated, (req, res) => {
   const em = req.query.email;
 
   User.findOne({email: em}, (err, data) => {
@@ -37,7 +37,7 @@ router.get('/api/getOneUser', (req, res) => {
 
 // this is our update method
 // this method overwrites existing data in our database
-router.post('/api/updateUser', (req, res) => {
+router.post('/api/updateUser', ensureAuthenticated, (req, res) => {
   const { em, update } = req.body;
   const query = {email: em};
   User.findOneAndUpdate(query, update, (err) => {
@@ -59,7 +59,7 @@ router.post('/api/updateUser', (req, res) => {
 
 // this is our create methid
 // this method adds new data in our database
-router.post('/api/addUser', (req, res) => {
+router.post('/api/addUser', ensureAuthenticated, (req, res) => {
   let data = new User();
 
   const { name, email, arrive_work, leave_work, driver, office_id, successful} = req.body;
@@ -77,7 +77,7 @@ router.post('/api/addUser', (req, res) => {
   data.leave_work = leave_work;
   data.driver = driver;
   data.office_id = office_id;
-  data.successful = successful
+  data.successful = successful;
 
   data.save((err) => {
     if (err) return res.json({ success: false, error: err });
@@ -85,5 +85,11 @@ router.post('/api/addUser', (req, res) => {
   });
 });
 
+function ensureAuthenticated(req, res, next) {
+  //console.log(req.sessionStore.sessions)
+  if (!!req.sessionStore.sessions) {
+    return next();
+  }
+}
 
 module.exports = router

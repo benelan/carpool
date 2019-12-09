@@ -2,11 +2,6 @@ import React, { Component } from "react";
 import { Col, Row, Button } from "reactstrap";
 
 class Home extends Component {
-  // state = {};
-
-  // componentDidMount() {}
-  // componentWillUnmount() {}
-
   render() {
     const homeStyle = {
       margin: "20px"
