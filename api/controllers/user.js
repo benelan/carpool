@@ -5,8 +5,6 @@ const express = require('express')
 // this is our get method
 // this method fetches all available data in our database
 router.get('/api/getAllUsers', ensureAuthenticated, (req, res) => {
-  //User.findOneAndRemove({email:'belan@esri.com'}, (err, data) => {})
-
   User.find((err, data) => {
     if (err) return res.json({ success: false, error: err });
     return res.json({ success: true, data: data });
@@ -14,6 +12,7 @@ router.get('/api/getAllUsers', ensureAuthenticated, (req, res) => {
 });
 
 router.get('/api/queryUsers', ensureAuthenticated, (req, res) => {
+  //User.findOneAndRemove({email:'belan@esri.com'}, (err, data) => {})
   User.find({
     email: { $ne: req.query.email }, // don't show the user
     office_id: req.query.office, // only show colleagues in the same office
@@ -63,8 +62,10 @@ router.post('/api/addUser', ensureAuthenticated, (req, res) => {
   let data = new User();
 
   const { name, email, arrive_work, leave_work, driver, office_id, successful } = req.body;
+console.log(req.body)
+  if (!name || !email || !arrive_work || !leave_work || !driver || !office_id) {
 
-  if (!name || !email || !arrive_work || !leave_work || !driver || !office_id || !successful) {
+    console.log(name)
     return res.json({
       success: false,
       error: 'INVALID INPUTS',
@@ -78,7 +79,7 @@ router.post('/api/addUser', ensureAuthenticated, (req, res) => {
   data.driver = driver;
   data.office_id = office_id;
   data.successful = successful;
-
+  console.log(data)
   data.save((err) => {
     if (err) return res.json({ success: false, error: err });
     return res.json({ success: true });

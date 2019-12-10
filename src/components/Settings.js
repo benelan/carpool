@@ -11,7 +11,8 @@ class Settings extends Component {
     driver: 1,
     office_id: 1,
     arrive_work: "09:00",
-    leave_work: "17:00"
+    leave_work: "17:00",
+    successful: false
   };
 
   //--------------------- LIFE CYCLE FUNCTIONS ---------------------\\
@@ -32,7 +33,8 @@ class Settings extends Component {
         arrive_work: this.state.arrive_work,
         leave_work: this.state.leave_work,
         driver: parseInt(this.state.driver),
-        office_id: parseInt(this.state.office_id)
+        office_id: parseInt(this.state.office_id),
+        successful: this.state.successful
       })
       .then(() => {
         this.setState({ form_complete: true });
@@ -53,7 +55,8 @@ class Settings extends Component {
           arrive_work: this.state.arrive_work,
           leave_work: this.state.leave_work,
           driver: parseInt(this.state.driver),
-          office_id: parseInt(this.state.office_id)
+          office_id: parseInt(this.state.office_id),
+          successful: this.state.successful
         }
       })
       .then(() => {
@@ -83,6 +86,7 @@ class Settings extends Component {
             driver: user.driver,
             arrive_work: user.arrive_work,
             leave_work: user.leave_work,
+            successful: user.successful,
             new_user: false
           });
 

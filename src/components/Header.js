@@ -23,47 +23,52 @@ const Header = (props) => {
 
   const { n, e } = props
   return (
-    <div>
+    <div>{!!e && !!n ?
       <Navbar light expand="md" style={headerStyle} >
         <NavItem className="d-flex align-items-center">
           <img src={logo} alt="logo" className="img-fluid" style={{ width: 100 }} />
-          <div>{!!e && !!n ?
-            <NavLink tag={RRNavLink} className="font-weight-bold" to={"/?email=" + e + "&name=" + n}>
-              <h1 style={{ font: '36px Arial Black', color: 'black' }}>arcpool beta</h1>
-            </NavLink>
-            : (
-              <NavLink tag={RRNavLink} className="font-weight-bold" to={"/"}>    <h1 style={{ font: '36px Arial Black', color: 'black' }}>arcpool beta</h1>
-              </NavLink>
-            )}</div>
+          <NavLink tag={RRNavLink} className="font-weight-bold" to={"/?email=" + e + "&name=" + n}>
+            <h1 style={{ font: '36px Arial Black', color: 'black' }}>arcpool beta</h1>
+          </NavLink>
         </NavItem>
         <NavbarToggler onClick={toggle} />
         <Collapse isOpen={isOpen} navbar>
           <Nav className="ml-auto" navbar>
             <NavItem className="d-flex align-items-center">
-              <div>{!!e && !!n ?
-                <NavLink tag={RRNavLink} className="font-weight-bold" to={"/results?email=" + e + "&name=" + n}>Results</NavLink>
-                : (
-                  <NavLink tag={RRNavLink} className="font-weight-bold" to={"/results"}>Results</NavLink>
-                )}</div>
+              <NavLink tag={RRNavLink} className="font-weight-bold" to={"/results?email=" + e + "&name=" + n}>Results</NavLink>
             </NavItem>
             <NavItem className="d-flex align-items-center">
-              <div>{!!e && !!n ?
-                <NavLink tag={RRNavLink} className="font-weight-bold" to={"/settings?email=" + e + "&name=" + n}>Settings</NavLink>
-                : (
-                  <NavLink tag={RRNavLink} className="font-weight-bold" to={"/settings"}>Settings</NavLink>
-                )}</div>
+              <NavLink tag={RRNavLink} className="font-weight-bold" to={"/settings?email=" + e + "&name=" + n}>Settings</NavLink>
             </NavItem>
             <NavItem className="d-flex align-items-center">
-              <div>{!!e && !!n ?
-                <Button outline color="success" href="http://localhost:3001/logout">Logout</Button>
-                : (
-                  <Button outline color="success" href="http://localhost:3001/auth/arcgis">Login</Button>
-                )}</div>
+              <Button outline color="success" href="http://localhost:3001/logout">Logout</Button>
             </NavItem>
           </Nav>
         </Collapse>
       </Navbar>
-    </div>
+      : (
+        <Navbar light expand="md" style={headerStyle} >
+          <NavItem className="d-flex align-items-center">
+            <img src={logo} alt="logo" className="img-fluid" style={{ width: 100 }} />
+            <NavLink tag={RRNavLink} className="font-weight-bold" to={"/"}>    <h1 style={{ font: '36px Arial Black', color: 'black' }}>arcpool beta</h1>
+            </NavLink>
+          </NavItem>
+          <NavbarToggler onClick={toggle} />
+          <Collapse isOpen={isOpen} navbar>
+            <Nav className="ml-auto" navbar>
+              <NavItem className="d-flex align-items-center">
+                <NavLink tag={RRNavLink} className="font-weight-bold" to={"/results"}>Results</NavLink>
+              </NavItem>
+              <NavItem className="d-flex align-items-center">
+                <NavLink tag={RRNavLink} className="font-weight-bold" to={"/settings"}>Settings</NavLink>
+              </NavItem>
+              <NavItem className="d-flex align-items-center">
+                <Button outline color="success" href="http://localhost:3001/auth/arcgis">Login</Button>
+              </NavItem>
+            </Nav>
+          </Collapse>
+        </Navbar>
+      )}</div>
   );
 }
 

@@ -35,11 +35,6 @@ passport.use(new ArcGISStrategy({
   function (accessToken, refreshToken, profile, done) {
     // asynchronous verification, for effect...
     process.nextTick(function () {
-
-      // To keep the example simple, the user's ArcGIS profile is returned to
-      // represent the logged-in user.  In a typical application, you would want
-      // to associate the ArcGIS account with a user record in your database,
-      // and return that user instead.
       return done(null, profile);
     });
   }
