@@ -1,21 +1,25 @@
 const express = require('express')
-    , app = express()
     , router = express.Router()
     , passport = require('passport')
 
 router.get('/auth/arcgis',
-    passport.authenticate('arcgis'));
+    passport.authenticate('arcgis', {session: true}));
 
 router.get('/auth/arcgis/callback',
-    passport.authenticate('arcgis', { failureRedirect: '/auth/arcgis' }),
+    passport.authenticate('arcgis', { failureRedirect: '/auth/arcgis', session: true }),
     function (req, res) {
         // Successful authentication, redirect home.
-        res.redirect("http://localhost:3000?email=" + req.user.email + "&name=" + req.user.fullname)
+        req.session.save(() => {    
+            res.redirect("http://localhost:3000?email=" + req.user.email + "&name=" + req.user.fullname)
+        
+        })
     });
 
 router.get('/logout', function (req, res) {
     req.logout();
-    res.redirect('http://localhost:3000');
+    req.session.save(() => {
+        res.redirect('http://localhost:3000');
+      })
 });
 
 router.use(require('./user'))

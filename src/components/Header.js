@@ -3,7 +3,6 @@ import {
   Collapse,
   Navbar,
   NavbarToggler,
-  NavbarBrand,
   Nav,
   NavItem,
   NavLink,
@@ -27,21 +26,32 @@ const Header = (props) => {
     <div>
       <Navbar light expand="md" style={headerStyle} >
         <NavItem className="d-flex align-items-center">
-          <NavLink className="font-weight-bold" href={"/?email=" + e + "&name=" + n}>
-            <img src={logo} alt="logo" className="img-fluid" style={{ width: 100 }} />
-          </NavLink>
-          <NavbarBrand className="d-inline-block p-0  align-items-left" href={"/?email=" + e + "&name=" + n}>
-            <h1 style={{ font: '36px Arial Black' }}>arcpool beta</h1>
-          </NavbarBrand>
+          <img src={logo} alt="logo" className="img-fluid" style={{ width: 100 }} />
+          <div>{!!e && !!n ?
+            <NavLink tag={RRNavLink} className="font-weight-bold" to={"/?email=" + e + "&name=" + n}>
+              <h1 style={{ font: '36px Arial Black', color: 'black' }}>arcpool beta</h1>
+            </NavLink>
+            : (
+              <NavLink tag={RRNavLink} className="font-weight-bold" to={"/"}>    <h1 style={{ font: '36px Arial Black', color: 'black' }}>arcpool beta</h1>
+              </NavLink>
+            )}</div>
         </NavItem>
         <NavbarToggler onClick={toggle} />
         <Collapse isOpen={isOpen} navbar>
           <Nav className="ml-auto" navbar>
             <NavItem className="d-flex align-items-center">
-              <NavLink tag={RRNavLink} className="font-weight-bold" to={"/results?email=" + e + "&name=" + n}>Results</NavLink>
+              <div>{!!e && !!n ?
+                <NavLink tag={RRNavLink} className="font-weight-bold" to={"/results?email=" + e + "&name=" + n}>Results</NavLink>
+                : (
+                  <NavLink tag={RRNavLink} className="font-weight-bold" to={"/results"}>Results</NavLink>
+                )}</div>
             </NavItem>
             <NavItem className="d-flex align-items-center">
-              <NavLink tag={RRNavLink} className="font-weight-bold"to={"/settings?email=" + e + "&name=" + n}>Settings</NavLink>
+              <div>{!!e && !!n ?
+                <NavLink tag={RRNavLink} className="font-weight-bold" to={"/settings?email=" + e + "&name=" + n}>Settings</NavLink>
+                : (
+                  <NavLink tag={RRNavLink} className="font-weight-bold" to={"/settings"}>Settings</NavLink>
+                )}</div>
             </NavItem>
             <NavItem className="d-flex align-items-center">
               <div>{!!e && !!n ?

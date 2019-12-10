@@ -18,6 +18,7 @@ class ResultTable extends Component {
 
   componentDidMount() {
     this.getUserByEmail();
+    axios.defaults.withCredentials = true
   }
 
   componentWillUnmount() {
@@ -61,11 +62,11 @@ class ResultTable extends Component {
           });
           this.getData();
         }
-        else {
-          this.setState({
-            new_user: true
-          });
-        }
+        // else {
+        //   this.setState({
+        //     new_user: true
+        //   });
+        // }
       });
   }
 

@@ -6,7 +6,7 @@ const express = require('express')
 // this method fetches all available data in our database
 router.get('/api/getAllUsers', ensureAuthenticated, (req, res) => {
   //User.findOneAndRemove({email:'belan@esri.com'}, (err, data) => {})
-  
+
   User.find((err, data) => {
     if (err) return res.json({ success: false, error: err });
     return res.json({ success: true, data: data });
@@ -15,9 +15,9 @@ router.get('/api/getAllUsers', ensureAuthenticated, (req, res) => {
 
 router.get('/api/queryUsers', ensureAuthenticated, (req, res) => {
   User.find({
-    email: {$ne: req.query.email}, // don't show the user
+    email: { $ne: req.query.email }, // don't show the user
     office_id: req.query.office, // only show colleagues in the same office
-    $or: [ {driver: {$ne: req.query.driver}}, {driver: 3} ] // don't match a passanger with a passanger
+    $or: [{ driver: { $ne: req.query.driver } }, { driver: 3 }] // don't match a passanger with a passanger
   }, (err, data) => {
     if (err) return res.json({ success: false, error: err });
     return res.json({ success: true, data: data });
@@ -29,7 +29,7 @@ router.get('/api/queryUsers', ensureAuthenticated, (req, res) => {
 router.get('/api/getOneUser', ensureAuthenticated, (req, res) => {
   const em = req.query.email;
 
-  User.findOne({email: em}, (err, data) => {
+  User.findOne({ email: em }, (err, data) => {
     if (err) return res.json({ success: false, error: err });
     return res.json({ success: true, data: data });
   });
@@ -39,7 +39,7 @@ router.get('/api/getOneUser', ensureAuthenticated, (req, res) => {
 // this method overwrites existing data in our database
 router.post('/api/updateUser', ensureAuthenticated, (req, res) => {
   const { em, update } = req.body;
-  const query = {email: em};
+  const query = { email: em };
   User.findOneAndUpdate(query, update, (err) => {
     if (err) return res.json({ success: false, error: err });
     return res.json({ success: true });
@@ -62,7 +62,7 @@ router.post('/api/updateUser', ensureAuthenticated, (req, res) => {
 router.post('/api/addUser', ensureAuthenticated, (req, res) => {
   let data = new User();
 
-  const { name, email, arrive_work, leave_work, driver, office_id, successful} = req.body;
+  const { name, email, arrive_work, leave_work, driver, office_id, successful } = req.body;
 
   if (!name || !email || !arrive_work || !leave_work || !driver || !office_id || !successful) {
     return res.json({
@@ -86,9 +86,11 @@ router.post('/api/addUser', ensureAuthenticated, (req, res) => {
 });
 
 function ensureAuthenticated(req, res, next) {
-  //console.log(req.sessionStore.sessions)
-  if (!!req.sessionStore.sessions) {
+  if (req.isAuthenticated()) {
     return next();
+  }
+  else {
+    res.send('please login first');
   }
 }
 

@@ -17,7 +17,8 @@ class Settings extends Component {
   //--------------------- LIFE CYCLE FUNCTIONS ---------------------\\
   componentDidMount() {
     this.getUserByEmail();
-  }
+    axios.defaults.withCredentials = true
+  } 
 
   componentWillUnmount() {
   }
