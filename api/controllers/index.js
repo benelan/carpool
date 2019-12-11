@@ -10,7 +10,7 @@ router.get('/auth/arcgis/callback',
     function (req, res) {
         // Successful authentication, redirect home.
         req.session.save(() => {    
-            res.redirect("http://localhost:3000?email=" + req.user.email + "&name=" + req.user.fullname)
+            res.redirect("http://localhost:3000/login?email=" + req.user.email + "&name=" + req.user.fullname)
         
         })
     });

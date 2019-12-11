@@ -2,8 +2,10 @@ import React, { Component } from "react";
 import { Redirect } from "react-router-dom";
 import { Col, Row, Table, Form, FormGroup, Input, InputGroup, InputGroupAddon, InputGroupText, Button } from "reactstrap";
 import axios from "axios";
+import { observer, inject } from 'mobx-react'
 import { convertTime, filterTime } from "../helpers"
 
+const ResultTable = inject("UserStore")(observer(
 class ResultTable extends Component {
 
   state = {
@@ -28,13 +30,12 @@ class ResultTable extends Component {
   getData = () => {
     axios.get("http://localhost:3001/api/queryUsers", {
       params: {
-        email: this.props.e,
+        email: this.props.UserStore.userEmail,
         driver: this.state.driver,
         office: this.state.office_id
       }
     })
     .then(res => {
-      console.log(res.data.data)
       this.setState({ data: res.data.data })
     })
     .catch((err) => {
@@ -46,7 +47,7 @@ class ResultTable extends Component {
     // get user info by email
     axios.get("http://localhost:3001/api/getOneUser", {
       params: {
-        email: this.props.e
+        email: this.props.UserStore.userEmail
       }
     })
       .then(res => {
@@ -165,5 +166,5 @@ class ResultTable extends Component {
     );
   };
 }
-
+))
 export default ResultTable;

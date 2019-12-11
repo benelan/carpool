@@ -62,10 +62,10 @@ router.post('/api/addUser', ensureAuthenticated, (req, res) => {
   let data = new User();
 
   const { name, email, arrive_work, leave_work, driver, office_id, successful } = req.body;
-console.log(req.body)
+
   if (!name || !email || !arrive_work || !leave_work || !driver || !office_id) {
 
-    console.log(name)
+  
     return res.json({
       success: false,
       error: 'INVALID INPUTS',
@@ -79,7 +79,7 @@ console.log(req.body)
   data.driver = driver;
   data.office_id = office_id;
   data.successful = successful;
-  console.log(data)
+  
   data.save((err) => {
     if (err) return res.json({ success: false, error: err });
     return res.json({ success: true });
