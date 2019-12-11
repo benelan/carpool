@@ -1,61 +1,59 @@
 import { action, observable, decorate } from "mobx"
 
 class UserStore {
-    user = {
-        name: null,
-        email: null,
-        driver: null,
-        office_id: null,
-        arrive_work: null,
-        leave_work: null,
-        successful: false
-    };
-
     userName = null;
-
     userEmail = null;
+    officeId = 1;
+    arrive = "09:00";
+    leave = "17:00";
+    driver = 1;
+    successful = false;
+    userNew = true;
 
-    setUser(u) {
-        this.user = u;
+    setName(x) {
+        this.userName = x;
     }
-    clearUser() {
-        this.user = {
-            name: null,
-            email: null,
-            driver: null,
-            office_id: null,
-            arrive_work: null,
-            leave_work: null,
-            successful: false
-        };
+    setEmail(x) {
+        this.userEmail = x;
     }
-
-    setName(n) {
-        this.userName = n;
+    setNew(x) {
+        this.userNew = x;
     }
-    clearName() {
-        this.userName = null;
+    setDriver(x) {
+        this.driver = x;
     }
-
-    setEmail(e) {
-        this.userEmail = e;
+    setArrive(x) {
+        this.arrive = x;
     }
-    clearEmail() {
-        this.userEmail = null;
+    setLeave(x) {
+        this.leave = x;
+    }
+    setOffice(x) {
+        this.officeId = x;
+    }
+    setSuccess(x) {
+        this.success = x;
     }
 }
 
   
 decorate(UserStore, {
-    user: observable,
+    userNew: observable,
     userName: observable,
     userEmail: observable,
-    setUser: action,
+    officeId: observable,
+    leave: observable,
+    arrive: observable,
+    driver: observable,
+    successful: observable,
+    setNew: action,
     setName: action,
     setEmail: action,
-    clearUser: action,
-    clearName: action,
-    clearEmail: action,
+    setDriver: action,
+    setOffice: action,
+    setLeave: action,
+    setArrive: action,
+    setSuccess: action
 })
 
 export default new UserStore()

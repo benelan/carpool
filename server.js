@@ -71,7 +71,6 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.session());
 
-// Now we can access req.user so after we will call req.user, if we write it above these, it will always return underfined
 app.use(function(req, res, next){
   res.locals.user = req.user || null
   next();

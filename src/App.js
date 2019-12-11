@@ -26,11 +26,8 @@ const App = () => {
   );
 }
 
-const Routes = (props) => {
+const Routes = () => {
   let query = useQuery();
-  const name = query.get("name");
-  const email = query.get("email");
-
   return (
     <React.Fragment>
       <Header />
@@ -45,7 +42,7 @@ const Routes = (props) => {
           <ResultTable />
         </Route>
         <Route exact path="/login">
-          <Login n={name} e={email} />
+          <Login n={query.get("name")} e={query.get("email")} />
         </Route>
       </Switch>
     </React.Fragment>

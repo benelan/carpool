@@ -1,12 +1,16 @@
 # Carpool
-
 A carpool matcher app for Esri employees. Check out the 'spatial' branch for a more advanced solution. The 'spatial' branch creates a route from the user's home to their office. The user can then spatially filter the results table by creating a buffer around their route and finding colleagues that intersect the buffer. The 'spatial' branch uses ArcGIS Online as the backend api.
 
-## Prerequisites
-If you don't have one, create an account at [mongoDB Atlas](https://docs.atlas.mongodb.com/getting-started/). Once you set up your account, you will need to create a file in the root directory of this application called '.env'. In the file, add:
+## Using the App
+To get started, you will need to set up an application with [ArcGIS for Developers](https://developers.arcgis.com/documentation/core-concepts/security-and-authentication/accessing-arcgis-online-services/) in order to implement app login.
+
+Next, if you don't have one, create an account at [mongoDB Atlas](https://docs.atlas.mongodb.com/getting-started/). Once you set up your account, you will need to create a file in the root directory of this application called '.env'. In the file, add:
 
 ```
 DB_ROUTE=<CONNECTION STRING PROVIDED BY ATLAS>
+SESSION_SECRET=<RANDOM STRING>
+ARCGIS_CLIENT_ID=<CLIENT FROM AN ARCGIS APP>
+ARCGIS_CLIENT_SECRET=<CLIENT_SECRET FROM AN ARCGIS APP>
 ```
 
 To run the web app you must have [Node](https://nodejs.org/en/) installed. With Node installed, navigate to the root folder of the app and type:
@@ -27,7 +31,7 @@ To do list
 - [x] Create React data table component
 - [x] Filter results table based on distance, time, and driver/passenger
 - [ ] Create React home/info page
-- [ ] Finish setting up Okta auth middleware, or use jwt or [passport](http://www.passportjs.org/packages/passport-oauth2/)
+- [x] Set up jwt or [passport](http://www.passportjs.org/packages/passport-oauth2/)
 - [ ] Impmlement a [time range slider](http://react-component.github.io/slider/examples/range.html) for filtering the results
 - [ ] Create option to remove yourself from list
 - [ ] Consider filter algorithm rework: what if people's filters do not match up?
@@ -37,16 +41,22 @@ To do list
 * [MongoDB](https://www.mongodb.com/) - Database
 * [Mongoose](https://mongoosejs.com/) - ODM
 * [Express](https://expressjs.com/) - Backend Framework
+* [Express Session](https://github.com/expressjs/session) - Sessions for Express
 * [React](https://reactjs.org/) - Frontend Framework
 * [Reactstrap](https://reactstrap.github.io/) - Bootstrap for React
 * [Node](https://nodejs.org/en/) - Backend
-* [ArcGIS](https://developers.arcgis.com/javascript/) - Auth
 
-### Other Node Packages
+### Other Packages
 * [axios](https://github.com/axios/axios) - REST Requests
 * [body-parser](https://www.npmjs.com/package/body-parser) - Reading Forms
+* [cookie-parser](https://github.com/expressjs/cookie-parser) - Reading Sessions
+* [connect-mongo](https://github.com/jdesboeufs/connect-mongo) - MongoDB Session Store
 * [compression](https://www.npmjs.com/package/compression) - Route Compression
-* [esri-loader](https://github.com/Esri/esri-loader) - ArcGIS Module Loader
-* [helmet](https://helmetjs.github.io/) - Express Security
+* [helmet](https://helmetjs.github.io/) - Express Security Headers
 * [moment](https://momentjs.com/) - Time/Date Util
 * [moment-range](https://github.com/rotaready/moment-range) - Ranges for Moment
+* [mobx](https://mobx.js.org/) - Data Store
+* [mobx react](https://github.com/mobxjs/mobx-react) - MobX for React
+* [passport](http://www.passportjs.org/) - Auth
+* [passport-arcgis](http://www.passportjs.org/packages/passport-arcgis/) - Passport for ArcGIS
+

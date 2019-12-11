@@ -7,19 +7,12 @@ import { observer, inject } from 'mobx-react'
 const Settings = inject("UserStore")(observer(
   class Settings extends React.Component {
     //--------------------- STATE---------------------\\
-    state = {
-      new_user: true,
-      form_complete: false,
-      driver: 1,
-      office_id: 1,
-      arrive_work: "09:00",
-      leave_work: "17:00",
-      successful: false
-    };
 
+    state = {
+      form_complete: false
+    }
     //--------------------- LIFE CYCLE FUNCTIONS ---------------------\\
     componentDidMount() {
-      this.getUserByEmail();
       axios.defaults.withCredentials = true
     }
 
@@ -32,11 +25,11 @@ const Settings = inject("UserStore")(observer(
         .post("http://localhost:3001/api/addUser", {
           name: this.props.UserStore.userName,
           email: this.props.UserStore.userEmail,
-          arrive_work: this.state.arrive_work,
-          leave_work: this.state.leave_work,
-          driver: parseInt(this.state.driver),
-          office_id: parseInt(this.state.office_id),
-          successful: this.state.successful
+          arrive_work: this.props.UserStore.arrive,
+          leave_work: this.props.UserStore.leave,
+          driver: this.props.UserStore.driver,
+          office_id: this.props.UserStore.officeId,
+          successful: this.props.UserStore.successful,
         })
         .then(() => {
           this.setState({ form_complete: true });
@@ -54,11 +47,11 @@ const Settings = inject("UserStore")(observer(
           update: {
             name: this.props.UserStore.userName,
             email: this.props.UserStore.userEmail,
-            arrive_work: this.state.arrive_work,
-            leave_work: this.state.leave_work,
-            driver: parseInt(this.state.driver),
-            office_id: parseInt(this.state.office_id),
-            successful: this.state.successful
+            arrive_work: this.props.UserStore.arrive,
+            leave_work: this.props.UserStore.leave,
+            driver: this.props.UserStore.driver,
+            office_id: this.props.UserStore.officeId,
+            successful: this.props.UserStore.successful
           }
         })
         .then(() => {
@@ -70,45 +63,11 @@ const Settings = inject("UserStore")(observer(
         });
     };
 
-    //--------------------- CRUD OPERATIONS ---------------------\\
-    getUserByEmail = () => {
-      // get user info by email
-      axios.get("http://localhost:3001/api/getOneUser", {
-        params: {
-          email: this.props.UserStore.userEmail
-        }
-      })
-        .then(res => {
-          const user = res.data.data;
-          // fill in form and state with settings saved in db
-          if (!!user) {
-            // check to see if user is already saved
-            this.setState({
-              office_id: user.office_id,
-              driver: user.driver,
-              arrive_work: user.arrive_work,
-              leave_work: user.leave_work,
-              successful: user.successful,
-              new_user: false
-            });
 
-            // the request promise seems to resolve after the component mounts
-            // so need to manually change the form values
-            document.getElementById("officeSelect").value = user.office_id;
-            document.getElementById("driverSelect").value = user.driver;
-            document.getElementById("arriveTime").value = user.arrive_work;
-            document.getElementById("leaveTime").value = user.leave_work;
-          }
-        })
-        .catch(err => {
-          // handle any errors
-          console.error(err);
-        });
-    }
     //--------------------- SUBMIT HANDLER ---------------------\\
     submitF = () => {
       // REST CALLS HERE
-      if (this.state.new_user) {
+      if (this.props.UserStore.userNew) {
         // if the user is not in the db, add the user
         this.addUser();
       } else {
@@ -122,6 +81,11 @@ const Settings = inject("UserStore")(observer(
       const settingStyle = {
         margin: "20px"
       };
+
+      if (!this.props.UserStore.userName && !this.props.UserStore.userEmail) {
+        alert('Please login')
+        return <Redirect to='/' />
+      }
 
       if (this.state.form_complete === true) {
         return <Redirect to='/results' />
@@ -146,8 +110,7 @@ const Settings = inject("UserStore")(observer(
                     id="userName"
                     readOnly
                     //onChange={e => this.setState({ new_user: true, name: e.target.value })}
-                    defaultValue={this.props.UserStore.userName}
-                  />
+                    defaultValue={this.props.UserStore.userName} />
                 </FormGroup>
               </Col>
               <Col md={6}>
@@ -159,8 +122,7 @@ const Settings = inject("UserStore")(observer(
                     id="userEmail"
                     readOnly
                     //onChange={e => this.setState({ new_user: true, email: e.target.value })}
-                    defaultValue={this.props.UserStore.userEmail}
-                  />
+                    defaultValue={this.props.UserStore.userEmail} />
                 </FormGroup>
               </Col>
             </Row>
@@ -172,9 +134,8 @@ const Settings = inject("UserStore")(observer(
                     type="time"
                     name="time"
                     id="arriveTime"
-                    onChange={e => this.setState({ arrive_work: e.target.value })}
-                    defaultValue={this.state.arrive_work}
-                  />
+                    onChange={e => this.props.UserStore.setArrive(e.target.value)}
+                    defaultValue={this.props.UserStore.arrive} />
                 </FormGroup>
               </Col>
               <Col md={6}>
@@ -184,9 +145,8 @@ const Settings = inject("UserStore")(observer(
                     type="time"
                     name="time"
                     id="leaveTime"
-                    onChange={e => this.setState({ leave_work: e.target.value })}
-                    defaultValue={this.state.leave_work}
-                  />
+                    onChange={e => this.props.UserStore.setLeave(e.target.value)}
+                    defaultValue={this.props.UserStore.leave} />
                 </FormGroup>
               </Col>
             </Row>
@@ -198,8 +158,8 @@ const Settings = inject("UserStore")(observer(
                     type="select"
                     name="select"
                     id="driverSelect"
-                    onChange={e => this.setState({ driver: e.target.value })}
-                  >
+                    onChange={e => this.props.UserStore.setDriver(parseInt(e.target.value))}
+                    defaultValue={this.props.UserStore.driver}>
                     <option value={1}>Driver</option>
                     <option value={2}>Passenger</option>
                     <option value={3}>Either</option>
@@ -213,9 +173,8 @@ const Settings = inject("UserStore")(observer(
                     type="select"
                     name="office"
                     id="officeSelect"
-                    onChange={e => this.setState({ office_id: e.target.value })}
-                    defaultValue={this.state.office_id}
-                  >
+                    onChange={e => this.props.UserStore.setOffice(parseInt(e.target.value))}
+                    defaultValue={this.props.UserStore.office}>
                     <option value={1}>Redlands Main Campus</option>
                     <option value={2}>Redlands V Buildings</option>
                     <option value={3}>Charlotte</option>
