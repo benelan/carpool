@@ -18,7 +18,8 @@ type MyState = {
   route: any | null,  // needs to cast as geometry for arcgis query
   start_addr: string,
   lon: number | null,
-  lat: number | null;
+  lat: number | null,
+  success: boolean;
 };
 
 type MyProps = {
@@ -42,7 +43,8 @@ class Settings extends React.Component<MyProps, MyState> {
     lat: null,
     lon: null,
     start_addr: "",
-    route: null
+    route: null,
+    success: false
   };
 
   proxyUrl: string = 'https://belan2.esri.com/DotNet/proxy.ashx?'
@@ -76,7 +78,7 @@ class Settings extends React.Component<MyProps, MyState> {
       const querystring2: string = 'features=' + JSON.stringify(data2);
       axios
         .post(url2, querystring2)
-        .catch((err : any) => {
+        .catch((err: any) => {
           // handle any errors
           console.error(err);
         });
@@ -85,7 +87,7 @@ class Settings extends React.Component<MyProps, MyState> {
     //--------------------- Line ---------------------\\
     const serviceUrl: string = 'https://services.arcgis.com/Wl7Y1m92PbjtJs5n/arcgis/rest/services/carpoolData/FeatureServer/0/addFeatures?f=json&features='
     let url: string = this.proxyUrl + serviceUrl;
-
+    const success_val = (this.state.success) ? 1 : 0;
     const data: any = [{
       "geometry": {
         "x": this.state.lon,
@@ -101,7 +103,8 @@ class Settings extends React.Component<MyProps, MyState> {
         'leave_work': this.state.leave_work,
         'driver': this.state.driver,
         'office_id': this.state.office_id,
-        'start_addr': encodeURIComponent(this.state.start_addr)
+        'start_addr': encodeURIComponent(this.state.start_addr),
+        'success': success_val
       }
     }]
 
@@ -112,7 +115,7 @@ class Settings extends React.Component<MyProps, MyState> {
       .then(() => {
         this.setState({ new_user: false, form_complete: true });
       })
-      .catch((err : any) => {
+      .catch((err: any) => {
         // handle any errors
         console.log(err);
       });
@@ -137,11 +140,11 @@ class Settings extends React.Component<MyProps, MyState> {
       const querystring2: string = 'features=' + JSON.stringify(data2);
       axios
         .post(url2, querystring2)
-        .catch((err : any) => {
+        .catch((err: any) => {
           // handle any errors
           console.error(err);
         })
-        .catch((err : any) => {
+        .catch((err: any) => {
           console.log(err)
         });
     }
@@ -150,6 +153,8 @@ class Settings extends React.Component<MyProps, MyState> {
     //--------------------- POINT ---------------------\\
     const serviceUrl: string = 'https://services.arcgis.com/Wl7Y1m92PbjtJs5n/arcgis/rest/services/carpoolData/FeatureServer/0/updateFeatures?f=json&features='
     let url: string = this.proxyUrl + serviceUrl;
+
+    const success_val = (this.state.success) ? 1 : 0;
 
     const data: any = [{
       "geometry": {
@@ -167,7 +172,8 @@ class Settings extends React.Component<MyProps, MyState> {
         'leave_work': this.state.leave_work,
         'driver': this.state.driver,
         'office_id': this.state.office_id,
-        'start_addr': encodeURIComponent(this.state.start_addr)
+        'start_addr': encodeURIComponent(this.state.start_addr),
+        'success': success_val
       }
     }];
 
@@ -178,11 +184,11 @@ class Settings extends React.Component<MyProps, MyState> {
       .then(() => {
         this.setState({ form_complete: true });
       })
-      .catch((err : any) => {
+      .catch((err: any) => {
         // handle any errors
         console.error(err);
       })
-      .catch((err : any) => {
+      .catch((err: any) => {
         console.log(err)
       });
   };
@@ -205,13 +211,15 @@ class Settings extends React.Component<MyProps, MyState> {
     url = url + query;
 
     axios.get(url)
-      .then((res : any) => {
+      .then((res: any) => {
         const users: any = res.data.features;
         // fill in form and state with settings saved in db
         loadModules(["esri/widgets/Search"])
           .then(([Search]) => {
             if (users.length > 0) {  // check to see if user is already saved
               const user: any = users[0].attributes
+
+              const success_user = (user.success) ? true : false;
 
               // populate form with user data
               this.setState({
@@ -226,7 +234,8 @@ class Settings extends React.Component<MyProps, MyState> {
                 searchWidget: Search({
                   container: document.getElementById("startLoc"),
                   searchTerm: user.start_addr
-                })
+                }),
+                success: success_user
               });
 
               // the request promise seems to resolve after the component mounts
@@ -267,7 +276,7 @@ class Settings extends React.Component<MyProps, MyState> {
     url2 = url2 + query2;
 
     axios.get(url2)
-      .then((res : any) => {
+      .then((res: any) => {
         const users: any = res.data.features;
         // fill in form and state with settings saved in db
         if (users.length > 0) {  // check to see if user is already saved
@@ -279,16 +288,16 @@ class Settings extends React.Component<MyProps, MyState> {
           });
         }
       })
-      .catch((err : any) => {
+      .catch((err: any) => {
         console.log(err)
       });
   };
 
   //--------------------- SUBMIT HANDLER ---------------------\\
-  async submitF() : Promise<void> {
+  async submitF(): Promise<void> {
     // load esri modules
     type MapModules = [
-      typeof import( "esri/widgets/Search"),
+      typeof import("esri/widgets/Search"),
       typeof import("esri/tasks/RouteTask"),
       typeof import("esri/tasks/support/RouteParameters"),
       typeof import("esri/tasks/support/FeatureSet"),
@@ -302,24 +311,95 @@ class Settings extends React.Component<MyProps, MyState> {
       "esri/Graphic"
     ]) as Promise<MapModules>);
 
-   
-      var that = this;
-      const address = (document.getElementById("startLoc") as HTMLInputElement).value;
-      // search the address that was input
-      this.state.searchWidget!.search(address).then((event : any)=> {
-        // get the lat/lon and address
-        const lat : number = event.results[0].results[0].feature.geometry.latitude;
-        const lon : number = event.results[0].results[0].feature.geometry.longitude;
-        const addr : string = event.results[0].results[0].feature.attributes.Match_addr;
 
-        // if the address didn't change
-        if ((addr === that.state.start_addr) && (that.state.office_id === that.state.office_old)) {
-          that.setState({
-            lat: lat,
-            lon: lon,
-            start_addr: addr
-          });
+    var that = this;
+    const address = (document.getElementById("startLoc") as HTMLInputElement).value;
+    // search the address that was input
+    this.state.searchWidget!.search(address).then((event: any) => {
+      // get the lat/lon and address
+      const lat: number = event.results[0].results[0].feature.geometry.latitude;
+      const lon: number = event.results[0].results[0].feature.geometry.longitude;
+      const addr: string = event.results[0].results[0].feature.attributes.Match_addr;
 
+      // if the address didn't change
+      if ((addr === that.state.start_addr) && (that.state.office_id === that.state.office_old)) {
+        that.setState({
+          lat: lat,
+          lon: lon,
+          start_addr: addr
+        });
+
+        // REST CALLS HERE
+        if (that.state.new_user) {
+          // if the user is not in the db, add the user
+          that.addUser();
+        } else {
+          // if the user is in the db, update the user info
+          that.updateUser();
+        }
+      }
+
+      // if the address changed
+      else {
+        that.setState({
+          lat: lat,
+          lon: lon,
+          start_addr: addr
+        });
+        var routeTask = new RouteTask({
+          url:
+            "https://utility.arcgis.com/usrsvcs/appservices/w2zxoNZu0ai45kI5/rest/services/World/Route/NAServer/Route_World/solve"
+        });
+
+        // Setup the route parameters
+        var routeParams: any = new RouteParameters({
+          stops: new FeatureSet(),
+          outSpatialReference: {
+            // autocasts as new SpatialReference()
+            wkid: 4326
+          }
+        });
+
+        const startPoint = {
+          type: "point", // autocasts as Point
+          longitude: lon,
+          latitude: lat,
+          spatialReference: {
+            wkid: 4326
+          }
+        };
+
+        var start = new Graphic({
+          geometry: startPoint
+        });
+
+        const officeCoords: any = {
+          1: [-117.1946114, 34.057267],
+          2: [-117.2180851, 34.0692566],
+          3: [-80.7835061, 35.100138],
+          4: [-77.0714945, 38.897275],
+          5: [-73.9947568, 40.7542076]
+        }
+
+        const endPoint = {
+          type: "point", // autocasts as Point
+          longitude: officeCoords[that.state.office_id][0],
+          latitude: officeCoords[that.state.office_id][1],
+          spatialReference: {
+            wkid: 4326
+          }
+        };
+
+        var end = new Graphic({
+          geometry: endPoint
+        });
+
+        // add start/office stops
+        routeParams.stops.features.push(start);
+        routeParams.stops.features.push(end);
+        // calc route
+        routeTask.solve(routeParams).then((res: any) => {
+          that.setState({ route: res.routeResults[0].route });
           // REST CALLS HERE
           if (that.state.new_user) {
             // if the user is not in the db, add the user
@@ -328,84 +408,20 @@ class Settings extends React.Component<MyProps, MyState> {
             // if the user is in the db, update the user info
             that.updateUser();
           }
-        }
-
-        // if the address changed
-        else {
-          that.setState({
-            lat: lat,
-            lon: lon,
-            start_addr: addr
+        })
+          .catch((err: any) => {
+            alert(err.message)
           });
-          var routeTask = new RouteTask({
-            url:
-              "https://utility.arcgis.com/usrsvcs/appservices/w2zxoNZu0ai45kI5/rest/services/World/Route/NAServer/Route_World/solve"
-          });
-
-          // Setup the route parameters
-          var routeParams : any = new RouteParameters({
-            stops: new FeatureSet(),
-            outSpatialReference: {
-              // autocasts as new SpatialReference()
-              wkid: 4326
-            }
-          });
-
-          const startPoint = {
-            type: "point", // autocasts as Point
-            longitude: lon,
-            latitude: lat,
-            spatialReference: {
-              wkid: 4326
-            }
-          };
-
-          var start = new Graphic({
-            geometry: startPoint
-          });
-
-          const officeCoords : any = {
-            1: [-117.1946114, 34.057267],
-            2: [-117.2180851, 34.0692566],
-            3: [-80.7835061, 35.100138],
-            4: [-77.0714945, 38.897275],
-            5: [-73.9947568, 40.7542076]
-          }
-
-          const endPoint = {
-            type: "point", // autocasts as Point
-            longitude: officeCoords[that.state.office_id][0],
-            latitude: officeCoords[that.state.office_id][1],
-            spatialReference: {
-              wkid: 4326
-            }
-          };
-
-          var end = new Graphic({
-            geometry: endPoint
-          });
-
-          // add start/office stops
-          routeParams.stops.features.push(start);
-          routeParams.stops.features.push(end);
-          // calc route
-          routeTask.solve(routeParams).then((res : any) => {
-            that.setState({ route: res.routeResults[0].route });
-            // REST CALLS HERE
-            if (that.state.new_user) {
-              // if the user is not in the db, add the user
-              that.addUser();
-            } else {
-              // if the user is in the db, update the user info
-              that.updateUser();
-            }
-          })
-            .catch((err : any) => {
-              alert(err.message)
-            });
-        }
-      });
+      }
+    });
   };
+
+
+  toggleSuccess = () => {
+    this.setState(prevState => ({
+      success: !prevState.success
+    }));
+  }
 
   //--------------------- JSX ---------------------\\
   render() {
@@ -417,7 +433,7 @@ class Settings extends React.Component<MyProps, MyState> {
       width: "75%"
     };
 
-    const submitB : any = {
+    const submitB: any = {
       position: "absolute",
       bottom: "15px",
       right: "20px"
@@ -551,6 +567,21 @@ class Settings extends React.Component<MyProps, MyState> {
                 className='float-right'
                 onClick={() => this.submitF()}>Save
             </Button>
+            </Col>
+          </Row>
+          <Row>
+            <Col md={8}>
+              <FormGroup check>
+                <Label check>
+                  <Input type="checkbox" 
+                  checked={this.state.success}
+                  onChange={e => this.setState(prevState => ({
+                    success: !prevState.success
+                  }))}
+                  />{' '}
+                  Found a Ride (Remove from List)
+        </Label>
+              </FormGroup>
             </Col>
           </Row>
         </Col>

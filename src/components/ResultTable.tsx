@@ -20,7 +20,7 @@ type MyState = {
   distance: number,
   units: number,
   time_arrive: number,
-  time_leave: number;
+  time_leave: number
 };
 
 type MyProps = {
@@ -200,7 +200,7 @@ class ResultTable extends React.Component<MyProps, MyState> {
     query.spatialRelationship = "intersects";  // this is the default
     query.returnGeometry = true;
     query.outFields = ["*"];
-    query.where = "(office_id=" + this.state.office_id + ") AND (NOT driver=" + this.state.driver + " OR driver=3) AND (NOT OBJECTID=" + this.state.point_id + ")";
+    query.where = "(office_id=" + this.state.office_id + ") AND (NOT success=1) AND (NOT driver=" + this.state.driver + " OR driver=3) AND (NOT OBJECTID=" + this.state.point_id + ")";
 
     const that = this;
 
