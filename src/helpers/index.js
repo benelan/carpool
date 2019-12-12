@@ -30,21 +30,23 @@ return timeValue;
 }
 
 
-export function filterTime(arrive, leave, other_arrive, other_leave, filter) {
+export function filterTime(arrive, leave, other_arrive, other_leave, time_arrive, time_leave) {
  // filter
-  var f = filter * 60000;
+  var fa = time_arrive * 60000;
+
+  var fl = time_leave * 60000;
 
   // times to check against
   var m = new Date('01/01/1970 ' + other_arrive).getTime();
   var n = new Date('01/01/1970 ' + other_leave).getTime();
 
   // arrive
-  var x = new Date('01/01/1970 ' + arrive).getTime() - f;
-  var y = new Date('01/01/1970 ' + arrive).getTime() + f;
+  var x = new Date('01/01/1970 ' + arrive).getTime() - fa;
+  var y = new Date('01/01/1970 ' + arrive).getTime() + fa;
 
   // leave
-  var a = new Date('01/01/1970 ' + leave).getTime() - f;
-  var b = new Date('01/01/1970 ' + leave).getTime() + f;
+  var a = new Date('01/01/1970 ' + leave).getTime() - fl;
+  var b = new Date('01/01/1970 ' + leave).getTime() + fl;
 
   // create ranges
   const range_arrive = moment.range(x, y);

@@ -19,7 +19,8 @@ type MyState = {
   user_route: any | null,  // needs to cast as geometry for arcgis query
   distance: number,
   units: number,
-  time: number;
+  time_arrive: number,
+  time_leave: number;
 };
 
 type MyProps = {
@@ -41,12 +42,13 @@ class ResultTable extends React.Component<MyProps, MyState> {
     user_route: null,
     distance: 5,
     units: 1,
-    time: 30
+    time_arrive: 30,
+    time_leave: 30
   };
 
   proxyUrl: string = 'https://belan2.esri.com/DotNet/proxy.ashx?'
 
-//--------------------- Lifecycle ---------------------\\
+  //--------------------- Lifecycle ---------------------\\
   componentDidMount() {
     this.getUserByEmail();
   }
@@ -170,7 +172,7 @@ class ResultTable extends React.Component<MyProps, MyState> {
   };
 
 
-//--------------------- Filter Function ---------------------\\
+  //--------------------- Filter Function ---------------------\\
   async filterF(): Promise<void> {
     const unitLookup: any = {
       1: 'miles',
@@ -212,7 +214,7 @@ class ResultTable extends React.Component<MyProps, MyState> {
       });
   };
 
-//--------------------- JSX ---------------------\\
+  //--------------------- JSX ---------------------\\
   render() {
     const { data } = this.state;
     const tableStyle = {
@@ -223,7 +225,7 @@ class ResultTable extends React.Component<MyProps, MyState> {
     };
 
     const mRight = {
-      margin: "0 50px 0 0"
+      margin: "0px 20px 5px 0"
     };
 
     const resultStyle = {
@@ -231,9 +233,19 @@ class ResultTable extends React.Component<MyProps, MyState> {
     };
 
     const distF = {
-      width: '130px'
+      width: '80px'
     };
 
+    const unitF = {
+      width: '105px'
+    };
+
+
+    const timeF = {
+      width: '80px'
+    };
+
+  
     function renderSwitch(param: number) {
       switch (param) {
         case 1:
@@ -259,23 +271,62 @@ class ResultTable extends React.Component<MyProps, MyState> {
           <Col md={8}>
             <Row style={resultStyle}>
               <Form inline>
-                <FormGroup>
+                <FormGroup style={mRight}>
+                  <InputGroup size="sm">
+                  <InputGroupAddon addonType="prepend" >
+                      <InputGroupText>arrival time buffer</InputGroupText>
+                    </InputGroupAddon>
+                    <Input
+                      type="number"
+                      name="timeF"
+                      id="timeF"
+                      bsSize="sm"
+                      style={timeF}
+                      onChange={e => this.setState({ time_arrive: Math.abs(parseInt(e.target.value)) })}
+                      defaultValue={this.state.time_arrive}
+                    />
+                    <InputGroupAddon addonType="append" >
+                      <InputGroupText>minutes</InputGroupText>
+                    </InputGroupAddon>
+                  </InputGroup>
+                </FormGroup>
+                <FormGroup style={mRight}>
+                  <InputGroup size="sm">
+                  <InputGroupAddon addonType="prepend" >
+                      <InputGroupText>departure time buffer</InputGroupText>
+                    </InputGroupAddon>
+                    <Input
+                      type="number"
+                      name="timeF"
+                      id="timeF"
+                      bsSize="sm"
+                      style={timeF}
+                      onChange={e => this.setState({ time_leave: Math.abs(parseInt(e.target.value)) })}
+                      defaultValue={this.state.time_leave}
+                    />
+                    <InputGroupAddon addonType="append" >
+                      <InputGroupText>minutes</InputGroupText>
+                    </InputGroupAddon>
+                  </InputGroup>
+                </FormGroup>
+                <FormGroup style={mRight}>
+                <InputGroup size="sm">
+                  <InputGroupAddon addonType="prepend" >
+                      <InputGroupText>distance buffer</InputGroupText>
+                    </InputGroupAddon>
                   <Input
                     type="number"
                     name="distF"
                     id="distF"
-                    bsSize="sm"
                     style={distF}
                     onChange={e => { this.setState({ distance: Math.abs(parseInt(e.target.value)) }); this.filterF() }}
                     defaultValue={this.state.distance}
                   />
-                </FormGroup>
-                <FormGroup style={mRight}>
-                  <Input
+                   <Input
                     type="select"
                     name="unitF"
                     id="unitF"
-                    bsSize="sm"
+                    style={unitF}
                     onChange={e => { this.setState({ units: parseInt(e.target.value) }); this.filterF() }}
                     defaultValue={this.state.units}>
                     <option value={1}>miles</option>
@@ -283,20 +334,6 @@ class ResultTable extends React.Component<MyProps, MyState> {
                     <option value={3}>kilometers</option>
                     <option value={4}>meters</option>
                   </Input>
-                </FormGroup>
-                <FormGroup style={mRight}>
-                  <InputGroup size="sm">
-                    <Input
-                      type="number"
-                      name="timeF"
-                      id="timeF"
-                      bsSize="sm"
-                      onChange={e => this.setState({ time: Math.abs(parseInt(e.target.value)) })}
-                      defaultValue={this.state.time}
-                    />
-                    <InputGroupAddon addonType="append" >
-                      <InputGroupText>minutes</InputGroupText>
-                    </InputGroupAddon>
                   </InputGroup>
                 </FormGroup>
               </Form>
@@ -314,7 +351,7 @@ class ResultTable extends React.Component<MyProps, MyState> {
                     </tr>
                   </thead>
                   <tbody>
-                    {data.filter(d => filterTime(this.state.arrive_work, this.state.leave_work, d.attributes.arrive_work, d.attributes.leave_work, this.state.time))
+                    {data.filter(d => filterTime(this.state.arrive_work, this.state.leave_work, d.attributes.arrive_work, d.attributes.leave_work, this.state.time_arrive, this.state.time_leave))
                       .map((fd) => (
                         <tr key={fd.attributes.OBJECTID}>
                           <td>{fd.attributes.name}</td>
