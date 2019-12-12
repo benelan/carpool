@@ -88,28 +88,28 @@ class App extends React.Component<MyState> {
 
   render() {
     return (
-      <React.Fragment>
+      <Router>
         <Header />
         <div>{!!this.state.email && !!this.state.name ?
-          <Router>
-            <Switch>
-              <Route exact path="/">
-                <Home n={this.state.name} e={this.state.email} />
-              </Route>
-              <Route exact path="/settings">
-                <Settings n={this.state.name} e={this.state.email} />
-              </Route>
-              <Route exact path="/results">
-                <ResultTable n={this.state.name} e={this.state.email} />
-              </Route>
-            </Switch>
-          </Router>
+
+          <Switch>
+            <Route exact path="/">
+              <Home n={this.state.name} e={this.state.email} />
+            </Route>
+            <Route exact path="/settings">
+              <Settings n={this.state.name} e={this.state.email} />
+            </Route>
+            <Route exact path="/results">
+              <ResultTable n={this.state.name} e={this.state.email} />
+            </Route>
+          </Switch>
+
           : (
             <div className="center" >
               <Spinner color="warning" style={{ width: '3rem', height: '3rem' }} />
             </div>
           )}</div>
-      </React.Fragment>
+      </Router>
     )
   }
 }
