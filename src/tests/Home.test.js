@@ -1,11 +1,16 @@
 import React from 'react';
 import { shallow, mount } from 'enzyme';
 import Home from '../components/Home';
+import UserStore from "../store/userDomainStore"
 
-// props
-it('works', () => {
-    const wrap = shallow(
-      <Home n='test name' e='name@test.com' />
-    )
-    expect(wrap.find('h2').text()).toEqual('Welcome test name')
-  })
+it('Home works', () => {
+  const store = UserStore
+  store.setName("John Doe")
+  store.setEmail("john@esri.com")
+  expect(store.userName).toBe("John Doe")
+  expect(store.userEmail).toBe("john@esri.com")
+  const wrapper = shallow(
+    <Home UserStore={store}/>
+  )
+  expect(wrapper.text().includes('Welcome John Doe'))
+})

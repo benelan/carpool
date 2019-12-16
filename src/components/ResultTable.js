@@ -10,7 +10,8 @@ const ResultTable = inject("UserStore")(observer(
 
     state = {
       data: [],
-      time: 30
+      time_arrive: 30,
+      time_leave: 30
     };
 
     componentDidMount() {
@@ -37,7 +38,7 @@ const ResultTable = inject("UserStore")(observer(
     };
 
     render() {
-      const { data } = this.state;
+      //--------------------------- CSS STYLE ---------------------------\\
       const tableStyle = {
         backgroundColor: 'white',
         border: '1px solid lightgrey',
@@ -45,14 +46,26 @@ const ResultTable = inject("UserStore")(observer(
         margin: '20px'
       };
 
-      const mRight = {
-        margin: "0 50px 0 0"
+      const mar1 = {
+        margin: "0px 100px 10px 0"
+      };
+      const mar2 = {
+        margin: "0px 0px 10px 0"
       };
 
       const resultStyle = {
         margin: "20px"
       };
 
+      const time2F = {
+        width: '80px'
+      };
+
+      const timeF = {
+        width: '103px'
+      };
+
+      //--------------------------- CONDITIONAL RENDER ---------------------------\\
       function renderSwitch(param) {
         switch (param) {
           case 1:
@@ -64,6 +77,7 @@ const ResultTable = inject("UserStore")(observer(
         };
       };
 
+      //--------------------------- REDIRECTS ---------------------------\\
       if (!this.props.UserStore.userName && !this.props.UserStore.userEmail) {
         alert('Please login')
         return <Redirect to='/' />
@@ -73,24 +87,53 @@ const ResultTable = inject("UserStore")(observer(
         alert('Fill out your Settings in order to find a carpool buddy')
         return <Redirect to='/settings' />
       }
-
+      
+      //--------------------------- VARIABLES ---------------------------\\
+      const { data } = this.state;
       const subject = encodeURIComponent("Lets Carpool!");
-
+      //--------------------------- JSX ---------------------------\\
       return (
         <React.Fragment>
           <Row className="justify-content-md-center">
             <Col md={8}>
               <Row style={resultStyle}>
                 <Form inline>
-                  <FormGroup style={mRight}>
+                  <FormGroup style={mar1}>
                     <InputGroup size="sm">
+                      <InputGroupAddon addonType="prepend" >
+                        <InputGroupText>arrival time buffer</InputGroupText>
+                      </InputGroupAddon>
                       <Input
                         type="number"
                         name="timeF"
                         id="timeF"
                         bsSize="sm"
-                        onChange={e => this.setState({ time: Math.abs(e.target.value) })}
-                        defaultValue={this.state.time}
+                        min="0"
+                        step="1"
+                        style={timeF}
+                        onChange={e => this.setState({ time_arrive: Math.abs(parseInt(e.target.value)) })}
+                        defaultValue={this.state.time_arrive}
+                      />
+                      <InputGroupAddon addonType="append" >
+                        <InputGroupText>minutes</InputGroupText>
+                      </InputGroupAddon>
+                    </InputGroup>
+                  </FormGroup>
+                  <FormGroup style={mar2}>
+                    <InputGroup size="sm">
+                      <InputGroupAddon addonType="prepend" >
+                        <InputGroupText>departure time buffer</InputGroupText>
+                      </InputGroupAddon>
+                      <Input
+                        type="number"
+                        name="time2F"
+                        id="time2F"
+                        bsSize="sm"
+                        min="0"
+                        step="1"
+                        style={time2F}
+                        onChange={e => this.setState({ time_leave: Math.abs(parseInt(e.target.value)) })}
+                        defaultValue={this.state.time_leave}
                       />
                       <InputGroupAddon addonType="append" >
                         <InputGroupText>minutes</InputGroupText>
@@ -112,7 +155,7 @@ const ResultTable = inject("UserStore")(observer(
                       </tr>
                     </thead>
                     <tbody>
-                      {data.filter(d => filterTime(this.props.UserStore.arrive, this.props.UserStore.leave, d.arrive_work, d.leave_work, this.state.time))
+                      {data.filter(d => filterTime(this.props.UserStore.arrive, this.props.UserStore.leave, d.arrive_work, d.leave_work,  this.state.time_arrive, this.state.time_leave))
                         .map((fd) => (
                           <tr key={fd.email}>
                             <td>{fd.name}</td>
