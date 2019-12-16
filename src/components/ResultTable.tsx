@@ -233,7 +233,7 @@ class ResultTable extends React.Component<MyProps, MyState> {
     };
 
     const distF = {
-      width: '80px'
+      width: '84px'
     };
 
     const unitF = {
@@ -241,8 +241,13 @@ class ResultTable extends React.Component<MyProps, MyState> {
     };
 
 
-    const timeF = {
+    const time2F = {
       width: '80px'
+    };
+
+    
+    const timeF = {
+      width: '103px'
     };
 
   
@@ -297,10 +302,10 @@ class ResultTable extends React.Component<MyProps, MyState> {
                     </InputGroupAddon>
                     <Input
                       type="number"
-                      name="timeF"
-                      id="timeF"
+                      name="time2F"
+                      id="time2F"
                       bsSize="sm"
-                      style={timeF}
+                      style={time2F}
                       onChange={e => this.setState({ time_leave: Math.abs(parseInt(e.target.value)) })}
                       defaultValue={this.state.time_leave}
                     />

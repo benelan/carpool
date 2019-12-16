@@ -443,6 +443,50 @@ exports[`Settings snapshot 1`] = `
         </Button>
       </Col>
     </Row>
+    <Row
+      tag="div"
+    >
+      <Col
+        md={8}
+        tag="div"
+        widths={
+          Array [
+            "xs",
+            "sm",
+            "md",
+            "lg",
+            "xl",
+          ]
+        }
+      >
+        <FormGroup
+          check={true}
+          tag="div"
+        >
+          <Label
+            check={true}
+            tag="label"
+            widths={
+              Array [
+                "xs",
+                "sm",
+                "md",
+                "lg",
+                "xl",
+              ]
+            }
+          >
+            <Input
+              checked={false}
+              onChange={[Function]}
+              type="checkbox"
+            />
+             
+            Found a Ride (Remove from List)
+          </Label>
+        </FormGroup>
+      </Col>
+    </Row>
   </Col>
 </Row>
 `;
