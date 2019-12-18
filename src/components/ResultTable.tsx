@@ -228,13 +228,8 @@ class ResultTable extends React.Component<MyProps, MyState> {
       width: '80px'
     };
 
-
     const timeF = {
       width: '103px'
-    };
-
-    const marg = {
-      margin: "100px 20px 20px 20px"
     };
 
     //------------------------------------------ REDIRECT ------------------------------------------\\
@@ -257,7 +252,7 @@ class ResultTable extends React.Component<MyProps, MyState> {
     const { data } = this.state;
 
     return (
-      <div style={marg}>
+      <React.Fragment>
         <Row className="justify-content-md-center">
           <Col md={8}>
             <Row style={resultStyle}>
@@ -371,7 +366,7 @@ class ResultTable extends React.Component<MyProps, MyState> {
             </Row>
           </Col>
         </Row>
-      </div>
+      </React.Fragment>
     );
   };
 }

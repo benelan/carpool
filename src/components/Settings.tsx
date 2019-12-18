@@ -434,7 +434,7 @@ class Settings extends React.Component<MyProps, MyState> {
     };
 
     const marg = {
-      margin: "100px 20px 20px 20px"
+      margin: "50px 20px 20px 20px"
     };
 
     const submitB: any = {

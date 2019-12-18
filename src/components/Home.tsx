@@ -10,17 +10,21 @@ type MyProps = {
 class Home extends React.Component<MyProps> {
   render() {
     const homeStyle = {
-      margin: "20px"
+      margin: "10px"
     };
 
     const marg = {
-      margin: "100px 20px 20px 20px"
+      margin: "50px 0px 0px 0px"
+    };
+
+    const margB = {
+      margin: "0px 0px 40px 0px"
     };
     return (
 
       <Row style={marg}>
         <Col md={12}>
-          <h2 className="text-center">Welcome {this.props.n}</h2>
+          <h2 className="text-center" style={margB}>Welcome {this.props.n}</h2>
           <Row style={homeStyle}>
 
             <Col md={4}>

@@ -23,7 +23,7 @@ const Header = () => {
   }
   return (
 
-    <div className="fixed-top">
+    <div>
       <Navbar light expand="md" style={headerStyle} >
         <NavItem className="d-flex align-items-center">
           <NavLink className="font-weight-bold" href="https://www.esri.com/">
