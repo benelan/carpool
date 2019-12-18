@@ -9,7 +9,7 @@ import {
   NavLink
 } from 'reactstrap';
 import { NavLink as RRNavLink } from 'react-router-dom';
-import logo from '../logo.png';
+import logo from '../img/logo.png';
 
 
 const Header = () => {
@@ -23,10 +23,10 @@ const Header = () => {
   }
   return (
 
-    <div>
+    <div className="fixed-top">
       <Navbar light expand="md" style={headerStyle} >
         <NavItem className="d-flex align-items-center">
-          <NavLink tag={RRNavLink} className="font-weight-bold" to="/">
+          <NavLink className="font-weight-bold" href="https://www.esri.com/">
             <img src={logo} alt="logo" className="img-fluid" style={{ width: 100 }} />
           </NavLink>
           <NavbarBrand tag={RRNavLink} className="d-inline-block p-0  align-items-left" to="/">
@@ -36,6 +36,9 @@ const Header = () => {
         <NavbarToggler onClick={toggle} />
         <Collapse isOpen={isOpen} navbar>
           <Nav className="ml-auto" navbar>
+          <NavItem className="d-flex align-items-center">
+              <NavLink tag={RRNavLink} className="font-weight-bold" to="/home">Home</NavLink>
+            </NavItem>
             <NavItem className="d-flex align-items-center">
               <NavLink tag={RRNavLink} className="font-weight-bold" to="/results">Results</NavLink>
             </NavItem>

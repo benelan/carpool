@@ -1,13 +1,13 @@
 import React from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
-import "./index.css";
-import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
+import "../index.css";
+import { BrowserRouter as Router, Switch, Route, Redirect } from "react-router-dom";
 import { loadModules } from "esri-loader";
 import { Spinner } from "reactstrap";
-import Header from "./components/Header";
-import Settings from "./components/Settings";
-import Home from "./components/Home";
-import ResultTable from "./components/ResultTable";
+import Header from "./Header";
+import Settings from "./Settings";
+import Home from "./Home";
+import ResultTable from "./ResultTable";
 
 type MyState = {
   email: string | null,
@@ -87,13 +87,15 @@ class App extends React.Component<MyState> {
 
 
   render() {
+
     return (
       <Router>
         <Header />
         <div>{!!this.state.email && !!this.state.name ?
 
           <Switch>
-            <Route exact path="/">
+            <Redirect exact from="/" to="/home" />
+            <Route exact path="/home">
               <Home n={this.state.name} e={this.state.email} />
             </Route>
             <Route exact path="/settings">

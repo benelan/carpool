@@ -433,6 +433,10 @@ class Settings extends React.Component<MyProps, MyState> {
       width: "75%"
     };
 
+    const marg = {
+      margin: "100px 20px 20px 20px"
+    };
+
     const submitB: any = {
       position: "absolute",
       bottom: "15px",
@@ -442,15 +446,11 @@ class Settings extends React.Component<MyProps, MyState> {
       margin: "0 0 0 5px"
     };
 
-    const settingStyle = {
-      margin: "20px"
-    };
-
     if (this.state.form_complete === true) {
       return <Redirect to='/results' />
     }
     return (
-      <Row className="justify-content-md-center" style={settingStyle}>
+      <Row className="justify-content-md-center" style={marg}>
         <Col md={8}>
           <Row>
             <Col md={12}>

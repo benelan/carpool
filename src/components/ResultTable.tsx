@@ -1,6 +1,6 @@
 import React from "react";
 import { Redirect } from "react-router-dom";
-import { Col, Row, Table, Form, FormGroup, Input, InputGroup, InputGroupAddon, InputGroupText, Button } from "reactstrap";
+import { Col, Row, Table, Form, FormGroup, Input, InputGroup, InputGroupAddon, InputGroupText, Button, UncontrolledPopover, PopoverBody } from "reactstrap";
 import axios from "axios";
 import { loadModules } from "esri-loader";
 import { convertTime, filterTime } from "../helpers"
@@ -48,7 +48,7 @@ class ResultTable extends React.Component<MyProps, MyState> {
 
   proxyUrl: string = 'https://belan2.esri.com/DotNet/proxy.ashx?'
 
-  //--------------------- Lifecycle ---------------------\\
+  //------------------------------------------ Lifecycle ------------------------------------------\\
   componentDidMount() {
     this.getUserByEmail();
   }
@@ -56,7 +56,7 @@ class ResultTable extends React.Component<MyProps, MyState> {
   componentWillUnmount() {
 
   }
-  //--------------------- CRUD ---------------------\\
+  //------------------------------------------ CRUD ------------------------------------------\\
   getData = () => {
     const serviceUrl: string = 'https://services.arcgis.com/Wl7Y1m92PbjtJs5n/arcgis/rest/services/carpoolData/FeatureServer/0/query?';
     let url: string = this.proxyUrl + serviceUrl;
@@ -83,7 +83,7 @@ class ResultTable extends React.Component<MyProps, MyState> {
   };
 
   getUserByEmail = () => {
-    //--------------------- POINT ---------------------\\
+    //------------------------------------------ POINT ------------------------------------------\\
     const serviceUrl: string = 'https://services.arcgis.com/Wl7Y1m92PbjtJs5n/arcgis/rest/services/carpoolData/FeatureServer/0/query?';
 
     let url: string = this.proxyUrl + serviceUrl;
@@ -124,7 +124,7 @@ class ResultTable extends React.Component<MyProps, MyState> {
       .catch(err => {
         console.log(err)
       });
-    //--------------------- Line ---------------------\\
+    //------------------------------------------ Line ------------------------------------------\\
     const serviceUrl2: string = 'https://services.arcgis.com/Wl7Y1m92PbjtJs5n/arcgis/rest/services/carpoolData/FeatureServer/1/query?';
     let url2: string = this.proxyUrl + serviceUrl2;
 
@@ -172,7 +172,7 @@ class ResultTable extends React.Component<MyProps, MyState> {
   };
 
 
-  //--------------------- Filter Function ---------------------\\
+  //------------------------------------------ Filter Function ------------------------------------------\\
   async filterF(): Promise<void> {
     const unitLookup: any = {
       1: 'miles',
@@ -200,7 +200,12 @@ class ResultTable extends React.Component<MyProps, MyState> {
     query.spatialRelationship = "intersects";  // this is the default
     query.returnGeometry = true;
     query.outFields = ["*"];
-    query.where = "(office_id=" + this.state.office_id + ") AND (NOT success=1) AND (NOT driver=" + this.state.driver + " OR driver=3) AND (NOT OBJECTID=" + this.state.point_id + ")";
+
+    query.where =
+      "(office_id=" + this.state.office_id +
+      ") AND (NOT success=1) AND (NOT driver=" +
+      this.state.driver + " OR driver=3) AND (NOT OBJECTID=" +
+      this.state.point_id + ")";
 
     const that = this;
 
@@ -214,9 +219,11 @@ class ResultTable extends React.Component<MyProps, MyState> {
       });
   };
 
-  //--------------------- JSX ---------------------\\
+  //------------------------------------------ JSX ------------------------------------------\\
   render() {
-    const { data } = this.state;
+
+
+    //------------------------------------------ CSS STYLE ------------------------------------------\\
     const tableStyle = {
       backgroundColor: 'white',
       border: '1px solid lightgrey',
@@ -245,12 +252,21 @@ class ResultTable extends React.Component<MyProps, MyState> {
       width: '80px'
     };
 
-    
+
     const timeF = {
       width: '103px'
     };
 
-  
+    const marg = {
+      margin: "100px 20px 20px 20px"
+    };
+
+    //------------------------------------------ REDIRECT ------------------------------------------\\
+    if (this.state.new_user_l && this.state.new_user_p) {
+      alert('Fill out your Settings in order to find a carpool buddy')
+      return <Redirect to='/settings' />
+    }
+    //------------------------------------------ VARIABLES ------------------------------------------\\
     function renderSwitch(param: number) {
       switch (param) {
         case 1:
@@ -261,24 +277,18 @@ class ResultTable extends React.Component<MyProps, MyState> {
           return 'Either';
       };
     };
-
-    if (this.state.new_user_l && this.state.new_user_p) {
-      alert('Fill out your Settings in order to find a carpool buddy')
-      return <Redirect to='/settings' />
-    }
-
     const subject = encodeURIComponent("Lets Carpool!");
-
+    const { data } = this.state;
 
     return (
-      <React.Fragment>
+      <div style={marg}>
         <Row className="justify-content-md-center">
           <Col md={8}>
             <Row style={resultStyle}>
               <Form inline>
                 <FormGroup style={mRight}>
                   <InputGroup size="sm">
-                  <InputGroupAddon addonType="prepend" >
+                    <InputGroupAddon addonType="prepend" >
                       <InputGroupText>arrival time buffer</InputGroupText>
                     </InputGroupAddon>
                     <Input
@@ -297,7 +307,7 @@ class ResultTable extends React.Component<MyProps, MyState> {
                 </FormGroup>
                 <FormGroup style={mRight}>
                   <InputGroup size="sm">
-                  <InputGroupAddon addonType="prepend" >
+                    <InputGroupAddon addonType="prepend" >
                       <InputGroupText>departure time buffer</InputGroupText>
                     </InputGroupAddon>
                     <Input
@@ -315,33 +325,37 @@ class ResultTable extends React.Component<MyProps, MyState> {
                   </InputGroup>
                 </FormGroup>
                 <FormGroup style={mRight}>
-                <InputGroup size="sm">
-                  <InputGroupAddon addonType="prepend" >
+                  <InputGroup size="sm">
+                    <InputGroupAddon addonType="prepend" >
                       <InputGroupText>distance buffer</InputGroupText>
                     </InputGroupAddon>
-                  <Input
-                    type="number"
-                    name="distF"
-                    id="distF"
-                    style={distF}
-                    onChange={e => { this.setState({ distance: Math.abs(parseInt(e.target.value)) }); this.filterF() }}
-                    defaultValue={this.state.distance}
-                  />
-                   <Input
-                    type="select"
-                    name="unitF"
-                    id="unitF"
-                    style={unitF}
-                    onChange={e => { this.setState({ units: parseInt(e.target.value) }); this.filterF() }}
-                    defaultValue={this.state.units}>
-                    <option value={1}>miles</option>
-                    <option value={2}>feet</option>
-                    <option value={3}>kilometers</option>
-                    <option value={4}>meters</option>
-                  </Input>
+                    <Input
+                      type="number"
+                      name="distF"
+                      id="distF"
+                      style={distF}
+                      onChange={e => { this.setState({ distance: Math.abs(parseInt(e.target.value)) }); this.filterF() }}
+                      defaultValue={this.state.distance}
+                    />
+                    <Input
+                      type="select"
+                      name="unitF"
+                      id="unitF"
+                      style={unitF}
+                      onChange={e => { this.setState({ units: parseInt(e.target.value) }); this.filterF() }}
+                      defaultValue={this.state.units}>
+                      <option value={1}>miles</option>
+                      <option value={2}>feet</option>
+                      <option value={3}>kilometers</option>
+                      <option value={4}>meters</option>
+                    </Input>
                   </InputGroup>
                 </FormGroup>
               </Form>
+              <Button id="filterFocus" size="sm" color="link">help</Button>
+            <UncontrolledPopover trigger="focus" placement="auto" target="filterFocus">
+                  <PopoverBody>Info about how filtering works on the Home page</PopoverBody>
+                </UncontrolledPopover>
             </Row>
             <Row style={tableStyle}>
               <Col md={12} >
@@ -352,7 +366,12 @@ class ResultTable extends React.Component<MyProps, MyState> {
                       <th>Arrive At Work</th>
                       <th>Leave Work</th>
                       <th>Ride Preference</th>
-                      <th>Email</th>
+                      <th>Email
+                        <Button id="PopoverFocus" size="sm" color="link">help</Button>
+                        <UncontrolledPopover trigger="focus" placement="auto" target="PopoverFocus">
+                          <PopoverBody>Clicking on a user's email address will open pre-written template.</PopoverBody>
+                        </UncontrolledPopover>
+                      </th>
                     </tr>
                   </thead>
                   <tbody>
@@ -376,7 +395,7 @@ class ResultTable extends React.Component<MyProps, MyState> {
             </Row>
           </Col>
         </Row>
-      </React.Fragment >
+      </div>
     );
   };
 }
