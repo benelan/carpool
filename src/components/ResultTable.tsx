@@ -10,6 +10,7 @@ type MyState = {
   data: Array<any>,
   new_user_p: Boolean,
   new_user_l: Boolean,
+  done: number
   point_id: number | null,
   line_id: number | null,
   office_id: number | null,
@@ -33,6 +34,7 @@ class ResultTable extends React.Component<MyProps, MyState> {
     data: [],
     new_user_p: false,
     new_user_l: false,
+    done: 0,
     point_id: null,
     line_id: null,
     office_id: null,
@@ -46,42 +48,13 @@ class ResultTable extends React.Component<MyProps, MyState> {
     time_leave: 30
   };
 
-  proxyUrl: string = 'https://belan2.esri.com/DotNet/proxy.ashx?'
+  proxyUrl: string = 'https://belan2.esri.com/DotNet/proxy.ashx?';
 
   //------------------------------------------ Lifecycle ------------------------------------------\\
   componentDidMount() {
     this.getUserByEmail();
   }
-
-  componentWillUnmount() {
-
-  }
   //------------------------------------------ CRUD ------------------------------------------\\
-  getData = () => {
-    const serviceUrl: string = 'https://services.arcgis.com/Wl7Y1m92PbjtJs5n/arcgis/rest/services/carpoolData/FeatureServer/0/query?';
-    let url: string = this.proxyUrl + serviceUrl;
-    const data: any = {
-      "f": "json",
-      "returnGeometry": true,
-      'where': '1=1',
-      'outFields': "*"
-    };
-
-    const query: string = Object.keys(data)
-      .map(k => encodeURIComponent(k) + '=' + encodeURIComponent(data[k]))
-      .join('&');
-
-    url = url + query;
-
-    axios.get(url)
-      .then(res => {
-        // fill in form and state with settings saved in db
-        this.setState({ data: res.data.features });
-      }).catch(err => {
-        console.log(err)
-      });
-  };
-
   getUserByEmail = () => {
     //------------------------------------------ POINT ------------------------------------------\\
     const serviceUrl: string = 'https://services.arcgis.com/Wl7Y1m92PbjtJs5n/arcgis/rest/services/carpoolData/FeatureServer/0/query?';
@@ -113,7 +86,9 @@ class ResultTable extends React.Component<MyProps, MyState> {
             arrive_work: user.arrive_work,
             leave_work: user.leave_work
           })
-          this.filterF();
+          this.setState((prevState, props) => ({
+            done: prevState.done + 1
+        })); 
         }
         else {
           this.setState({
@@ -157,7 +132,9 @@ class ResultTable extends React.Component<MyProps, MyState> {
               type: 'polyline'
             }
           });
-          this.filterF();
+          this.setState((prevState, props) => ({
+            done: prevState.done + 1
+        })); 
         }
 
         else {
@@ -191,21 +168,17 @@ class ResultTable extends React.Component<MyProps, MyState> {
 
     const featureLayer = new FeatureLayer({ url: serviceUrl });
 
-
     // perform query
     var query = featureLayer.createQuery();
     query.geometry = this.state.user_route;  // the point location of the pointer
     query.distance = Math.abs(this.state.distance);
     query.units = unitLookup[this.state.units];
     query.spatialRelationship = "intersects";  // this is the default
-    query.returnGeometry = true;
-    query.outFields = ["*"];
+    query.returnGeometry = false;
+    query.outFields = ["name, email, driver, office_id, arrive_work, leave_work"];
 
     query.where =
-      "(office_id=" + this.state.office_id +
-      ") AND (NOT success=1) AND (NOT driver=" +
-      this.state.driver + " OR driver=3) AND (NOT OBJECTID=" +
-      this.state.point_id + ")";
+      "(office_id=" + this.state.office_id + ") AND (NOT success=1) AND (NOT driver=" + this.state.driver + " OR driver=3) AND (NOT OBJECTID=" + this.state.point_id + ")";
 
     const that = this;
 
@@ -221,7 +194,10 @@ class ResultTable extends React.Component<MyProps, MyState> {
 
   //------------------------------------------ JSX ------------------------------------------\\
   render() {
-
+    if (this.state.done === 2) {
+      this.filterF();
+      this.setState({ done: 3 });
+    }
 
     //------------------------------------------ CSS STYLE ------------------------------------------\\
     const tableStyle = {
@@ -353,9 +329,9 @@ class ResultTable extends React.Component<MyProps, MyState> {
                 </FormGroup>
               </Form>
               <Button id="filterFocus" size="sm" color="link">help</Button>
-            <UncontrolledPopover trigger="focus" placement="auto" target="filterFocus">
-                  <PopoverBody>Info about how filtering works on the Home page</PopoverBody>
-                </UncontrolledPopover>
+              <UncontrolledPopover trigger="focus" placement="auto" target="filterFocus">
+                <PopoverBody>Info about how filtering works on the Home page</PopoverBody>
+              </UncontrolledPopover>
             </Row>
             <Row style={tableStyle}>
               <Col md={12} >
