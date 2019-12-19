@@ -4,22 +4,28 @@ A carpool matcher app for Esri employees. Check out the 'spatial' branch for a m
 ## Using the App
 To get started, you will need to set up an application with [ArcGIS for Developers](https://developers.arcgis.com/documentation/core-concepts/security-and-authentication/accessing-arcgis-online-services/) in order to implement app login.
 
-Next, if you don't have one, create an account at [mongoDB Atlas](https://docs.atlas.mongodb.com/getting-started/). Once you set up your account, you will need to create a file in the root directory of this application called '.env'. In the file, add:
+Next, if you don't have one, create an account at [mongoDB Atlas](https://docs.atlas.mongodb.com/getting-started/). Once you set up your account, you will need to create a file in the api directory of this application called '.env'. In the file, add:
 
 ```
 DB_ROUTE=<CONNECTION STRING PROVIDED BY ATLAS>
 SESSION_SECRET=<RANDOM STRING>
 ARCGIS_CLIENT_ID=<CLIENT FROM AN ARCGIS APP>
 ARCGIS_CLIENT_SECRET=<CLIENT_SECRET FROM AN ARCGIS APP>
+PORT=3001
 ```
 
-To run the web app you must have [Node](https://nodejs.org/en/) installed. With Node installed, navigate to the root folder of the app and type:
+To run the web app you must have [Node](https://nodejs.org/en/) installed. With Node installed, navigate to the client folder of the app and type:
 
 ```
 npm install
-npm start
+npm run build
 ```
-The api and the react app will start concurrently.
+Then navigate to the api folder and type:
+```
+npm install
+nodemon index.js
+```
+The app should start at http://localhost:3001
 
 ## TODO
 To do list
@@ -30,10 +36,10 @@ To do list
 - [x] Create React forms component for user settings
 - [x] Create React data table component
 - [x] Filter results table based on distance, time, and driver/passenger
-- [ ] Create React home/info page
+- [x] Create React home/info page
 - [x] Set up jwt or [passport](http://www.passportjs.org/packages/passport-oauth2/)
 - [ ] Impmlement a [time range slider](http://react-component.github.io/slider/examples/range.html) for filtering the results
-- [ ] Create option to remove yourself from list
+- [x] Create option to remove yourself from list
 - [ ] Consider filter algorithm rework: what if people's filters do not match up?
 - [ ] Stop procrastinating
 
