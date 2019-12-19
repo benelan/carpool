@@ -16,13 +16,11 @@ const Settings = inject("UserStore")(observer(
       axios.defaults.withCredentials = true
     }
 
-    componentWillUnmount() {
-    }
-
     //--------------------- CRUD OPERATIONS ---------------------\\
     addUser = () => {
+      const url = process.env.REACT_APP_API_URL +"/api/addUser";
       axios
-        .post("http://localhost:3001/api/addUser", {
+        .post(url, {
           name: this.props.UserStore.userName,
           email: this.props.UserStore.userEmail,
           arrive_work: this.props.UserStore.arrive,
@@ -41,8 +39,9 @@ const Settings = inject("UserStore")(observer(
     };
 
     updateUser = () => {
+      const url = process.env.REACT_APP_API_URL +"/api/updateUser";
       axios
-        .post("http://localhost:3001/api/updateUser", {
+        .post(url, {
           em: this.props.UserStore.userEmail,
           update: {
             name: this.props.UserStore.userName,
@@ -174,7 +173,7 @@ const Settings = inject("UserStore")(observer(
                     name="office"
                     id="officeSelect"
                     onChange={e => this.props.UserStore.setOffice(parseInt(e.target.value))}
-                    defaultValue={this.props.UserStore.office}>
+                    defaultValue={this.props.UserStore.officeId}>
                     <option value={1}>Redlands Main Campus</option>
                     <option value={2}>Redlands V Buildings</option>
                     <option value={3}>Charlotte</option>

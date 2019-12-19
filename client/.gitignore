@@ -1,0 +1,6 @@
+.DS_*
+node_modules
+*.swp
+build
+.env
+now.json

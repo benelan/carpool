@@ -10,7 +10,8 @@ router.get('/auth/arcgis/callback',
     function (req, res) {
         // Successful authentication, redirect home.
         req.session.save(() => {    
-            res.redirect("http://localhost:3000/login?email=" + req.user.email + "&name=" + req.user.fullname)
+            const url = "http://localhost:"  + process.env.PORT + "/login?email=" + req.user.email + "&name=" + req.user.fullname;
+            res.redirect(url)
         
         })
     });
@@ -18,7 +19,8 @@ router.get('/auth/arcgis/callback',
 router.get('/logout', function (req, res) {
     req.logout();
     req.session.save(() => {
-        res.redirect('http://localhost:3000');
+        const url = "http://localhost:"  + process.env.PORT;
+        res.redirect(url);
       })
 });
 

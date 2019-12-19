@@ -4,9 +4,9 @@ class UserStore {
     userName = null;
     userEmail = null;
     officeId = 1;
+    driver = 1;
     arrive = "09:00";
     leave = "17:00";
-    driver = 1;
     successful = false;
     userNew = true;
 

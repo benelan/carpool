@@ -22,7 +22,8 @@ const ResultTable = inject("UserStore")(observer(
     }
 
     getData = () => {
-      axios.get("http://localhost:3001/api/queryUsers", {
+      const url = process.env.REACT_APP_API_URL +"/api/queryUsers";
+      axios.get(url, {
         params: {
           email: this.props.UserStore.userEmail,
           driver: this.props.UserStore.driver,

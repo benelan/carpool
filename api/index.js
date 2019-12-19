@@ -7,11 +7,12 @@ const express = require('express')
   , cookieParser = require('cookie-parser')
   , helmet = require('helmet')
   , compression = require('compression')
+  , path = require('path')
   , mongoose = require('mongoose')
   , passport = require('passport')
   , User = require('./models/user')
   , ArcGISStrategy = require('passport-arcgis').Strategy
-  , port = 3001;
+  , port = process.env.PORT || 3001;
 
 passport.serializeUser(function (user, done) {
   User.find({email: user.email}, function(err, user) {
@@ -77,12 +78,22 @@ app.use(function(req, res, next){
 });
 
 app.use(function (req, res, next) {
-  res.header("Access-Control-Allow-Origin", "http://localhost:3000");
+ //res.header("Access-Control-Allow-Origin", "http://localhost:3000");
   res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
   res.header('Access-Control-Allow-Credentials', true);
   next();
 });
 
 app.use(require('./controllers'))
+
+app.use(express.static(path.join(__dirname, '..', 'client', 'build')))
+
+app.get('/ping', (req, res) => {
+  return res.send('pong')
+})
+
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, '..', 'client', 'build', 'index.html'))
+})
 
 app.listen(port, () => console.log(`Listening on port ${port}`))

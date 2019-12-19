@@ -18,7 +18,9 @@ const Login = inject("UserStore")(observer(
 
         getUserByEmail = () => {
             // get user info by email
-            axios.get("http://localhost:3001/api/getOneUser", {
+            const url = process.env.REACT_APP_API_URL +"/api/getOneUser";
+            console.log(url)
+            axios.get(url, {
                 params: {
                     email: this.props.UserStore.userEmail
                 }
