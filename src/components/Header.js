@@ -26,13 +26,14 @@ const Header = inject("UserStore")(observer(({ UserStore }) => {
     <Navbar light expand="md" style={headerStyle} >
       <NavItem className="d-flex align-items-center">
         <img src={logo} alt="logo" className="img-fluid" style={{ width: 100 }} />
-        <NavLink tag={RRNavLink} className="font-weight-bold" to={"/home"}>    <h1 style={{ font: '36px Arial Black', color: 'black' }}>carpool beta</h1>
+        <NavLink tag={RRNavLink} className="font-weight-bold" to={"/home"}>
+          <h1 style={{ font: '36px Arial Black', color: 'black' }}>carpool beta</h1>
         </NavLink>
       </NavItem>
       <NavbarToggler onClick={toggle} />
       <Collapse isOpen={isOpen} navbar>
         <Nav className="ml-auto" navbar>
-        <NavItem className="d-flex align-items-center">
+          <NavItem className="d-flex align-items-center">
             <NavLink tag={RRNavLink} className="font-weight-bold" to={"/home"}>Home</NavLink>
           </NavItem>
           <NavItem className="d-flex align-items-center">

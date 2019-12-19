@@ -9,7 +9,7 @@ const express = require('express')
   , compression = require('compression')
   , mongoose = require('mongoose')
   , passport = require('passport')
-  , User = require('./api/models/user')
+  , User = require('./models/user')
   , ArcGISStrategy = require('passport-arcgis').Strategy
   , port = 3001;
 
@@ -83,6 +83,6 @@ app.use(function (req, res, next) {
   next();
 });
 
-app.use(require('./api/controllers'))
+app.use(require('./controllers'))
 
 app.listen(port, () => console.log(`Listening on port ${port}`))
