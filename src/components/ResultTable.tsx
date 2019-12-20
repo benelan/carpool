@@ -64,7 +64,8 @@ class ResultTable extends React.Component<MyProps, MyState> {
     const data: any = {
       "f": "json",
       'where': "email='" + this.props.e + "'",
-      'outFields': "*"
+      'outFields': "*",
+      'timestamp': new Date().getTime()
     };
 
     const query: string = Object.keys(data)
@@ -88,12 +89,17 @@ class ResultTable extends React.Component<MyProps, MyState> {
           })
           this.setState((prevState, props) => ({
             done: prevState.done + 1
-        })); 
+          }));
         }
         else {
           this.setState({
             new_user_p: true
           });
+        }
+
+        if (this.state.done === 2) {
+          this.filterF();
+          this.setState({ done: 3 });
         }
       })
       .catch(err => {
@@ -107,7 +113,8 @@ class ResultTable extends React.Component<MyProps, MyState> {
       "f": "json",
       'where': "email='" + this.props.e + "'",
       'outFields': "*",
-      'returnGeometry': true
+      'returnGeometry': true,
+      'timestamp': new Date().getTime()
     };
 
     const query2: string = Object.keys(data2)
@@ -134,13 +141,18 @@ class ResultTable extends React.Component<MyProps, MyState> {
           });
           this.setState((prevState, props) => ({
             done: prevState.done + 1
-        })); 
+          }));
         }
 
         else {
           this.setState({
             new_user_l: true
           });
+        }
+
+        if (this.state.done === 2) {
+          this.filterF();
+          this.setState({ done: 3 });
         }
       })
       .catch(err => {
@@ -175,7 +187,7 @@ class ResultTable extends React.Component<MyProps, MyState> {
     query.units = unitLookup[this.state.units];
     query.spatialRelationship = "intersects";  // this is the default
     query.returnGeometry = false;
-    query.outFields = ["name, email, driver, office_id, arrive_work, leave_work"];
+    query.outFields = ["name, email, driver, office_id, arrive_work, leave_work", "OBJECTID"];
 
     query.where =
       "(office_id=" + this.state.office_id + ") AND (NOT success=1) AND (NOT driver=" + this.state.driver + " OR driver=3) AND (NOT OBJECTID=" + this.state.point_id + ")";
@@ -194,11 +206,6 @@ class ResultTable extends React.Component<MyProps, MyState> {
 
   //------------------------------------------ JSX ------------------------------------------\\
   render() {
-    if (this.state.done === 2) {
-      this.filterF();
-      this.setState({ done: 3 });
-    }
-
     //------------------------------------------ CSS STYLE ------------------------------------------\\
     const tableStyle = {
       backgroundColor: 'white',

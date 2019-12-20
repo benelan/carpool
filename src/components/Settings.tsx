@@ -201,7 +201,8 @@ class Settings extends React.Component<MyProps, MyState> {
     const data: any = {
       "f": "json",
       'where': "email='" + this.props.e + "'",
-      'outFields': "*"
+      'outFields': "*",
+      'timestamp': new Date().getTime()
     };
 
     const query: string = Object.keys(data)
@@ -266,7 +267,8 @@ class Settings extends React.Component<MyProps, MyState> {
     const data2: any = {
       "f": "json",
       'where': "email='" + this.props.e + "'",
-      'outFields': "*"
+      'outFields': "*",
+      'timestamp': new Date().getTime()
     };
 
     const query2 = Object.keys(data2)
