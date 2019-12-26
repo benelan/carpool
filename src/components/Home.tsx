@@ -2,11 +2,14 @@ import React from "react";
 import { Col, Row, Button, UncontrolledPopover, PopoverBody } from "reactstrap";
 import { NavLink as RRNavLink } from 'react-router-dom';
 import soon from '../img/soon.png';
+import { observer, inject } from 'mobx-react'
+import UserStore from '../store/UserStore';
+
 type MyProps = {
-  e: string,
-  n: string;
+  UserStore?: UserStore
 };
 
+const Home = inject("UserStore")(observer(
 class Home extends React.Component<MyProps> {
   render() {
     const homeStyle = {
@@ -24,7 +27,7 @@ class Home extends React.Component<MyProps> {
 
       <Row style={marg}>
         <Col md={12}>
-          <h2 className="text-center" style={margB}>Welcome {this.props.n}</h2>
+          <h2 className="text-center" style={margB}>Welcome {this.props.UserStore!.userName}</h2>
           <Row style={homeStyle}>
 
             <Col md={4}>
@@ -76,5 +79,5 @@ class Home extends React.Component<MyProps> {
     );
   }
 }
-
+))
 export default Home;

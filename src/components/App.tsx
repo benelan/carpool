@@ -8,19 +8,23 @@ import Header from "./Header";
 import Settings from "./Settings";
 import Home from "./Home";
 import ResultTable from "./ResultTable";
+import { observer, inject } from 'mobx-react'
+import UserStore from '../store/UserStore';
+import axios from "axios";
 
-type MyState = {
-  email: string | null,
-  name: string | null;
-};
 
-class App extends React.Component<MyState> {
+type MyProps = {
+UserStore?: UserStore
+}
 
-  state: MyState = {
-    name: null,
-    email: null
-  }
+const App = inject("UserStore")(observer(
+class App extends React.Component<MyProps> {
 
+  CancelToken = axios.CancelToken;
+  source = this.CancelToken.source();
+  proxyUrl: string = 'https://belan2.esri.com/DotNet/proxy.ashx?';
+
+  
   //--------------------- LIFE CYCLE FUNCTIONS ---------------------\\
   async componentDidMount(): Promise<void> {
     // load modules
@@ -54,10 +58,10 @@ class App extends React.Component<MyState> {
         // Once loaded, user is signed in
         portal.load().then(function () {
           // set state and form of email and name
-          that.setState({
-            name: portal.user.fullName,
-            email: portal.user.email
-          });
+          that.props.UserStore!.setName(portal.user.fullName)
+          that.props.UserStore!.setEmail(portal.user.email)
+          
+          that.getUserByEmail();
         });
       })
   };
@@ -85,27 +89,101 @@ class App extends React.Component<MyState> {
     window.location.reload();
   }
 
+  async getUserByEmail(): Promise<void> {
+    //------------------------------------------ POINT ------------------------------------------\\
+    const serviceUrl: string = 'https://services.arcgis.com/Wl7Y1m92PbjtJs5n/arcgis/rest/services/carpoolData/FeatureServer/0/query?';
+
+    let url: string = this.proxyUrl + serviceUrl;
+
+    const data: any = {
+      "f": "json",
+      'where': "email='" + this.props.UserStore!.userEmail + "'",
+      'outFields': "*",
+      'timestamp': new Date().getTime()
+    };
+
+    const query: string = Object.keys(data)
+      .map(k => encodeURIComponent(k) + '=' + encodeURIComponent(data[k]))
+      .join('&');
+
+    url = url + query;
+
+    await axios.get(url, {cancelToken: this.source.token})
+      .then(res => {
+        const users: Array<any> = res.data.features;
+        if (users.length > 0) {  // check to see if user is already saved
+          const user: any = users[0].attributes;
+          const success_user = (user.success) ? true : false;
+          // populate form with user data
+          this.props.UserStore!.setArrive(user.arrive_work)
+          this.props.UserStore!.setLeave(user.leave_work)
+          this.props.UserStore!.setDriver(user.driver)
+          this.props.UserStore!.setOffice(user.office_id)
+          this.props.UserStore!.setSuccess(success_user)
+          this.props.UserStore!.setNew(false);
+          this.props.UserStore!.setPointId(user.OBJECTID);
+          this.props.UserStore!.setAddress(user.start_addr);
+        }
+      })
+      .catch(err => {
+        console.log(err)
+      });
+    //------------------------------------------ Line ------------------------------------------\\
+    const serviceUrl2: string = 'https://services.arcgis.com/Wl7Y1m92PbjtJs5n/arcgis/rest/services/carpoolData/FeatureServer/1/query?';
+    let url2: string = this.proxyUrl + serviceUrl2;
+
+    const data2: any = {
+      "f": "json",
+      'where': "email='" + this.props.UserStore!.userEmail + "'",
+      'outFields': "*",
+      'returnGeometry': true,
+      'timestamp': new Date().getTime()
+    };
+
+    const query2: string = Object.keys(data2)
+      .map(k => encodeURIComponent(k) + '=' + encodeURIComponent(data2[k]))
+      .join('&');
+
+    url2 = url2 + query2;
+
+    await axios.get(url2, {cancelToken: this.source.token})
+      .then(res => {
+        const users: Array<any> = res.data.features;
+        // fill in form and state with settings saved in db
+        if (users.length > 0) {  // check to see if user is already saved
+          const user: any = users[0];
+          // populate form with user data
+          this.props.UserStore!.setLineId(user.attributes.OBJECTID)
+          this.props.UserStore!.setRoute({
+            spatialReference: res.data.spatialReference,
+            paths: user.geometry.paths,
+            type: 'polyline'
+          })
+        }
+      })
+      .catch(err => {
+        console.log(err)
+      });
+  };
 
   render() {
-    
     return (
       <Router>
         <Header />
-        <div>{!!this.state.email && !!this.state.name ?
+        <div>{!!this.props.UserStore!.userEmail ?
 
           <Switch>
             <Redirect exact from="/" to="/home" />
             <Route exact path="/home">
-              <Home n={this.state.name} e={this.state.email} />
+              <Home />
             </Route>
             <Route exact path="/settings">
-              <Settings n={this.state.name} e={this.state.email} />
+              <Settings />
             </Route>
             <Route exact path="/results">
-              <ResultTable n={this.state.name} e={this.state.email} />
+              <ResultTable />
             </Route>
           </Switch>
-
           : (
             <div className="center" >
               <Spinner color="warning" style={{ width: '3rem', height: '3rem' }} />
@@ -114,5 +192,5 @@ class App extends React.Component<MyState> {
       </Router>
     )
   }
-}
+}))
 export default App;

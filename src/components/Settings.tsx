@@ -3,63 +3,52 @@ import { Col, Row, Button, FormGroup, Label, Input, UncontrolledPopover, Popover
 import { Redirect } from "react-router-dom";
 import { loadModules, loadCss } from "esri-loader";
 import axios from "axios";
+import { observer, inject } from 'mobx-react'
+import UserStore from '../store/UserStore';
 
 type MyState = {
   searchWidget: import("esri/widgets/Search") | null,
-  new_user: Boolean,
   form_complete: Boolean,
-  point_id: number | null,
-  line_id: number | null,
-  office_id: number,
-  office_old: number | null,
-  driver: number,
-  arrive_work: string,
-  leave_work: string,
+  office_old: number,
   route: any | null,  // needs to cast as geometry for arcgis query
-  start_addr: string,
   lon: number | null,
   lat: number | null,
-  success: boolean;
 };
 
 type MyProps = {
-  e: string,
-  n: string;
+  UserStore?: UserStore
 };
 
+const Settings = inject("UserStore")(observer(
 class Settings extends React.Component<MyProps, MyState> {
   //--------------------- STATE---------------------\\
   state: MyState = {
-    new_user: true,
     form_complete: false,
     searchWidget: null,
-    point_id: null,
-    line_id: null,
-    driver: 1,
-    office_id: 1,
-    office_old: null,
-    arrive_work: "09:00",
-    leave_work: "17:00",
+    office_old: this.props.UserStore!.officeId,
     lat: null,
     lon: null,
-    start_addr: "",
-    route: null,
-    success: false
+    route: null
   };
 
-  CancelToken = axios.CancelToken;
-  source = this.CancelToken.source();
   proxyUrl: string = 'https://belan2.esri.com/DotNet/proxy.ashx?'
 
   //--------------------- LIFE CYCLE FUNCTIONS ---------------------\\
   componentDidMount() {
     loadCss();
-    this.getUserByEmail();
+    loadModules(["esri/widgets/Search"])
+    .then(([Search]) => {
+        this.setState({
+          searchWidget: Search({
+            container: document.getElementById("startLoc"),
+            searchTerm: this.props.UserStore!.address
+          })
+        });
+      })
   }
 
   componentWillUnmount() {
     this.setState({ searchWidget: null });
-    this.source.cancel(); // cancel async api calls
   }
 
   //--------------------- CRUD OPERATIONS ---------------------\\
@@ -72,7 +61,7 @@ class Settings extends React.Component<MyProps, MyState> {
       const data2: any = [{
         "geometry": this.state.route.geometry,
         'attributes': {
-          'email': this.props.e,
+          'email': this.props.UserStore!.userEmail,
           'travel_minutes': this.state.route.attributes.Total_TravelTime,
           'travel_miles': this.state.route.attributes.Total_Miles,
         }
@@ -80,17 +69,19 @@ class Settings extends React.Component<MyProps, MyState> {
 
       const querystring2: string = 'features=' + JSON.stringify(data2);
       axios
-        .post(url2, querystring2, {cancelToken: this.source.token})
+        .post(url2, querystring2)
         .catch((err: any) => {
           // handle any errors
           console.error(err);
         });
     }
 
-    //--------------------- Line ---------------------\\
+    //--------------------- Point ---------------------\\
     const serviceUrl: string = 'https://services.arcgis.com/Wl7Y1m92PbjtJs5n/arcgis/rest/services/carpoolData/FeatureServer/0/addFeatures?f=json&features='
     let url: string = this.proxyUrl + serviceUrl;
-    const success_val = (this.state.success) ? 1 : 0;
+
+    
+    const success_val = (this.props.UserStore!.successful) ? 1 : 0;
     const data: any = [{
       "geometry": {
         "x": this.state.lon,
@@ -100,13 +91,13 @@ class Settings extends React.Component<MyProps, MyState> {
         }
       },
       'attributes': {
-        'name': this.props.n,
-        'email': this.props.e,
-        'arrive_work': this.state.arrive_work,
-        'leave_work': this.state.leave_work,
-        'driver': this.state.driver,
-        'office_id': this.state.office_id,
-        'start_addr': encodeURIComponent(this.state.start_addr),
+        'name': this.props.UserStore!.userName,
+        'email': this.props.UserStore!.userEmail,
+        'arrive_work': this.props.UserStore!.arrive,
+        'leave_work': this.props.UserStore!.leave,
+        'driver': this.props.UserStore!.driver,
+        'office_id': this.props.UserStore!.officeId,
+        'start_addr': encodeURIComponent(this.props.UserStore!.address),
         'success': success_val
       }
     }]
@@ -114,9 +105,10 @@ class Settings extends React.Component<MyProps, MyState> {
     url += JSON.stringify(data)
 
     axios
-      .post(url, JSON.stringify(data), {cancelToken: this.source.token})
+      .post(url, JSON.stringify(data))
       .then(() => {
-        this.setState({ new_user: false, form_complete: true });
+        this.props.UserStore!.setNew(false);
+        this.setState({ form_complete: true });
       })
       .catch((err: any) => {
         // handle any errors
@@ -133,8 +125,8 @@ class Settings extends React.Component<MyProps, MyState> {
       const data2: any = [{
         "geometry": this.state.route.geometry,
         'attributes': {
-          'OBJECTID': this.state.line_id,
-          'email': this.props.e,
+          'OBJECTID': this.props.UserStore!.lineId,
+          'email': this.props.UserStore!.userEmail,
           'travel_minutes': this.state.route.attributes.Total_TravelTime,
           'travel_miles': this.state.route.attributes.Total_Miles,
         }
@@ -142,7 +134,7 @@ class Settings extends React.Component<MyProps, MyState> {
 
       const querystring2: string = 'features=' + JSON.stringify(data2);
       await axios
-        .post(url2, querystring2, {cancelToken: this.source.token})
+        .post(url2, querystring2)
         .catch((err: any) => {
           // handle any errors
           console.error(err);
@@ -157,7 +149,8 @@ class Settings extends React.Component<MyProps, MyState> {
     const serviceUrl: string = 'https://services.arcgis.com/Wl7Y1m92PbjtJs5n/arcgis/rest/services/carpoolData/FeatureServer/0/updateFeatures?f=json&features='
     let url: string = this.proxyUrl + serviceUrl;
 
-    const success_val = (this.state.success) ? 1 : 0;
+    // 0 = FALSE .... 1 = TRUE
+    const success_val = (this.props.UserStore!.successful) ? 1 : 0;
 
     const data: any = [{
       "geometry": {
@@ -168,14 +161,14 @@ class Settings extends React.Component<MyProps, MyState> {
         }
       },
       'attributes': {
-        'OBJECTID': this.state.point_id,
-        'name': this.props.n,
-        'email': this.props.e,
-        'arrive_work': this.state.arrive_work,
-        'leave_work': this.state.leave_work,
-        'driver': this.state.driver,
-        'office_id': this.state.office_id,
-        'start_addr': encodeURIComponent(this.state.start_addr),
+        'OBJECTID': this.props.UserStore!.pointId,
+        'name': this.props.UserStore!.userName,
+        'email': this.props.UserStore!.userEmail,
+        'arrive_work': this.props.UserStore!.arrive,
+        'leave_work': this.props.UserStore!.leave,
+        'driver': this.props.UserStore!.driver,
+        'office_id': this.props.UserStore!.officeId,
+        'start_addr': encodeURIComponent(this.props.UserStore!.address),
         'success': success_val
       }
     }];
@@ -183,113 +176,13 @@ class Settings extends React.Component<MyProps, MyState> {
     url += JSON.stringify(data)
 
     await axios
-      .post(url, JSON.stringify(data), {cancelToken: this.source.token})
+      .post(url, JSON.stringify(data))
       .then(() => {
         this.setState({ form_complete: true });
       })
       .catch((err: any) => {
         // handle any errors
         console.error(err);
-      })
-      .catch((err: any) => {
-        console.log(err)
-      });
-  };
-
-  async getUserByEmail(): Promise<void> {
-    //--------------------- POINT ---------------------\\
-    const serviceUrl: string = 'https://services.arcgis.com/Wl7Y1m92PbjtJs5n/arcgis/rest/services/carpoolData/FeatureServer/0/query?'
-    let url: string = this.proxyUrl + serviceUrl;
-
-    const data: any = {
-      "f": "json",
-      'where': "email='" + this.props.e + "'",
-      'outFields': "*",
-      'timestamp': new Date().getTime()
-    };
-
-    const query: string = Object.keys(data)
-      .map(k => encodeURIComponent(k) + '=' + encodeURIComponent(data[k]))
-      .join('&');
-
-    url = url + query;
-
-    await axios.get(url, {cancelToken: this.source.token})
-      .then((res: any) => {
-        const users: any = res.data.features;
-        // fill in form and state with settings saved in db
-        loadModules(["esri/widgets/Search"])
-          .then(([Search]) => {
-            if (users.length > 0) {  // check to see if user is already saved
-              const user: any = users[0].attributes
-
-              const success_user = (user.success) ? true : false;
-
-              // populate form with user data
-              this.setState({
-                point_id: user.OBJECTID,
-                office_id: user.office_id,
-                office_old: user.office_id,
-                driver: user.driver,
-                arrive_work: user.arrive_work,
-                leave_work: user.leave_work,
-                new_user: false,
-                start_addr: user.start_addr,
-                searchWidget: Search({
-                  container: document.getElementById("startLoc"),
-                  searchTerm: user.start_addr
-                }),
-                success: success_user
-              });
-
-              (document.getElementById("officeSelect") as HTMLInputElement).value = user.office_id;
-              (document.getElementById("driverSelect") as HTMLInputElement).value = user.driver;
-              (document.getElementById("arriveTime") as HTMLInputElement).value = user.arrive_work;
-              (document.getElementById("leaveTime") as HTMLInputElement).value = user.leave_work;
-            }
-            else {
-              // set up blank Search Widget if new user
-              this.setState({
-                searchWidget: Search({
-                  container: document.getElementById("startLoc")
-                })
-              });
-            }
-          });
-      })
-      .catch(err => {
-        console.log(err)
-      });
-
-    //--------------------- Line ---------------------\\
-    const serviceUrl2: string = 'https://services.arcgis.com/Wl7Y1m92PbjtJs5n/arcgis/rest/services/carpoolData/FeatureServer/1/query?'
-    let url2: string = this.proxyUrl + serviceUrl2;
-
-    const data2: any = {
-      "f": "json",
-      'where': "email='" + this.props.e + "'",
-      'outFields': "*",
-      'timestamp': new Date().getTime()
-    };
-
-    const query2 = Object.keys(data2)
-      .map(k => encodeURIComponent(k) + '=' + encodeURIComponent(data2[k]))
-      .join('&');
-
-    url2 = url2 + query2;
-
-    await axios.get(url2, {cancelToken: this.source.token})
-      .then((res: any) => {
-        const users: any = res.data.features;
-        // fill in form and state with settings saved in db
-        if (users.length > 0) {  // check to see if user is already saved
-          const user: any = users[0].attributes
-
-          // populate form with user data
-          this.setState({
-            line_id: user.OBJECTID,
-          });
-        }
       })
       .catch((err: any) => {
         console.log(err)
@@ -324,16 +217,14 @@ class Settings extends React.Component<MyProps, MyState> {
       const lon: number = event.results[0].results[0].feature.geometry.longitude;
       const addr: string = event.results[0].results[0].feature.attributes.Match_addr;
 
+      that.setState({
+        lat: lat,
+        lon: lon
+      });
       // if the address didn't change
-      if ((addr === that.state.start_addr) && (that.state.office_id === that.state.office_old)) {
-        that.setState({
-          lat: lat,
-          lon: lon,
-          start_addr: addr
-        });
-
+      if ((addr === that.props.UserStore!.address) && (that.props.UserStore!.officeId === that.state.office_old)) {
         // REST CALLS HERE
-        if (that.state.new_user) {
+        if (that.props.UserStore!.userNew) {
           // if the user is not in the db, add the user
           that.addUser();
         } else {
@@ -344,11 +235,7 @@ class Settings extends React.Component<MyProps, MyState> {
 
       // if the address changed
       else {
-        that.setState({
-          lat: lat,
-          lon: lon,
-          start_addr: addr
-        });
+        this.props.UserStore!.setAddress(addr);
         var routeTask = new RouteTask({
           url:
             "https://utility.arcgis.com/usrsvcs/appservices/w2zxoNZu0ai45kI5/rest/services/World/Route/NAServer/Route_World/solve"
@@ -386,8 +273,8 @@ class Settings extends React.Component<MyProps, MyState> {
 
         const endPoint = {
           type: "point", // autocasts as Point
-          longitude: officeCoords[that.state.office_id][0],
-          latitude: officeCoords[that.state.office_id][1],
+          longitude: officeCoords[that.props.UserStore!.officeId][0],
+          latitude: officeCoords[that.props.UserStore!.officeId][1],
           spatialReference: {
             wkid: 4326
           }
@@ -403,8 +290,10 @@ class Settings extends React.Component<MyProps, MyState> {
         // calc route
         routeTask.solve(routeParams).then((res: any) => {
           that.setState({ route: res.routeResults[0].route });
+          that.props.UserStore!.setRoute(res.routeResults[0].route.geometry)
+
           // REST CALLS HERE
-          if (that.state.new_user) {
+          if (that.props.UserStore!.userNew) {
             // if the user is not in the db, add the user
             that.addUser();
           } else {
@@ -418,12 +307,6 @@ class Settings extends React.Component<MyProps, MyState> {
       }
     });
   };
-
-  toggleSuccess = () => {
-    this.setState(prevState => ({
-      success: !prevState.success
-    }));
-  }
 
   //--------------------- JSX ---------------------\\
   render() {
@@ -470,7 +353,7 @@ class Settings extends React.Component<MyProps, MyState> {
                   id="userName"
                   readOnly
                   //onChange={e => this.setState({ new_user: true, name: e.target.value })}
-                  defaultValue={this.props.n}
+                  defaultValue={this.props.UserStore!.userName}
                 />
               </FormGroup>
             </Col>
@@ -483,7 +366,7 @@ class Settings extends React.Component<MyProps, MyState> {
                   id="userEmail"
                   readOnly
                   //onChange={e => this.setState({ new_user: true, email: e.target.value })}
-                  defaultValue={this.props.e}
+                  defaultValue={this.props.UserStore!.userEmail}
                 />
               </FormGroup>
             </Col>
@@ -496,8 +379,8 @@ class Settings extends React.Component<MyProps, MyState> {
                   type="time"
                   name="time"
                   id="arriveTime"
-                  onChange={e => this.setState({ arrive_work: e.target.value })}
-                  defaultValue={this.state.arrive_work}
+                  onChange={e => this.props.UserStore!.setArrive(e.target.value)}
+                  defaultValue={this.props.UserStore!.arrive}
                 />
               </FormGroup>
             </Col>
@@ -508,8 +391,8 @@ class Settings extends React.Component<MyProps, MyState> {
                   type="time"
                   name="time"
                   id="leaveTime"
-                  onChange={e => this.setState({ leave_work: e.target.value })}
-                  defaultValue={this.state.leave_work}
+                  onChange={e => this.props.UserStore!.setLeave(e.target.value)}
+                  defaultValue={this.props.UserStore!.leave}
                 />
               </FormGroup>
             </Col>
@@ -522,8 +405,8 @@ class Settings extends React.Component<MyProps, MyState> {
                   type="select"
                   name="select"
                   id="driverSelect"
-                  onChange={e => this.setState({ driver: parseInt(e.target.value) })}
-                >
+                  defaultValue={this.props.UserStore!.driver}
+                  onChange={e => this.props.UserStore!.setDriver(parseInt(e.target.value))}>
                   <option value={1}>Driver</option>
                   <option value={2}>Passenger</option>
                   <option value={3}>Either</option>
@@ -537,9 +420,8 @@ class Settings extends React.Component<MyProps, MyState> {
                   type="select"
                   name="office"
                   id="officeSelect"
-                  onChange={e => this.setState({ office_id: parseInt(e.target.value) })}
-                  defaultValue={this.state.office_id}
-                >
+                  defaultValue={this.props.UserStore!.officeId}
+                  onChange={e => this.props.UserStore!.setOffice(parseInt(e.target.value))}>
                   <option value={1}>Redlands Main Campus</option>
                   <option value={2}>Redlands V Buildings</option>
                   <option value={3}>Charlotte</option>
@@ -575,14 +457,11 @@ class Settings extends React.Component<MyProps, MyState> {
             <Col md={8}>
               <FormGroup check>
                 <Label check>
-                  <Input type="checkbox" 
-                  checked={this.state.success}
-                  onChange={e => this.setState(prevState => ({
-                    success: !prevState.success
-                  }))}
-                  />{' '}
-                  Found a Ride (Remove from List)
-        </Label>
+                  <Input type="checkbox"
+                  checked={this.props.UserStore!.successful}
+                  onChange={e => this.props.UserStore!.setSuccess(!this.props.UserStore!.successful)}
+                  />Found a Ride (Remove from List)
+                </Label>
               </FormGroup>
             </Col>
           </Row>
@@ -591,5 +470,6 @@ class Settings extends React.Component<MyProps, MyState> {
     );
   }
 }
+))
 
 export default Settings;

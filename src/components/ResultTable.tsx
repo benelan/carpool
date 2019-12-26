@@ -1,24 +1,15 @@
 import React from "react";
 import { Redirect } from "react-router-dom";
 import { Col, Row, Table, Form, FormGroup, Input, InputGroup, InputGroupAddon, InputGroupText, Button, UncontrolledPopover, PopoverBody, Spinner } from "reactstrap";
-import axios from "axios";
 import { loadModules } from "esri-loader";
 import { convertTime, filterTime } from "../helpers";
+import { observer, inject } from 'mobx-react'
+import UserStore from '../store/UserStore';
 
 // state typing
 type MyState = {
   data: Array<any>,
-  new_user_p: Boolean,
-  new_user_l: Boolean,
   loaded: Boolean,
-  done: number
-  point_id: number | null,
-  line_id: number | null,
-  office_id: number | null,
-  driver: number | null,
-  arrive_work: string | null,
-  leave_work: string | null,
-  user_route: any | null,  // needs to cast as geometry for arcgis query
   distance: number,
   units: number,
   time_arrive: number,
@@ -26,369 +17,249 @@ type MyState = {
 };
 
 type MyProps = {
-  e: string,
-  n: string;
+  UserStore?: UserStore
 };
 
-class ResultTable extends React.Component<MyProps, MyState> {
-  state: MyState = {
-    data: [],
-    new_user_p: false,
-    new_user_l: false,
-    loaded: false,
-    done: 0,
-    point_id: null,
-    line_id: null,
-    office_id: null,
-    driver: null,
-    arrive_work: null,
-    leave_work: null,
-    user_route: null,
-    distance: 5,
-    units: 1,
-    time_arrive: 30,
-    time_leave: 30
-  };
-
-  CancelToken = axios.CancelToken;
-  source = this.CancelToken.source();
-  proxyUrl: string = 'https://belan2.esri.com/DotNet/proxy.ashx?';
-
-  //------------------------------------------ Lifecycle ------------------------------------------\\
-  componentDidMount() {
-    this.getUserByEmail();
-  }
-
-  componentWillUnmount() {
-    this.source.cancel();
-  }
-  //------------------------------------------ CRUD ------------------------------------------\\
-  async getUserByEmail(): Promise<void> {
-    //------------------------------------------ POINT ------------------------------------------\\
-    const serviceUrl: string = 'https://services.arcgis.com/Wl7Y1m92PbjtJs5n/arcgis/rest/services/carpoolData/FeatureServer/0/query?';
-
-    let url: string = this.proxyUrl + serviceUrl;
-
-    const data: any = {
-      "f": "json",
-      'where': "email='" + this.props.e + "'",
-      'outFields': "*",
-      'timestamp': new Date().getTime()
+const ResultTable = inject("UserStore")(observer(
+  class ResultTable extends React.Component<MyProps, MyState> {
+    state: MyState = {
+      data: [],
+      loaded: false,
+      distance: 5,
+      units: 1,
+      time_arrive: 30,
+      time_leave: 30
     };
 
-    const query: string = Object.keys(data)
-      .map(k => encodeURIComponent(k) + '=' + encodeURIComponent(data[k]))
-      .join('&');
+    proxyUrl: string = 'https://belan2.esri.com/DotNet/proxy.ashx?';
 
-    url = url + query;
-
-    await axios.get(url, {cancelToken: this.source.token})
-      .then(res => {
-        const users: Array<any> = res.data.features;
-        if (users.length > 0) {  // check to see if user is already saved
-          const user: any = users[0].attributes
-          // populate form with user data
-          this.setState({
-            point_id: user.OBJECTID,
-            office_id: user.office_id,
-            driver: user.driver,
-            arrive_work: user.arrive_work,
-            leave_work: user.leave_work
-          })
-          this.setState((prevState, props) => ({
-            done: prevState.done + 1
-          }));
-        }
-        else {
-          this.setState({
-            new_user_p: true
-          });
-        }
-
-        if (this.state.done === 2) {
-          this.filterF();
-          this.setState({ done: 3 });
-        }
-      })
-      .catch(err => {
-        console.log(err)
-      });
-    //------------------------------------------ Line ------------------------------------------\\
-    const serviceUrl2: string = 'https://services.arcgis.com/Wl7Y1m92PbjtJs5n/arcgis/rest/services/carpoolData/FeatureServer/1/query?';
-    let url2: string = this.proxyUrl + serviceUrl2;
-
-    const data2: any = {
-      "f": "json",
-      'where': "email='" + this.props.e + "'",
-      'outFields': "*",
-      'returnGeometry': true,
-      'timestamp': new Date().getTime()
-    };
-
-    const query2: string = Object.keys(data2)
-      .map(k => encodeURIComponent(k) + '=' + encodeURIComponent(data2[k]))
-      .join('&');
-
-    url2 = url2 + query2;
-
-    await axios.get(url2, {cancelToken: this.source.token})
-      .then(res => {
-        const users: Array<any> = res.data.features;
-        // fill in form and state with settings saved in db
-        if (users.length > 0) {  // check to see if user is already saved
-          const user: any = users[0];
-
-          // populate form with user data
-          this.setState({
-            line_id: user.attributes.OBJECTID,
-            user_route: {
-              spatialReference: res.data.spatialReference,
-              paths: user.geometry.paths,
-              type: 'polyline'
-            }
-          });
-          this.setState((prevState, props) => ({
-            done: prevState.done + 1
-          }));
-        }
-
-        else {
-          this.setState({
-            new_user_l: true
-          });
-        }
-
-        if (this.state.done === 2) {
-          this.filterF();
-          this.setState({ done: 3 });
-        }
-      })
-      .catch(err => {
-        console.log(err)
-      });
-  };
-
-  //------------------------------------------ Filter Function ------------------------------------------\\
-  async filterF(): Promise<void> {
-    this.setState({ loaded: false });
-
-    const unitLookup: any = {
-      1: 'miles',
-      2: 'feet',
-      3: 'kilometers',
-      4: 'meters'
+    //------------------------------------------ Lifecycle ------------------------------------------\\
+    componentDidMount() {
+      if (!this.props.UserStore!.userNew) {
+        this.filterF();
+      }
     }
 
-    // load modules
-    type MapModules = [typeof import("esri/layers/FeatureLayer"), typeof import("esri/config")];
-    const [FeatureLayer, esriConfig] = await (loadModules(["esri/layers/FeatureLayer", "esri/config"]) as Promise<MapModules>);
+    //------------------------------------------ Filter Function ------------------------------------------\\
+    async filterF(): Promise<void> {
+      this.setState({ loaded: false });
+      const unitLookup: any = {
+        1: 'miles',
+        2: 'feet',
+        3: 'kilometers',
+        4: 'meters'
+      }
 
-    // use proxy and set service url
-    esriConfig.request.proxyUrl = this.proxyUrl;
-    const serviceUrl: string = 'https://services.arcgis.com/Wl7Y1m92PbjtJs5n/arcgis/rest/services/carpoolData/FeatureServer/0/';
+      // load modules
+      type MapModules = [typeof import("esri/layers/FeatureLayer"), typeof import("esri/config")];
+      const [FeatureLayer, esriConfig] = await (loadModules(["esri/layers/FeatureLayer", "esri/config"]) as Promise<MapModules>);
 
-    const featureLayer = new FeatureLayer({ url: serviceUrl });
+      // use proxy and set service url
+      esriConfig.request.proxyUrl = this.proxyUrl;
+      const serviceUrl: string = 'https://services.arcgis.com/Wl7Y1m92PbjtJs5n/arcgis/rest/services/carpoolData/FeatureServer/0/';
 
-    // perform query
-    var query = featureLayer.createQuery();
-    query.geometry = this.state.user_route;  // the point location of the pointer
-    query.distance = Math.abs(this.state.distance);
-    query.units = unitLookup[this.state.units];
-    query.spatialRelationship = "intersects";  // this is the default
-    query.returnGeometry = false;
-    query.outFields = ["name, email, driver, office_id, arrive_work, leave_work", "OBJECTID"];
+      const featureLayer = new FeatureLayer({ url: serviceUrl });
 
-    query.where =
-      "(office_id=" + this.state.office_id + ") AND (NOT success=1) AND (NOT driver=" + this.state.driver + " OR driver=3) AND (NOT OBJECTID=" + this.state.point_id + ")";
+      // perform query
+      var query = featureLayer.createQuery();
+      query.geometry = this.props.UserStore!.route;  // the point location of the pointer
+      query.distance = Math.abs(this.state.distance);
+      query.units = unitLookup[this.state.units];
+      query.spatialRelationship = "intersects";  // this is the default
+      query.returnGeometry = false;
+      query.outFields = ["name, email, driver, office_id, arrive_work, leave_work", "OBJECTID"];
 
-    const that = this;
+      query.where =
+        "(office_id=" + this.props.UserStore!.officeId + ") AND (NOT success=1) AND (NOT driver=" + this.props.UserStore!.driver + " OR driver=3) AND (NOT OBJECTID=" + this.props.UserStore!.pointId + ") AND (NOT email='" + this.props.UserStore!.userEmail + "')";
 
-    featureLayer.queryFeatures(query)
-      .then(function (response: any) {
-        // returns a feature set
-        that.setState({ data: response.features, loaded: true });
-      })
-      .catch((err: any) => {
-        alert(err.message)
-      });
-  };
+      const that = this;
 
-  //------------------------------------------ JSX ------------------------------------------\\
-  render() {
-    //------------------------------------------ CSS STYLE ------------------------------------------\\
-    const tableStyle = {
-      backgroundColor: 'white',
-      border: '1px solid lightgrey',
-      borderRadius: '4px',
-      margin: '20px'
+      featureLayer.queryFeatures(query)
+        .then(function (response: any) {
+          // returns a feature set
+          that.setState({ data: response.features, loaded: true });
+        })
+        .catch((err: any) => {
+          alert(err.message)
+        });
     };
 
-    const mRight = {
-      margin: "0px 20px 5px 0"
-    };
-
-    const resultStyle = {
-      margin: "20px"
-    };
-
-    const distF = {
-      width: '84px'
-    };
-
-    const unitF = {
-      width: '105px'
-    };
-
-
-    const time2F = {
-      width: '80px'
-    };
-
-    const timeF = {
-      width: '103px'
-    };
-
-    //------------------------------------------ REDIRECT ------------------------------------------\\
-    if (this.state.new_user_l && this.state.new_user_p) {
-      alert('Fill out your Settings in order to find a carpool buddy')
-      return <Redirect to='/settings' />
-    }
-    //------------------------------------------ VARIABLES ------------------------------------------\\
-    function renderSwitch(param: number) {
-      switch (param) {
-        case 1:
-          return 'Driver';
-        case 2:
-          return 'Passenger';
-        default:
-          return 'Either';
+    //------------------------------------------ JSX ------------------------------------------\\
+    render() {
+      //------------------------------------------ CSS STYLE ------------------------------------------\\
+      const tableStyle = {
+        backgroundColor: 'white',
+        border: '1px solid lightgrey',
+        borderRadius: '4px',
+        margin: '20px'
       };
-    };
-    const subject = encodeURIComponent("Lets Carpool!");
-    const { data } = this.state;
 
-    return (
-      <React.Fragment>
-        <Row className="justify-content-md-center">
-          <Col md={8}>
-            <Row style={resultStyle}>
-              <Form inline>
-                <FormGroup style={mRight}>
-                  <InputGroup size="sm">
-                    <InputGroupAddon addonType="prepend" >
-                      <InputGroupText>arrival time buffer</InputGroupText>
-                    </InputGroupAddon>
-                    <Input
-                      type="number"
-                      name="timeF"
-                      id="timeF"
-                      bsSize="sm"
-                      style={timeF}
-                      onChange={e => this.setState({ time_arrive: Math.abs(parseInt(e.target.value)) })}
-                      defaultValue={this.state.time_arrive}
-                    />
-                    <InputGroupAddon addonType="append" >
-                      <InputGroupText>minutes</InputGroupText>
-                    </InputGroupAddon>
-                  </InputGroup>
-                </FormGroup>
-                <FormGroup style={mRight}>
-                  <InputGroup size="sm">
-                    <InputGroupAddon addonType="prepend" >
-                      <InputGroupText>departure time buffer</InputGroupText>
-                    </InputGroupAddon>
-                    <Input
-                      type="number"
-                      name="time2F"
-                      id="time2F"
-                      bsSize="sm"
-                      style={time2F}
-                      onChange={e => this.setState({ time_leave: Math.abs(parseInt(e.target.value)) })}
-                      defaultValue={this.state.time_leave}
-                    />
-                    <InputGroupAddon addonType="append" >
-                      <InputGroupText>minutes</InputGroupText>
-                    </InputGroupAddon>
-                  </InputGroup>
-                </FormGroup>
-                <FormGroup style={mRight}>
-                  <InputGroup size="sm">
-                    <InputGroupAddon addonType="prepend" >
-                      <InputGroupText>distance buffer</InputGroupText>
-                    </InputGroupAddon>
-                    <Input
-                      type="number"
-                      name="distF"
-                      id="distF"
-                      style={distF}
-                      onChange={e => { this.setState({ distance: Math.abs(parseInt(e.target.value)) }); this.filterF() }}
-                      defaultValue={this.state.distance}
-                    />
-                    <Input
-                      type="select"
-                      name="unitF"
-                      id="unitF"
-                      style={unitF}
-                      onChange={e => { this.setState({ units: parseInt(e.target.value) }); this.filterF() }}
-                      defaultValue={this.state.units}>
-                      <option value={1}>miles</option>
-                      <option value={2}>feet</option>
-                      <option value={3}>kilometers</option>
-                      <option value={4}>meters</option>
-                    </Input>
-                  </InputGroup>
-                </FormGroup>
-              </Form>
-              <Button id="filterFocus" size="sm" color="link">help</Button>
-              <UncontrolledPopover trigger="focus" placement="auto" target="filterFocus">
-                <PopoverBody>Info about how filtering works on the Home page</PopoverBody>
-              </UncontrolledPopover>
-            </Row>
-            <Row style={tableStyle}>
-              <Col md={12} >
-                <Table hover responsive>
-                  <thead>
-                    <tr className='text-center pagination-centered'>
-                      <th>Name</th>
-                      <th>Arrive At Work</th>
-                      <th>Leave Work</th>
-                      <th>Ride Preference</th>
-                      <th>Email
+      const mRight = {
+        margin: "0px 20px 5px 0"
+      };
+
+      const resultStyle = {
+        margin: "20px"
+      };
+
+      const distF = {
+        width: '84px'
+      };
+
+      const unitF = {
+        width: '105px'
+      };
+
+
+      const time2F = {
+        width: '80px'
+      };
+
+      const timeF = {
+        width: '103px'
+      };
+
+      //------------------------------------------ REDIRECT ------------------------------------------\\
+      if (this.props.UserStore!.userNew) {
+        alert('Fill out your Settings in order to find a carpool buddy')
+        return <Redirect to='/settings' />
+      }
+      //------------------------------------------ VARIABLES ------------------------------------------\\
+      function renderSwitch(param: number) {
+        switch (param) {
+          case 1:
+            return 'Driver';
+          case 2:
+            return 'Passenger';
+          default:
+            return 'Either';
+        };
+      };
+      const subject = encodeURIComponent("Lets Carpool!");
+      const { data } = this.state;
+
+      return (
+        <React.Fragment>
+          <Row className="justify-content-md-center">
+            <Col md={8}>
+              <Row style={resultStyle}>
+                <Form inline>
+                  <FormGroup style={mRight}>
+                    <InputGroup size="sm">
+                      <InputGroupAddon addonType="prepend" >
+                        <InputGroupText>arrival time buffer</InputGroupText>
+                      </InputGroupAddon>
+                      <Input
+                        type="number"
+                        name="timeF"
+                        id="timeF"
+                        bsSize="sm"
+                        style={timeF}
+                        onChange={e => this.setState({ time_arrive: Math.abs(parseInt(e.target.value)) })}
+                        defaultValue={this.state.time_arrive}
+                      />
+                      <InputGroupAddon addonType="append" >
+                        <InputGroupText>minutes</InputGroupText>
+                      </InputGroupAddon>
+                    </InputGroup>
+                  </FormGroup>
+                  <FormGroup style={mRight}>
+                    <InputGroup size="sm">
+                      <InputGroupAddon addonType="prepend" >
+                        <InputGroupText>departure time buffer</InputGroupText>
+                      </InputGroupAddon>
+                      <Input
+                        type="number"
+                        name="time2F"
+                        id="time2F"
+                        bsSize="sm"
+                        style={time2F}
+                        onChange={e => this.setState({ time_leave: Math.abs(parseInt(e.target.value)) })}
+                        defaultValue={this.state.time_leave}
+                      />
+                      <InputGroupAddon addonType="append" >
+                        <InputGroupText>minutes</InputGroupText>
+                      </InputGroupAddon>
+                    </InputGroup>
+                  </FormGroup>
+                  <FormGroup style={mRight}>
+                    <InputGroup size="sm">
+                      <InputGroupAddon addonType="prepend" >
+                        <InputGroupText>distance buffer</InputGroupText>
+                      </InputGroupAddon>
+                      <Input
+                        type="number"
+                        name="distF"
+                        id="distF"
+                        style={distF}
+                        onChange={e => { this.setState({ distance: Math.abs(parseInt(e.target.value)) }); this.filterF() }}
+                        defaultValue={this.state.distance}
+                      />
+                      <Input
+                        type="select"
+                        name="unitF"
+                        id="unitF"
+                        style={unitF}
+                        onChange={e => { this.setState({ units: parseInt(e.target.value) }); this.filterF() }}
+                        defaultValue={this.state.units}>
+                        <option value={1}>miles</option>
+                        <option value={2}>feet</option>
+                        <option value={3}>kilometers</option>
+                        <option value={4}>meters</option>
+                      </Input>
+                    </InputGroup>
+                  </FormGroup>
+                </Form>
+                <Button id="filterFocus" size="sm" color="link">help</Button>
+                <UncontrolledPopover trigger="focus" placement="auto" target="filterFocus">
+                  <PopoverBody>Info about how filtering works on the Home page</PopoverBody>
+                </UncontrolledPopover>
+              </Row>
+              <Row style={tableStyle}>
+                <Col md={12} >
+                  <Table hover responsive>
+                    <thead>
+                      <tr className='text-center pagination-centered'>
+                        <th>Name</th>
+                        <th>Arrive At Work</th>
+                        <th>Leave Work</th>
+                        <th>Ride Preference</th>
+                        <th>Email
                         <Button id="PopoverFocus" size="sm" color="link">help</Button>
-                        <UncontrolledPopover trigger="focus" placement="auto" target="PopoverFocus">
-                          <PopoverBody>Clicking on a user's email address will open pre-written template.</PopoverBody>
-                        </UncontrolledPopover>
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody className='text-center pagination-centered'>
-                    {this.state.loaded ?
-                      data.filter(d => filterTime(this.state.arrive_work, this.state.leave_work, d.attributes.arrive_work, d.attributes.leave_work, this.state.time_arrive, this.state.time_leave))
-                        .map((fd) => (
-                          <tr key={fd.attributes.OBJECTID}>
-                            <td>{fd.attributes.name}</td>
-                            <td>{convertTime(fd.attributes.arrive_work)}</td>
-                            <td>{convertTime(fd.attributes.leave_work)}</td>
-                            <td>{renderSwitch(fd.attributes.driver)}</td>
-                            <td>
-                              <Button
-                                href={"mailto:" + fd.attributes.email + "?subject=" + subject + "&body=" + encodeURIComponent("Hello " + fd.attributes.name + ", \n\nI show up to work at " + convertTime(this.state.arrive_work) + " and leave at " + convertTime(this.state.leave_work) + ". I work in the same office as you, would you like to carpool? You can contact me by replying to this email.\n\nThanks,\n" + this.props.n)}
-                                color="link" >{fd.attributes.email}</Button></td>
-                          </tr>
-                        ))
-                      : (
-                        <tr><td><Spinner color="warning" style={{ width: '2.5rem', height: '2.5rem', margin: '10px' }} /></td></tr>
-                      )}
-                  </tbody>
+                          <UncontrolledPopover trigger="focus" placement="auto" target="PopoverFocus">
+                            <PopoverBody>Clicking on a user's email address will open pre-written template.</PopoverBody>
+                          </UncontrolledPopover>
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody className='text-center pagination-centered'>
+                      {this.state.loaded ?
+                        data.filter(d => filterTime(this.props.UserStore!.arrive, this.props.UserStore!.leave, d.attributes.arrive_work, d.attributes.leave_work, this.state.time_arrive, this.state.time_leave))
+                          .map((fd) => (
+                            <tr key={fd.attributes.OBJECTID}>
+                              <td>{fd.attributes.name}</td>
+                              <td>{convertTime(fd.attributes.arrive_work)}</td>
+                              <td>{convertTime(fd.attributes.leave_work)}</td>
+                              <td>{renderSwitch(fd.attributes.driver)}</td>
+                              <td>
+                                <Button
+                                  href={"mailto:" + fd.attributes.email + "?subject=" + subject + "&body=" + encodeURIComponent("Hello " + fd.attributes.name + ", \n\nI show up to work at " + convertTime(this.props.UserStore!.arrive) + " and leave at " + convertTime(this.props.UserStore!.leave) + ". I work in the same office as you, would you like to carpool? You can contact me by replying to this email.\n\nThanks,\n" + this.props.UserStore!.userName)}
+                                  color="link" >{fd.attributes.email}</Button></td>
+                            </tr>
+                          ))
+                        : (
+                          <tr><td><Spinner color="warning" style={{ width: '2.5rem', height: '2.5rem', margin: '10px' }} /></td></tr>
+                        )}
+                    </tbody>
 
-                </Table>
-              </Col>
-            </Row>
-          </Col>
-        </Row>
-      </React.Fragment>
-    );
-  };
-}
-
+                  </Table>
+                </Col>
+              </Row>
+            </Col>
+          </Row>
+        </React.Fragment>
+      );
+    };
+  }
+))
 export default ResultTable;
