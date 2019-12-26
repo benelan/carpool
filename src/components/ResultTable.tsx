@@ -153,6 +153,8 @@ const ResultTable = inject("UserStore")(observer(
                         type="number"
                         name="timeF"
                         id="timeF"
+                        min="0"
+                        step="1"
                         bsSize="sm"
                         style={timeF}
                         onChange={e => this.setState({ time_arrive: Math.abs(parseInt(e.target.value)) })}
@@ -172,6 +174,8 @@ const ResultTable = inject("UserStore")(observer(
                         type="number"
                         name="time2F"
                         id="time2F"
+                        min="0"
+                        step="1"
                         bsSize="sm"
                         style={time2F}
                         onChange={e => this.setState({ time_leave: Math.abs(parseInt(e.target.value)) })}
@@ -191,6 +195,8 @@ const ResultTable = inject("UserStore")(observer(
                         type="number"
                         name="distF"
                         id="distF"
+                        min="0"
+                        step="1"
                         style={distF}
                         onChange={e => { this.setState({ distance: Math.abs(parseInt(e.target.value)) }); this.filterF() }}
                         defaultValue={this.state.distance}
