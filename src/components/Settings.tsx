@@ -47,6 +47,8 @@ class Settings extends React.Component<MyProps, MyState> {
     success: false
   };
 
+  CancelToken = axios.CancelToken;
+  source = this.CancelToken.source();
   proxyUrl: string = 'https://belan2.esri.com/DotNet/proxy.ashx?'
 
   //--------------------- LIFE CYCLE FUNCTIONS ---------------------\\
@@ -57,10 +59,11 @@ class Settings extends React.Component<MyProps, MyState> {
 
   componentWillUnmount() {
     this.setState({ searchWidget: null });
+    this.source.cancel(); // cancel async api calls
   }
 
   //--------------------- CRUD OPERATIONS ---------------------\\
-  addUser = () => {
+  async addUser(): Promise<void> {
     //--------------------- ROUTE ---------------------\\
     if (!!this.state.route) {
       const serviceUrl2: string = 'https://services.arcgis.com/Wl7Y1m92PbjtJs5n/arcgis/rest/services/carpoolData/FeatureServer/1/addFeatures?f=json';
@@ -77,7 +80,7 @@ class Settings extends React.Component<MyProps, MyState> {
 
       const querystring2: string = 'features=' + JSON.stringify(data2);
       axios
-        .post(url2, querystring2)
+        .post(url2, querystring2, {cancelToken: this.source.token})
         .catch((err: any) => {
           // handle any errors
           console.error(err);
@@ -111,7 +114,7 @@ class Settings extends React.Component<MyProps, MyState> {
     url += JSON.stringify(data)
 
     axios
-      .post(url, JSON.stringify(data))
+      .post(url, JSON.stringify(data), {cancelToken: this.source.token})
       .then(() => {
         this.setState({ new_user: false, form_complete: true });
       })
@@ -121,7 +124,7 @@ class Settings extends React.Component<MyProps, MyState> {
       });
   };
 
-  updateUser = () => {
+  async updateUser(): Promise<void> {
     //--------------------- ROUTE ---------------------\\
     if (!!this.state.route) {
       const serviceUrl2: string = 'https://services.arcgis.com/Wl7Y1m92PbjtJs5n/arcgis/rest/services/carpoolData/FeatureServer/1/updateFeatures?f=json';
@@ -138,8 +141,8 @@ class Settings extends React.Component<MyProps, MyState> {
       }];
 
       const querystring2: string = 'features=' + JSON.stringify(data2);
-      axios
-        .post(url2, querystring2)
+      await axios
+        .post(url2, querystring2, {cancelToken: this.source.token})
         .catch((err: any) => {
           // handle any errors
           console.error(err);
@@ -179,8 +182,8 @@ class Settings extends React.Component<MyProps, MyState> {
 
     url += JSON.stringify(data)
 
-    axios
-      .post(url, JSON.stringify(data))
+    await axios
+      .post(url, JSON.stringify(data), {cancelToken: this.source.token})
       .then(() => {
         this.setState({ form_complete: true });
       })
@@ -193,7 +196,7 @@ class Settings extends React.Component<MyProps, MyState> {
       });
   };
 
-  getUserByEmail = () => {
+  async getUserByEmail(): Promise<void> {
     //--------------------- POINT ---------------------\\
     const serviceUrl: string = 'https://services.arcgis.com/Wl7Y1m92PbjtJs5n/arcgis/rest/services/carpoolData/FeatureServer/0/query?'
     let url: string = this.proxyUrl + serviceUrl;
@@ -211,7 +214,7 @@ class Settings extends React.Component<MyProps, MyState> {
 
     url = url + query;
 
-    axios.get(url)
+    await axios.get(url, {cancelToken: this.source.token})
       .then((res: any) => {
         const users: any = res.data.features;
         // fill in form and state with settings saved in db
@@ -239,8 +242,6 @@ class Settings extends React.Component<MyProps, MyState> {
                 success: success_user
               });
 
-              // the request promise seems to resolve after the component mounts
-              // so need to manually change the form values
               (document.getElementById("officeSelect") as HTMLInputElement).value = user.office_id;
               (document.getElementById("driverSelect") as HTMLInputElement).value = user.driver;
               (document.getElementById("arriveTime") as HTMLInputElement).value = user.arrive_work;
@@ -277,7 +278,7 @@ class Settings extends React.Component<MyProps, MyState> {
 
     url2 = url2 + query2;
 
-    axios.get(url2)
+    await axios.get(url2, {cancelToken: this.source.token})
       .then((res: any) => {
         const users: any = res.data.features;
         // fill in form and state with settings saved in db
@@ -417,7 +418,6 @@ class Settings extends React.Component<MyProps, MyState> {
       }
     });
   };
-
 
   toggleSuccess = () => {
     this.setState(prevState => ({

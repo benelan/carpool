@@ -3,6 +3,11 @@ import ReactDOM from 'react-dom';
 import { shallow } from 'enzyme';
 import App from '../components/App';
 
+// mock rest api
+beforeAll(() => {
+    global.axios = jest.fn();
+    //window.fetch = jest.fn(); if running browser environment
+});
 
 // basic render
 it('App renders without crashing', () => {

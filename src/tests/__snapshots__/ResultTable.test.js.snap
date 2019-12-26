@@ -61,7 +61,7 @@ exports[`ResultTable snapshot 1`] = `
                 onChange={[Function]}
                 style={
                   Object {
-                    "width": "80px",
+                    "width": "103px",
                   }
                 }
                 type="number"
@@ -103,8 +103,8 @@ exports[`ResultTable snapshot 1`] = `
               <Input
                 bsSize="sm"
                 defaultValue={30}
-                id="timeF"
-                name="timeF"
+                id="time2F"
+                name="time2F"
                 onChange={[Function]}
                 style={
                   Object {
@@ -154,7 +154,7 @@ exports[`ResultTable snapshot 1`] = `
                 onChange={[Function]}
                 style={
                   Object {
-                    "width": "80px",
+                    "width": "84px",
                   }
                 }
                 type="number"
@@ -195,6 +195,25 @@ exports[`ResultTable snapshot 1`] = `
             </InputGroup>
           </FormGroup>
         </Form>
+        <Button
+          color="link"
+          id="FilterFocus"
+          size="sm"
+          tag="button"
+        >
+          help
+        </Button>
+        <UncontrolledPopover
+          placement="auto"
+          target="FilterFocus"
+          trigger="focus"
+        >
+          <PopoverBody
+            tag="div"
+          >
+            Info about how filtering works on the Home page
+          </PopoverBody>
+        </UncontrolledPopover>
       </Row>
       <Row
         style={
@@ -242,6 +261,25 @@ exports[`ResultTable snapshot 1`] = `
                 </th>
                 <th>
                   Email
+                  <Button
+                    color="link"
+                    id="PopoverFocus"
+                    size="sm"
+                    tag="button"
+                  >
+                    help
+                  </Button>
+                  <UncontrolledPopover
+                    placement="auto"
+                    target="PopoverFocus"
+                    trigger="focus"
+                  >
+                    <PopoverBody
+                      tag="div"
+                    >
+                      Clicking on a user's email address will open pre-written template.
+                    </PopoverBody>
+                  </UncontrolledPopover>
                 </th>
               </tr>
             </thead>

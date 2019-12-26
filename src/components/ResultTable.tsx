@@ -1,15 +1,16 @@
 import React from "react";
 import { Redirect } from "react-router-dom";
-import { Col, Row, Table, Form, FormGroup, Input, InputGroup, InputGroupAddon, InputGroupText, Button, UncontrolledPopover, PopoverBody } from "reactstrap";
+import { Col, Row, Table, Form, FormGroup, Input, InputGroup, InputGroupAddon, InputGroupText, Button, UncontrolledPopover, PopoverBody, Spinner } from "reactstrap";
 import axios from "axios";
 import { loadModules } from "esri-loader";
-import { convertTime, filterTime } from "../helpers"
+import { convertTime, filterTime } from "../helpers";
 
 // state typing
 type MyState = {
   data: Array<any>,
   new_user_p: Boolean,
   new_user_l: Boolean,
+  loaded: Boolean,
   done: number
   point_id: number | null,
   line_id: number | null,
@@ -34,6 +35,7 @@ class ResultTable extends React.Component<MyProps, MyState> {
     data: [],
     new_user_p: false,
     new_user_l: false,
+    loaded: false,
     done: 0,
     point_id: null,
     line_id: null,
@@ -48,14 +50,20 @@ class ResultTable extends React.Component<MyProps, MyState> {
     time_leave: 30
   };
 
+  CancelToken = axios.CancelToken;
+  source = this.CancelToken.source();
   proxyUrl: string = 'https://belan2.esri.com/DotNet/proxy.ashx?';
 
   //------------------------------------------ Lifecycle ------------------------------------------\\
   componentDidMount() {
     this.getUserByEmail();
   }
+
+  componentWillUnmount() {
+    this.source.cancel();
+  }
   //------------------------------------------ CRUD ------------------------------------------\\
-  getUserByEmail = () => {
+  async getUserByEmail(): Promise<void> {
     //------------------------------------------ POINT ------------------------------------------\\
     const serviceUrl: string = 'https://services.arcgis.com/Wl7Y1m92PbjtJs5n/arcgis/rest/services/carpoolData/FeatureServer/0/query?';
 
@@ -74,7 +82,7 @@ class ResultTable extends React.Component<MyProps, MyState> {
 
     url = url + query;
 
-    axios.get(url)
+    await axios.get(url, {cancelToken: this.source.token})
       .then(res => {
         const users: Array<any> = res.data.features;
         if (users.length > 0) {  // check to see if user is already saved
@@ -123,7 +131,7 @@ class ResultTable extends React.Component<MyProps, MyState> {
 
     url2 = url2 + query2;
 
-    axios.get(url2)
+    await axios.get(url2, {cancelToken: this.source.token})
       .then(res => {
         const users: Array<any> = res.data.features;
         // fill in form and state with settings saved in db
@@ -160,9 +168,10 @@ class ResultTable extends React.Component<MyProps, MyState> {
       });
   };
 
-
   //------------------------------------------ Filter Function ------------------------------------------\\
   async filterF(): Promise<void> {
+    this.setState({ loaded: false });
+
     const unitLookup: any = {
       1: 'miles',
       2: 'feet',
@@ -175,7 +184,7 @@ class ResultTable extends React.Component<MyProps, MyState> {
     const [FeatureLayer, esriConfig] = await (loadModules(["esri/layers/FeatureLayer", "esri/config"]) as Promise<MapModules>);
 
     // use proxy and set service url
-    esriConfig.request.proxyUrl = 'https://belan2.esri.com/DotNet/proxy.ashx?';
+    esriConfig.request.proxyUrl = this.proxyUrl;
     const serviceUrl: string = 'https://services.arcgis.com/Wl7Y1m92PbjtJs5n/arcgis/rest/services/carpoolData/FeatureServer/0/';
 
     const featureLayer = new FeatureLayer({ url: serviceUrl });
@@ -197,7 +206,7 @@ class ResultTable extends React.Component<MyProps, MyState> {
     featureLayer.queryFeatures(query)
       .then(function (response: any) {
         // returns a feature set
-        that.setState({ data: response.features });
+        that.setState({ data: response.features, loaded: true });
       })
       .catch((err: any) => {
         alert(err.message)
@@ -339,7 +348,7 @@ class ResultTable extends React.Component<MyProps, MyState> {
               <Col md={12} >
                 <Table hover responsive>
                   <thead>
-                    <tr>
+                    <tr className='text-center pagination-centered'>
                       <th>Name</th>
                       <th>Arrive At Work</th>
                       <th>Leave Work</th>
@@ -352,22 +361,26 @@ class ResultTable extends React.Component<MyProps, MyState> {
                       </th>
                     </tr>
                   </thead>
-                  <tbody>
-                    {data.filter(d => filterTime(this.state.arrive_work, this.state.leave_work, d.attributes.arrive_work, d.attributes.leave_work, this.state.time_arrive, this.state.time_leave))
-                      .map((fd) => (
-                        <tr key={fd.attributes.OBJECTID}>
-                          <td>{fd.attributes.name}</td>
-                          <td>{convertTime(fd.attributes.arrive_work)}</td>
-                          <td>{convertTime(fd.attributes.leave_work)}</td>
-                          <td>{renderSwitch(fd.attributes.driver)}</td>
-                          <td>
-                            <Button
-                              href={"mailto:" + fd.attributes.email + "?subject=" + subject + "&body=" + encodeURIComponent("Hello " + fd.attributes.name + ", \n\nI show up to work at " + convertTime(this.state.arrive_work) + " and leave at " + convertTime(this.state.leave_work) + ". I work in the same office as you, would you like to carpool? You can contact me by replying to this email.\n\nThanks,\n" + this.props.n)}
-                              color="link" >{fd.attributes.email}</Button></td>
-                        </tr>
-                      ))
-                    }
+                  <tbody className='text-center pagination-centered'>
+                    {this.state.loaded ?
+                      data.filter(d => filterTime(this.state.arrive_work, this.state.leave_work, d.attributes.arrive_work, d.attributes.leave_work, this.state.time_arrive, this.state.time_leave))
+                        .map((fd) => (
+                          <tr key={fd.attributes.OBJECTID}>
+                            <td>{fd.attributes.name}</td>
+                            <td>{convertTime(fd.attributes.arrive_work)}</td>
+                            <td>{convertTime(fd.attributes.leave_work)}</td>
+                            <td>{renderSwitch(fd.attributes.driver)}</td>
+                            <td>
+                              <Button
+                                href={"mailto:" + fd.attributes.email + "?subject=" + subject + "&body=" + encodeURIComponent("Hello " + fd.attributes.name + ", \n\nI show up to work at " + convertTime(this.state.arrive_work) + " and leave at " + convertTime(this.state.leave_work) + ". I work in the same office as you, would you like to carpool? You can contact me by replying to this email.\n\nThanks,\n" + this.props.n)}
+                                color="link" >{fd.attributes.email}</Button></td>
+                          </tr>
+                        ))
+                      : (
+                        <tr><td><Spinner color="warning" style={{ width: '2.5rem', height: '2.5rem', margin: '10px' }} /></td></tr>
+                      )}
                   </tbody>
+
                 </Table>
               </Col>
             </Row>

@@ -5,7 +5,7 @@ exports[`Settings snapshot 1`] = `
   className="justify-content-md-center"
   style={
     Object {
-      "margin": "20px",
+      "margin": "50px 20px 20px 20px",
     }
   }
   tag="div"

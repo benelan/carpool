@@ -4,7 +4,7 @@ import ResultTable from '../components/ResultTable';
 
 // mock rest api
 beforeAll(() => {
-    global.fetch = jest.fn();
+    global.axios = jest.fn();
     //window.fetch = jest.fn(); if running browser environment
 });
 
