@@ -13,6 +13,7 @@ class UserStore {
     pointId = null;
     route = null;
     address = '';
+    loaded = false;
 
     setName(x) {
         this.userName = x;
@@ -50,6 +51,9 @@ class UserStore {
     setAddress(x) {
         this.address = x;
     }
+    setLoaded(x) {
+        this.loaded = x;
+    }
 
 }
 
@@ -63,6 +67,11 @@ decorate(UserStore, {
     arrive: observable,
     driver: observable,
     successful: observable,
+    lineId: observable,
+    pointId: observable,
+    route: observable,
+    address: observable,
+    loaded: observable,
     setNew: action,
     setName: action,
     setEmail: action,
@@ -70,7 +79,12 @@ decorate(UserStore, {
     setOffice: action,
     setLeave: action,
     setArrive: action,
-    setSuccess: action
+    setSuccess: action,
+    setLineId: action,
+    setPointId: action,
+    setRoute: action,
+    setAddress: action,
+    setLoaded: action
 })
 
 export default UserStore

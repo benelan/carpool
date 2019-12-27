@@ -91,7 +91,10 @@ const ResultTable = inject("UserStore")(observer(
         backgroundColor: 'white',
         border: '1px solid lightgrey',
         borderRadius: '4px',
-        margin: '20px'
+        margin: '20px',
+        outline: '1px solid lightgrey',
+        outlineRadius: '4px',
+        outlineOffset: '-2px'
       };
 
       const mRight = {

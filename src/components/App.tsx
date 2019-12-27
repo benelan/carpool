@@ -113,17 +113,17 @@ class App extends React.Component<MyProps> {
         const users: Array<any> = res.data.features;
         if (users.length > 0) {  // check to see if user is already saved
           const user: any = users[0].attributes;
-          const success_user = (user.success) ? true : false;
           // populate form with user data
           this.props.UserStore!.setArrive(user.arrive_work)
           this.props.UserStore!.setLeave(user.leave_work)
           this.props.UserStore!.setDriver(user.driver)
           this.props.UserStore!.setOffice(user.office_id)
-          this.props.UserStore!.setSuccess(success_user)
+          this.props.UserStore!.setSuccess(!!user.success)
           this.props.UserStore!.setNew(false);
           this.props.UserStore!.setPointId(user.OBJECTID);
           this.props.UserStore!.setAddress(user.start_addr);
         }
+        this.props.UserStore!.setLoaded(true);
       })
       .catch(err => {
         console.log(err)
@@ -170,7 +170,7 @@ class App extends React.Component<MyProps> {
     return (
       <Router>
         <Header />
-        <div>{!!this.props.UserStore!.userEmail ?
+        <div>{!!this.props.UserStore!.userEmail && this.props.UserStore!.loaded ?
 
           <Switch>
             <Redirect exact from="/" to="/home" />
