@@ -310,6 +310,7 @@ class Settings extends React.Component<MyProps, MyState> {
 
   //--------------------- JSX ---------------------\\
   render() {
+    //------------------------------------------ CSS STYLE ------------------------------------------\\
     const startLoc = {
       backgroundColor: "white",
       padding: "1px",
@@ -331,8 +332,14 @@ class Settings extends React.Component<MyProps, MyState> {
       margin: "0 0 0 5px"
     };
 
-    if (this.state.form_complete === true) {
+     //------------------------------------------ REDIRECT ------------------------------------------\\
+    if (this.state.form_complete) {
       return <Redirect to='/results' />
+    }
+
+    if (this.props.UserStore!.offsite) {
+      alert('This app currently only works on the internal Esri network')
+      return <Redirect to='/home' />
     }
     return (
       <Row className="justify-content-md-center" style={marg}>
@@ -436,7 +443,7 @@ class Settings extends React.Component<MyProps, MyState> {
               <FormGroup>
                 <Label for="startLocation">Pickup Location</Label>
                 <Button id="PopoverFocus" size="sm" color="link" style={infoB}>help</Button>
-                <UncontrolledPopover trigger="focus" placement="auto" target="PopoverFocus">
+                <UncontrolledPopover target="PopoverFocus">
                   <PopoverBody> Use the search bar below and select a dropdown
                   option. If you have privacy concerns, you can use a cross street
                 or store</PopoverBody>

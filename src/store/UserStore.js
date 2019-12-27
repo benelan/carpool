@@ -14,6 +14,7 @@ class UserStore {
     route = null;
     address = '';
     loaded = false;
+    offsite = false;
 
     setName(x) {
         this.userName = x;
@@ -54,7 +55,9 @@ class UserStore {
     setLoaded(x) {
         this.loaded = x;
     }
-
+    setOffsite(x) {
+        this.offsite = x;
+    }
 }
 
   
@@ -72,6 +75,7 @@ decorate(UserStore, {
     route: observable,
     address: observable,
     loaded: observable,
+    offsite: observable,
     setNew: action,
     setName: action,
     setEmail: action,
@@ -84,7 +88,8 @@ decorate(UserStore, {
     setPointId: action,
     setRoute: action,
     setAddress: action,
-    setLoaded: action
+    setLoaded: action,
+    setOffsite: action
 })
 
 export default UserStore

@@ -123,10 +123,16 @@ const ResultTable = inject("UserStore")(observer(
       };
 
       //------------------------------------------ REDIRECT ------------------------------------------\\
+      if (this.props.UserStore!.offsite) {
+        alert('This app currently only works on the internal Esri network')
+        return <Redirect to='/home' />
+      }
+
       if (this.props.UserStore!.userNew) {
         alert('Fill out your Settings in order to find a carpool buddy')
         return <Redirect to='/settings' />
       }
+
       //------------------------------------------ VARIABLES ------------------------------------------\\
       function renderSwitch(param: number) {
         switch (param) {
@@ -220,7 +226,7 @@ const ResultTable = inject("UserStore")(observer(
                   </FormGroup>
                 </Form>
                 <Button id="filterFocus" size="sm" color="link">help</Button>
-                <UncontrolledPopover trigger="focus" placement="auto" target="filterFocus">
+                <UncontrolledPopover target="filterFocus">
                   <PopoverBody>Info about how filtering works on the Home page</PopoverBody>
                 </UncontrolledPopover>
               </Row>
@@ -235,8 +241,8 @@ const ResultTable = inject("UserStore")(observer(
                         <th>Ride Preference</th>
                         <th>Email
                         <Button id="PopoverFocus" size="sm" color="link">help</Button>
-                          <UncontrolledPopover trigger="focus" placement="auto" target="PopoverFocus">
-                            <PopoverBody>Clicking on a user's email address will open pre-written template.</PopoverBody>
+                          <UncontrolledPopover target="PopoverFocus">
+                            <PopoverBody>Clicking on a user's email address will open a pre-written template.</PopoverBody>
                           </UncontrolledPopover>
                         </th>
                       </tr>
