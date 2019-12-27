@@ -1,6 +1,6 @@
 import React from "react";
 import { Redirect } from "react-router-dom";
-import { Col, Row, Table, Form, FormGroup, Input, InputGroup, InputGroupAddon, InputGroupText, Button, UncontrolledPopover, PopoverBody, Spinner } from "reactstrap";
+import { Col, Row, Table, FormGroup, Input, InputGroup, InputGroupAddon, InputGroupText, Button, UncontrolledPopover, PopoverBody, Spinner } from "reactstrap";
 import { loadModules } from "esri-loader";
 import { convertTime, filterTime } from "../helpers";
 import { observer, inject } from 'mobx-react'
@@ -152,83 +152,78 @@ const ResultTable = inject("UserStore")(observer(
           <Row className="justify-content-md-center">
             <Col md={8}>
               <Row style={resultStyle}>
-                <Form inline>
-                  <FormGroup style={mRight}>
-                    <InputGroup size="sm">
-                      <InputGroupAddon addonType="prepend" >
-                        <InputGroupText>arrival time buffer</InputGroupText>
-                      </InputGroupAddon>
-                      <Input
-                        type="number"
-                        name="timeF"
-                        id="timeF"
-                        min="0"
-                        step="1"
-                        bsSize="sm"
-                        style={timeF}
-                        onChange={e => this.setState({ time_arrive: Math.abs(parseInt(e.target.value)) })}
-                        defaultValue={this.state.time_arrive}
-                      />
-                      <InputGroupAddon addonType="append" >
-                        <InputGroupText>minutes</InputGroupText>
-                      </InputGroupAddon>
-                    </InputGroup>
-                  </FormGroup>
-                  <FormGroup style={mRight}>
-                    <InputGroup size="sm">
-                      <InputGroupAddon addonType="prepend" >
-                        <InputGroupText>departure time buffer</InputGroupText>
-                      </InputGroupAddon>
-                      <Input
-                        type="number"
-                        name="time2F"
-                        id="time2F"
-                        min="0"
-                        step="1"
-                        bsSize="sm"
-                        style={time2F}
-                        onChange={e => this.setState({ time_leave: Math.abs(parseInt(e.target.value)) })}
-                        defaultValue={this.state.time_leave}
-                      />
-                      <InputGroupAddon addonType="append" >
-                        <InputGroupText>minutes</InputGroupText>
-                      </InputGroupAddon>
-                    </InputGroup>
-                  </FormGroup>
-                  <FormGroup style={mRight}>
-                    <InputGroup size="sm">
-                      <InputGroupAddon addonType="prepend" >
-                        <InputGroupText>distance buffer</InputGroupText>
-                      </InputGroupAddon>
-                      <Input
-                        type="number"
-                        name="distF"
-                        id="distF"
-                        min="0"
-                        step="1"
-                        style={distF}
-                        onChange={e => { this.setState({ distance: Math.abs(parseInt(e.target.value)) }); this.filterF() }}
-                        defaultValue={this.state.distance}
-                      />
-                      <Input
-                        type="select"
-                        name="unitF"
-                        id="unitF"
-                        style={unitF}
-                        onChange={e => { this.setState({ units: parseInt(e.target.value) }); this.filterF() }}
-                        defaultValue={this.state.units}>
-                        <option value={1}>miles</option>
-                        <option value={2}>feet</option>
-                        <option value={3}>kilometers</option>
-                        <option value={4}>meters</option>
-                      </Input>
-                    </InputGroup>
-                  </FormGroup>
-                </Form>
-                <Button id="filterFocus" size="sm" color="link">help</Button>
-                <UncontrolledPopover target="filterFocus">
-                  <PopoverBody>Info about how filtering works on the Home page</PopoverBody>
-                </UncontrolledPopover>
+                <FormGroup style={mRight}>
+                  <InputGroup size="sm">
+                    <InputGroupAddon addonType="prepend" >
+                      <InputGroupText>arrival time buffer</InputGroupText>
+                    </InputGroupAddon>
+                    <Input
+                      type="number"
+                      name="timeF"
+                      id="timeF"
+                      min="0"
+                      step="1"
+                      bsSize="sm"
+                      style={timeF}
+                      defaultValue={this.state.time_arrive}
+                      onChange={e => this.setState({ time_arrive: Math.abs(parseInt(e.target.value)) })} />
+                    <InputGroupAddon addonType="append" >
+                      <InputGroupText>minutes</InputGroupText>
+                    </InputGroupAddon>
+                  </InputGroup>
+                </FormGroup>
+                <FormGroup style={mRight}>
+                  <InputGroup size="sm">
+                    <InputGroupAddon addonType="prepend" >
+                      <InputGroupText>departure time buffer</InputGroupText>
+                    </InputGroupAddon>
+                    <Input
+                      type="number"
+                      name="time2F"
+                      id="time2F"
+                      min="0"
+                      step="1"
+                      bsSize="sm"
+                      style={time2F}
+                      defaultValue={this.state.time_leave}
+                      onChange={e => this.setState({ time_leave: Math.abs(parseInt(e.target.value)) })} />
+                    <InputGroupAddon addonType="append" >
+                      <InputGroupText>minutes</InputGroupText>
+                    </InputGroupAddon>
+                  </InputGroup>
+                </FormGroup>
+                <FormGroup style={mRight}>
+                  <InputGroup size="sm">
+                    <InputGroupAddon addonType="prepend" >
+                      <InputGroupText>distance buffer</InputGroupText>
+                    </InputGroupAddon>
+                    <Input
+                      type="number"
+                      name="distF"
+                      id="distF"
+                      min="0"
+                      step="1"
+                      style={distF}
+                      defaultValue={this.state.distance}
+                      onChange={e => { this.setState({ distance: Math.abs(parseInt(e.target.value)) }); this.filterF() }} />
+                    <Input
+                      type="select"
+                      name="unitF"
+                      id="unitF"
+                      style={unitF}
+                      onChange={e => { this.setState({ units: parseInt(e.target.value) }); this.filterF() }}
+                      defaultValue={this.state.units}>
+                      <option value={1}>miles</option>
+                      <option value={2}>feet</option>
+                      <option value={3}>kilometers</option>
+                      <option value={4}>meters</option>
+                    </Input>
+                    <Button id="filterFocus" size="sm" color="link">help</Button>
+                    <UncontrolledPopover target="filterFocus">
+                      <PopoverBody>Info about how filtering works on the Home page</PopoverBody>
+                    </UncontrolledPopover>
+                  </InputGroup>
+                </FormGroup>
               </Row>
               <Row style={tableStyle}>
                 <Col md={12} >
@@ -259,14 +254,15 @@ const ResultTable = inject("UserStore")(observer(
                               <td>
                                 <Button
                                   href={"mailto:" + fd.attributes.email + "?subject=" + subject + "&body=" + encodeURIComponent("Hello " + fd.attributes.name + ", \n\nI show up to work at " + convertTime(this.props.UserStore!.arrive) + " and leave at " + convertTime(this.props.UserStore!.leave) + ". I work in the same office as you, would you like to carpool? You can contact me by replying to this email.\n\nThanks,\n" + this.props.UserStore!.userName)}
-                                  color="link" >{fd.attributes.email}</Button></td>
+                                  color="link" >{fd.attributes.email}
+                                </Button>
+                              </td>
                             </tr>
                           ))
                         : (
                           <tr><td><Spinner color="warning" style={{ width: '2.5rem', height: '2.5rem', margin: '10px' }} /></td></tr>
                         )}
                     </tbody>
-
                   </Table>
                 </Col>
               </Row>
