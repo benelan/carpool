@@ -16,15 +16,17 @@ type MyState = {
   time_leave: number
 };
 
+// props typing
 type MyProps = {
   UserStore?: UserStore
 };
 
-const ResultTable = inject("UserStore")(observer(
+const ResultTable = inject("UserStore")(observer( // mobx stuff
   class ResultTable extends React.Component<MyProps, MyState> {
     state: MyState = {
-      data: [],
-      loaded: false,
+      data: [], // the data returned from the api query
+      loaded: false, // shows loading symbol while doing a query
+      // filter options below
       distance: 5,
       units: 1,
       time_arrive: 30,
@@ -35,14 +37,15 @@ const ResultTable = inject("UserStore")(observer(
 
     //------------------------------------------ Lifecycle ------------------------------------------\\
     componentDidMount() {
-      if (!this.props.UserStore!.userNew) {
-        this.filterF();
+      if (!this.props.UserStore!.userNew) { // prevents memory leak
+        this.filterF(); // filter on load
       }
     }
 
     //------------------------------------------ Filter Function ------------------------------------------\\
     async filterF(): Promise<void> {
-      this.setState({ loaded: false });
+      this.setState({ loaded: false });  // when performing a query show the loading icon
+      
       const unitLookup: any = {
         1: 'miles',
         2: 'feet',
@@ -58,26 +61,27 @@ const ResultTable = inject("UserStore")(observer(
       esriConfig.request.proxyUrl = this.proxyUrl;
       const serviceUrl: string = 'https://services.arcgis.com/Wl7Y1m92PbjtJs5n/arcgis/rest/services/carpoolData/FeatureServer/0/';
 
-      const featureLayer = new FeatureLayer({ url: serviceUrl });
+      const featureLayer = new FeatureLayer({ url: serviceUrl }); 
 
-      // perform query
+      // query options
       var query = featureLayer.createQuery();
-      query.geometry = this.props.UserStore!.route;  // the point location of the pointer
-      query.distance = Math.abs(this.state.distance);
-      query.units = unitLookup[this.state.units];
+      query.geometry = this.props.UserStore!.route;  // the Geometry of the user route
+      query.distance = Math.abs(this.state.distance); // the filter distance
+      query.units = unitLookup[this.state.units]; // the filter units
       query.spatialRelationship = "intersects";  // this is the default
-      query.returnGeometry = false;
-      query.outFields = ["name, email, driver, office_id, arrive_work, leave_work", "OBJECTID"];
+      query.returnGeometry = false; // don't return the user's location for security
+      query.outFields = ["name, email, driver, office_id, arrive_work, leave_work", "OBJECTID"]; // limit returned fields for security
 
       query.where =
         "(office_id=" + this.props.UserStore!.officeId + ") AND (NOT success=1) AND (NOT driver=" + this.props.UserStore!.driver + " OR driver=3) AND (NOT OBJECTID=" + this.props.UserStore!.pointId + ") AND (NOT email='" + this.props.UserStore!.userEmail + "')";
 
-      const that = this;
+      const that = this; // this out of scope inside query promise
 
+      // perform query
       featureLayer.queryFeatures(query)
         .then(function (response: any) {
           // returns a feature set
-          that.setState({ data: response.features, loaded: true });
+          that.setState({ data: response.features, loaded: true }); // query finished loading
         })
         .catch((err: any) => {
           alert(err.message)

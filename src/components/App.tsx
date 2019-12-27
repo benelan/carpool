@@ -40,12 +40,12 @@ const App = inject("UserStore")(observer(
         "esri/identity/IdentityManager"
       ]) as Promise<MapModules>);
 
-
       var info = new OAuthInfo({
         appId: "n5A1575tmQq5eFPd",
         popup: false
       });
 
+      // this out of scope within the promise after auth
       var that = this;
 
       IdentityManager.registerOAuthInfos([info]);
@@ -57,10 +57,10 @@ const App = inject("UserStore")(observer(
           portal.authMode = "immediate";
           // Once loaded, user is signed in
           portal.load().then(function () {
-            // set state and form of email and name
+            // set store values of email and name
             that.props.UserStore!.setName(portal.user.fullName)
             that.props.UserStore!.setEmail(portal.user.email)
-
+            // get the rest of the user data with email
             that.getUserByEmail();
           });
         })
@@ -95,25 +95,28 @@ const App = inject("UserStore")(observer(
 
       let url: string = this.proxyUrl + serviceUrl;
 
+      // query options
       const data: any = {
         "f": "json",
         'where': "email='" + this.props.UserStore!.userEmail + "'",
         'outFields': "*",
-        'timestamp': new Date().getTime()
+        'timestamp': new Date().getTime() // might help to stop caching?
       };
 
+      // magic to make the object a query string
       const query: string = Object.keys(data)
         .map(k => encodeURIComponent(k) + '=' + encodeURIComponent(data[k]))
         .join('&');
 
-      url = url + query;
+      url += query;
 
       await axios.get(url)
         .then(res => {
           const users: Array<any> = res.data.features;
           if (users.length > 0) {  // check to see if user is already saved
             const user: any = users[0].attributes;
-            // populate form with user data
+            // populate store with user data
+            // comments for what the variables do in the store
             this.props.UserStore!.setArrive(user.arrive_work)
             this.props.UserStore!.setLeave(user.leave_work)
             this.props.UserStore!.setDriver(user.driver)
@@ -123,30 +126,32 @@ const App = inject("UserStore")(observer(
             this.props.UserStore!.setPointId(user.OBJECTID);
             this.props.UserStore!.setAddress(user.start_addr);
           }
-          this.props.UserStore!.setLoaded(true);
+          this.props.UserStore!.setLoaded(true); // allows results and settings to load
         })
         .catch(err => {
-          this.props.UserStore!.setLoaded(true);
-          this.props.UserStore!.setOffsite(true);
+          this.props.UserStore!.setLoaded(true); // allows results and settings to load
+          this.props.UserStore!.setOffsite(true); // doesn't load results and settings if cant connect to AGOL
           console.log(err)
         });
       //------------------------------------------ Line ------------------------------------------\\
       const serviceUrl2: string = 'https://services.arcgis.com/Wl7Y1m92PbjtJs5n/arcgis/rest/services/carpoolData/FeatureServer/1/query?';
-      let url2: string = this.proxyUrl + serviceUrl2;
+      let url2: string = this.proxyUrl + serviceUrl2; // use proxy to authenticate for request
 
+      // query options
       const data2: any = {
         "f": "json",
         'where': "email='" + this.props.UserStore!.userEmail + "'",
         'outFields': "*",
         'returnGeometry': true,
-        'timestamp': new Date().getTime()
+        'timestamp': new Date().getTime() // might help to stop caching?
       };
 
+      // magic to make the object a query string
       const query2: string = Object.keys(data2)
         .map(k => encodeURIComponent(k) + '=' + encodeURIComponent(data2[k]))
         .join('&');
 
-      url2 = url2 + query2;
+      url2 += query2;
 
       await axios.get(url2)
         .then(res => {
@@ -154,9 +159,9 @@ const App = inject("UserStore")(observer(
           // fill in form and state with settings saved in db
           if (users.length > 0) {  // check to see if user is already saved
             const user: any = users[0];
-            // populate form with user data
+            // populate store with user data
             this.props.UserStore!.setLineId(user.attributes.OBJECTID)
-            this.props.UserStore!.setRoute({
+            this.props.UserStore!.setRoute({  // this is a Geometry type
               spatialReference: res.data.spatialReference,
               paths: user.geometry.paths,
               type: 'polyline'

@@ -6,58 +6,61 @@ import axios from "axios";
 import { observer, inject } from 'mobx-react'
 import UserStore from '../store/UserStore';
 
+// state typing
 type MyState = {
   searchWidget: import("esri/widgets/Search") | null,
-  form_complete: Boolean,
-  office_old: number,
+  form_complete: Boolean, 
+  office_old: number, 
   route: any | null,  // needs to cast as geometry for arcgis query
   lon: number | null,
   lat: number | null,
 };
 
+// props typing
 type MyProps = {
   UserStore?: UserStore
 };
 
-const Settings = inject("UserStore")(observer(
+const Settings = inject("UserStore")(observer( // mobx stuff
 class Settings extends React.Component<MyProps, MyState> {
   //--------------------- STATE---------------------\\
   state: MyState = {
-    form_complete: false,
-    searchWidget: null,
-    office_old: this.props.UserStore!.officeId,
+    form_complete: false, // redirect to results when form is saved
+    searchWidget: null, 
+    office_old: this.props.UserStore!.officeId, // only calculates new route if the office or pick up location is changed. this variable keeps track of the initial office id
     lat: null,
     lon: null,
-    route: null
+    route: null // route geometry
   };
 
   proxyUrl: string = 'https://belan2.esri.com/DotNet/proxy.ashx?'
 
   //--------------------- LIFE CYCLE FUNCTIONS ---------------------\\
   componentDidMount() {
-    loadCss();
-    loadModules(["esri/widgets/Search"])
+    loadCss(); // loads esri css
+    loadModules(["esri/widgets/Search"]) // sets up the search widget
     .then(([Search]) => {
         this.setState({
           searchWidget: Search({
             container: document.getElementById("startLoc"),
-            searchTerm: this.props.UserStore!.address
+            searchTerm: this.props.UserStore!.address // sets the text to the user address
           })
         });
       })
   }
 
   componentWillUnmount() {
-    this.setState({ searchWidget: null });
+    this.setState({ searchWidget: null }); // removes search widget to prevent memory leak
   }
 
   //--------------------- CRUD OPERATIONS ---------------------\\
   async addUser(): Promise<void> {
     //--------------------- ROUTE ---------------------\\
-    if (!!this.state.route) {
+    if (!!this.state.route) { // if the route changed update it
       const serviceUrl2: string = 'https://services.arcgis.com/Wl7Y1m92PbjtJs5n/arcgis/rest/services/carpoolData/FeatureServer/1/addFeatures?f=json';
       let url2: string = this.proxyUrl + serviceUrl2;
 
+      // request body
       const data2: any = [{
         "geometry": this.state.route.geometry,
         'attributes': {
@@ -80,8 +83,10 @@ class Settings extends React.Component<MyProps, MyState> {
     const serviceUrl: string = 'https://services.arcgis.com/Wl7Y1m92PbjtJs5n/arcgis/rest/services/carpoolData/FeatureServer/0/addFeatures?f=json&features='
     let url: string = this.proxyUrl + serviceUrl;
 
+    // 0 == FALSE .... 1 == TRUE
+    const success_val = (this.props.UserStore!.successful) ? 1 : 0; 
     
-    const success_val = (this.props.UserStore!.successful) ? 1 : 0;
+    // request body
     const data: any = [{
       "geometry": {
         "x": this.state.lon,
@@ -118,10 +123,11 @@ class Settings extends React.Component<MyProps, MyState> {
 
   async updateUser(): Promise<void> {
     //--------------------- ROUTE ---------------------\\
-    if (!!this.state.route) {
+    if (!!this.state.route) { // if the route changed update it
       const serviceUrl2: string = 'https://services.arcgis.com/Wl7Y1m92PbjtJs5n/arcgis/rest/services/carpoolData/FeatureServer/1/updateFeatures?f=json';
       let url2: string = this.proxyUrl + serviceUrl2;
 
+      // request body
       const data2: any = [{
         "geometry": this.state.route.geometry,
         'attributes': {
@@ -132,6 +138,7 @@ class Settings extends React.Component<MyProps, MyState> {
         }
       }];
 
+      
       const querystring2: string = 'features=' + JSON.stringify(data2);
       await axios
         .post(url2, querystring2)
@@ -149,9 +156,10 @@ class Settings extends React.Component<MyProps, MyState> {
     const serviceUrl: string = 'https://services.arcgis.com/Wl7Y1m92PbjtJs5n/arcgis/rest/services/carpoolData/FeatureServer/0/updateFeatures?f=json&features='
     let url: string = this.proxyUrl + serviceUrl;
 
-    // 0 = FALSE .... 1 = TRUE
+    // 0 == FALSE .... 1 == TRUE
     const success_val = (this.props.UserStore!.successful) ? 1 : 0;
 
+    // request body
     const data: any = [{
       "geometry": {
         "x": this.state.lon,
@@ -207,8 +215,10 @@ class Settings extends React.Component<MyProps, MyState> {
       "esri/Graphic"
     ]) as Promise<MapModules>);
 
-
+    // this out of scope in search promise
     var that = this;
+
+    // grab address from search widget
     const address = (document.getElementById("startLoc") as HTMLInputElement).value;
     // search the address that was input
     this.state.searchWidget!.search(address).then((event: any) => {
@@ -217,11 +227,13 @@ class Settings extends React.Component<MyProps, MyState> {
       const lon: number = event.results[0].results[0].feature.geometry.longitude;
       const addr: string = event.results[0].results[0].feature.attributes.Match_addr;
 
+      // set the state lat/lon
       that.setState({
         lat: lat,
         lon: lon
       });
-      // if the address didn't change
+
+      // if the address and office didn't change
       if ((addr === that.props.UserStore!.address) && (that.props.UserStore!.officeId === that.state.office_old)) {
         // REST CALLS HERE
         if (that.props.UserStore!.userNew) {
@@ -235,7 +247,9 @@ class Settings extends React.Component<MyProps, MyState> {
 
       // if the address changed
       else {
-        this.props.UserStore!.setAddress(addr);
+        this.props.UserStore!.setAddress(addr); // set store address
+        
+        // connect to routing service
         var routeTask = new RouteTask({
           url:
             "https://utility.arcgis.com/usrsvcs/appservices/w2zxoNZu0ai45kI5/rest/services/World/Route/NAServer/Route_World/solve"
@@ -250,6 +264,7 @@ class Settings extends React.Component<MyProps, MyState> {
           }
         });
 
+        // start point is lat/lon from the search widget
         const startPoint = {
           type: "point", // autocasts as Point
           longitude: lon,
@@ -263,14 +278,16 @@ class Settings extends React.Component<MyProps, MyState> {
           geometry: startPoint
         });
 
+        // office coordinate mapper
         const officeCoords: any = {
-          1: [-117.1946114, 34.057267],
-          2: [-117.2180851, 34.0692566],
-          3: [-80.7835061, 35.100138],
-          4: [-77.0714945, 38.897275],
-          5: [-73.9947568, 40.7542076]
+          1: [-117.1946114, 34.057267], // Redlands Main Campus
+          2: [-117.2180851, 34.0692566], // Redlands V Buildings
+          3: [-80.7835061, 35.100138], // Charlotte
+          4: [-77.0714945, 38.897275], // Washington D.C.
+          5: [-73.9947568, 40.7542076] // New York City
         }
 
+        // end point is the lat/lon of the office
         const endPoint = {
           type: "point", // autocasts as Point
           longitude: officeCoords[that.props.UserStore!.officeId][0],
@@ -287,10 +304,10 @@ class Settings extends React.Component<MyProps, MyState> {
         // add start/office stops
         routeParams.stops.features.push(start);
         routeParams.stops.features.push(end);
-        // calc route
+        // calculate route
         routeTask.solve(routeParams).then((res: any) => {
-          that.setState({ route: res.routeResults[0].route });
-          that.props.UserStore!.setRoute(res.routeResults[0].route.geometry)
+          that.setState({ route: res.routeResults[0].route }); // this route is used for the rest calls
+          that.props.UserStore!.setRoute(res.routeResults[0].route.geometry) // this route geometry is used for the results query
 
           // REST CALLS HERE
           if (that.props.UserStore!.userNew) {

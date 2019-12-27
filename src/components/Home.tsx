@@ -5,13 +5,16 @@ import soon from '../img/soon.png';
 import { observer, inject } from 'mobx-react'
 import UserStore from '../store/UserStore';
 
+// props typing
 type MyProps = {
   UserStore?: UserStore
 };
 
-const Home = inject("UserStore")(observer(
+const Home = inject("UserStore")(observer( // mobx stuff
 class Home extends React.Component<MyProps> {
+      //------------------------------------------ JSX --------------------------------------------\\
   render() {
+    //------------------------------------------ CSS STYLE ------------------------------------------\\
     const homeStyle = {
       margin: "10px"
     };
@@ -24,7 +27,6 @@ class Home extends React.Component<MyProps> {
       margin: "0px 0px 40px 0px"
     };
     return (
-
       <Row style={marg}>
         <Col md={12}>
           <h2 className="text-center" style={margB}>Welcome {this.props.UserStore!.userName}</h2>

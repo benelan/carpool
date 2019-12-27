@@ -3,18 +3,18 @@ import { action, observable, decorate } from "mobx"
 class UserStore {
     userName = null;
     userEmail = null;
-    officeId = 1;
-    driver = 1;
+    officeId = 1; // maps to lat/lon for esri offices
+    driver = 1; // driving preference 
     arrive = "09:00";
     leave = "17:00";
-    successful = false;
-    userNew = true;
-    lineId = null;
-    pointId = null;
-    route = null;
+    successful = false; // if checked, removes user from results list
+    userNew = true; // determines whether to add new user or update existing
+    lineId = null; // OBJECTID for the line layer
+    pointId = null; // OBJECTID for the point layer
+    route = null; // route Geometry 
     address = '';
-    loaded = false;
-    offsite = false;
+    loaded = false; // allows results and settings to load
+    offsite = false;  // allows results and settings to load
 
     setName(x) {
         this.userName = x;
