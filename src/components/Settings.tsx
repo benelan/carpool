@@ -460,7 +460,7 @@ class Settings extends React.Component<MyProps, MyState> {
               <FormGroup>
                 <Label for="startLocation">Pickup Location</Label>
                 <Button id="PopoverFocus" size="sm" color="link" style={infoB}>help</Button>
-                <UncontrolledPopover target="PopoverFocus">
+                <UncontrolledPopover trigger="legacy" target="PopoverFocus">
                   <PopoverBody> Use the search bar below and select a dropdown
                   option. If you have privacy concerns, you can use a cross street
                 or store</PopoverBody>

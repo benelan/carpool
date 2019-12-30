@@ -1,3 +1,24 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`ResultTable snapshot 1`] = `undefined`;
+exports[`ResultTable ResultTable snapshot 1`] = `
+<ResultTable
+  UserStore={
+    UserStore {
+      "address": "",
+      "arrive": "09:00",
+      "driver": 1,
+      "leave": "17:00",
+      "lineId": null,
+      "loaded": false,
+      "officeId": 1,
+      "offsite": false,
+      "pointId": null,
+      "route": null,
+      "successful": false,
+      "userEmail": "john@esri.com",
+      "userName": "John Doe",
+      "userNew": true,
+    }
+  }
+/>
+`;

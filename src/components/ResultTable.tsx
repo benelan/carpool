@@ -223,7 +223,7 @@ const ResultTable = inject("UserStore")(observer( // mobx stuff
                       <option value={4}>meters</option>
                     </Input>
                     <Button id="filterFocus" size="sm" color="link">help</Button>
-                    <UncontrolledPopover target="filterFocus">
+                    <UncontrolledPopover trigger="legacy" target="filterFocus">
                       <PopoverBody>Info about how filtering works on the Home page</PopoverBody>
                     </UncontrolledPopover>
                   </InputGroup>
@@ -240,7 +240,7 @@ const ResultTable = inject("UserStore")(observer( // mobx stuff
                         <th>Ride Preference</th>
                         <th>Email
                         <Button id="PopoverFocus" size="sm" color="link">help</Button>
-                          <UncontrolledPopover target="PopoverFocus">
+                          <UncontrolledPopover trigger="legacy" target="PopoverFocus">
                             <PopoverBody>Clicking on a user's email address will open a pre-written template.</PopoverBody>
                           </UncontrolledPopover>
                         </th>

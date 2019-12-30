@@ -1,26 +1,28 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`App snapshot 1`] = `
-<BrowserRouter>
-  <Header />
-  <div>
-    <div
-      className="center"
-    >
-      <Spinner
-        color="warning"
-        style={
-          Object {
-            "height": "3rem",
-            "width": "3rem",
-          }
-        }
-        tag="div"
-        type="border"
-      >
-        Loading...
-      </Spinner>
-    </div>
-  </div>
-</BrowserRouter>
+<ContextProvider
+  value={
+    Object {
+      "UserStore": UserStore {
+        "address": "",
+        "arrive": "09:00",
+        "driver": 1,
+        "leave": "17:00",
+        "lineId": null,
+        "loaded": false,
+        "officeId": 1,
+        "offsite": false,
+        "pointId": null,
+        "route": null,
+        "successful": false,
+        "userEmail": null,
+        "userName": null,
+        "userNew": true,
+      },
+    }
+  }
+>
+  <inject-with-UserStore(App) />
+</ContextProvider>
 `;

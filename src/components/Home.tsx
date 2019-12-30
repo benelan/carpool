@@ -42,7 +42,7 @@ class Home extends React.Component<MyProps> {
               <p> Once you find a ride or have a full car and are no longer looking, check the "Found a Ride" box in the Settings. Whenever changing the Settings make sure to save!</p>
 
               <p> There are a few <Button id="PopoverFocus" size="sm" color="link">help</Button>
-                <UncontrolledPopover target="PopoverFocus">
+                <UncontrolledPopover trigger="legacy" target="PopoverFocus">
                   <PopoverBody>Helpful info</PopoverBody>
                 </UncontrolledPopover>buttons throughout the app that provide additional information.</p>
             </Col>
