@@ -54,11 +54,22 @@ const ResultTable = inject("UserStore")(observer( // mobx stuff
       }
 
       // load modules
-      type MapModules = [typeof import("esri/layers/FeatureLayer"), typeof import("esri/config")];
-      const [FeatureLayer, esriConfig] = await (loadModules(["esri/layers/FeatureLayer", "esri/config"]) as Promise<MapModules>);
+      type MapModules = [typeof import("esri/layers/FeatureLayer"), typeof import("esri/core/urlUtils")];
+      const [FeatureLayer, urlUtils] = await (loadModules(["esri/layers/FeatureLayer", "esri/core/urlUtils"]) as Promise<MapModules>);
 
       // use proxy and set service url
-      esriConfig.request.proxyUrl = this.proxyUrl;
+      // esriConfig.request.proxyUrl = this.proxyUrl;
+
+      urlUtils.addProxyRule({
+        urlPrefix: "https://www.arcgis.com/",
+        proxyUrl: "https://belan2.esri.com/DotNet/proxy.ashx"
+      }); 
+
+      urlUtils.addProxyRule({
+        urlPrefix: "https://services.arcgis.com/",
+        proxyUrl: "https://belan2.esri.com/DotNet/proxy.ashx"
+      }); 
+
       const serviceUrl: string = 'https://services.arcgis.com/Wl7Y1m92PbjtJs5n/arcgis/rest/services/carpoolData/FeatureServer/0/';
 
       const featureLayer = new FeatureLayer({ url: serviceUrl }); 

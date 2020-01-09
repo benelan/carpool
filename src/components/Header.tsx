@@ -21,6 +21,12 @@ const Header = () => {
     borderColor: '#FFF8EB',
     marginBottom: '40px'
   }
+
+  const brand = {
+    fontSize: '39px',
+    font: 'Roboto',
+    fontWeight: 700
+  }
   return (
 
     <div>
@@ -30,7 +36,7 @@ const Header = () => {
             <img src={logo} alt="logo" className="img-fluid" style={{ width: 100 }} />
           </NavLink>
           <NavbarBrand tag={RRNavLink} className="d-inline-block p-0  align-items-left" to="/">
-            <h1 style={{ font: '36px Arial Black' }}>arcpool beta</h1>
+            <h1 style={brand}>arcpool</h1>
           </NavbarBrand>
         </NavItem>
         <NavbarToggler onClick={toggle} />
