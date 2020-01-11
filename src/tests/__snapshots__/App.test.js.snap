@@ -10,7 +10,6 @@ exports[`App snapshot 1`] = `
         "driver": 1,
         "leave": "17:00",
         "lineId": null,
-        "loaded": false,
         "officeId": 1,
         "offsite": false,
         "pointId": null,
