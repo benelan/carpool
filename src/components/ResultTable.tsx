@@ -40,10 +40,12 @@ const ResultTable = inject("UserStore")(observer( // mobx stuff
       if (!this.props.UserStore!.userNew) { // prevents memory leak
         this.filterF(); // filter on load
       }
+
     }
 
     //------------------------------------------ Filter Function ------------------------------------------\\
     async filterF(): Promise<void> {
+      console.log(this.props.UserStore!.route)
       this.setState({ loaded: false });  // when performing a query show the loading icon
       
       const unitLookup: any = {

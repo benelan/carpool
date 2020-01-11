@@ -13,7 +13,6 @@ class UserStore {
     pointId = null; // OBJECTID for the point layer
     route = null; // route Geometry 
     address = '';
-    loaded = false; // allows results and settings to load
     offsite = false;  // allows results and settings to load
 
     setName(x) {
@@ -52,9 +51,6 @@ class UserStore {
     setAddress(x) {
         this.address = x;
     }
-    setLoaded(x) {
-        this.loaded = x;
-    }
     setOffsite(x) {
         this.offsite = x;
     }
@@ -74,7 +70,6 @@ decorate(UserStore, {
     pointId: observable,
     route: observable,
     address: observable,
-    loaded: observable,
     offsite: observable,
     setNew: action,
     setName: action,
@@ -88,7 +83,6 @@ decorate(UserStore, {
     setPointId: action,
     setRoute: action,
     setAddress: action,
-    setLoaded: action,
     setOffsite: action
 })
 

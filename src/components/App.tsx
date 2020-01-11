@@ -17,8 +17,18 @@ type MyProps = {
   UserStore?: UserStore
 }
 
+type MyState = {
+  loaded: boolean,
+  loaded2: boolean
+}
+
 const App = inject("UserStore")(observer(
-  class App extends React.Component<MyProps> {
+  class App extends React.Component<MyProps, MyState> {
+    
+    state = {
+      loaded: false,
+      loaded2: false
+    }
 
     CancelToken = axios.CancelToken;
     source = this.CancelToken.source();
@@ -126,10 +136,10 @@ const App = inject("UserStore")(observer(
             this.props.UserStore!.setPointId(user.OBJECTID);
             this.props.UserStore!.setAddress(user.start_addr);
           }
-          this.props.UserStore!.setLoaded(true); // allows results and settings to load
+          this.setState({ loaded: true }); // allows results and settings to load
         })
         .catch(err => {
-          this.props.UserStore!.setLoaded(true); // allows results and settings to load
+          this.setState({ loaded: true }); // allows results and settings to load
           this.props.UserStore!.setOffsite(true); // doesn't load results and settings if cant connect to AGOL
           console.log(err)
         });
@@ -167,8 +177,10 @@ const App = inject("UserStore")(observer(
               type: 'polyline'
             })
           }
+          this.setState({ loaded2: true }); // allows results and settings to load
         })
         .catch(err => {
+          this.setState({ loaded2: true }); // allows results and settings to load
           console.log(err)
         });
     };
@@ -177,7 +189,7 @@ const App = inject("UserStore")(observer(
       return (
         <Router>
           <Header />
-          {!!this.props.UserStore!.userEmail && this.props.UserStore!.loaded ?
+          {!!this.props.UserStore!.userEmail && this.state.loaded && this.state.loaded2 ?
             <Switch>
               <Redirect exact from="/" to="/home" />
               <Route exact path="/home">
