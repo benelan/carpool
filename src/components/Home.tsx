@@ -39,23 +39,18 @@ class Home extends React.Component<MyProps> {
 
               <p>Otherwise, you can skip directly to the <Button outline color="success" size="sm" tag={RRNavLink} to="/results">Results</Button> to find a ride.</p>
 
+              <p>Both the Results and Settings pages will only load from the internal Esri network.</p>
+
               <p> Once you find a ride or have a full car and are no longer looking, check the "Found a Ride" box in the Settings. Whenever changing the Settings make sure to save!</p>
 
               <p> There are a few <Button id="PopoverFocus" size="sm" color="link">help</Button>
                 <UncontrolledPopover trigger="legacy" target="PopoverFocus">
                   <PopoverBody>Helpful info</PopoverBody>
                 </UncontrolledPopover>buttons throughout the app that provide additional information.</p>
-            </Col>
 
+                <p> Make sure to check out <Button outline color="success" size="sm" href="https://www.ie511.org/iecommuter/TDMHomePage.jsp?idscreen=CHOMEPAGE1">IE Commuter</Button> for carpool incentives!</p>
+            </Col>
             <Col md={{ size: 4, offset: 4 }}>
-              <h4 className="text-center">Impact</h4>
-              <img src={soon} alt="Coming Soon" className="mx-auto d-block img-fluid" style={{ width: '50%' }} />
-              <p> </p>
-            </Col>
-          </Row>
-
-          <Row style={homeStyle}>
-            <Col md={4}>
               <h4 className="text-center">How It Works</h4>
               <p>When you sign up in the Settings, a point is created for your pickup location. Then a route is created from your point to the selected office. This info, along with arrival/departure times and a driving preference, will be used for finding potential carpool rides.</p>
 
@@ -65,15 +60,20 @@ class Home extends React.Component<MyProps> {
 
               <p>Only users that match all 3 filters will show up on the list. More flexibility in the works.</p>
             </Col>
+            
+          </Row>
+
+          <Row style={homeStyle}>
+          <Col md={{ size: 4}}>
+              <h4 className="text-center">Impact</h4>
+              <img src={soon} alt="Coming Soon" className="mx-auto d-block img-fluid" style={{ width: '50%' }} />
+              <p> </p>
+            </Col>
 
             <Col md={{ size: 4, offset: 4 }}>
               <h4 className="text-center">Bugs & Enhancements</h4>
 
-              <p>If you discover any bugs in the application, or have suggestions for future development, please log an issue on the <Button outline color="success" size="sm" href="https://github.com/benelan/carpool/issues">Github</Button> page</p>
-
-              <p>Alternatively, you can reach out to Ben Elan using Skype, Teams, or by email.</p>
-
-              <p>If you are a developer, I will accept pull requests. This is the <Button outline color="success" size="sm" href="https://github.com/benelan/carpool/tree/spatial">Spatial</Button> branch on Github.</p>
+              <p>If you discover any bugs in the application, or have suggestions for future development, please reach out to Ben Elan using Teams, Skype, or by email.</p>
             </Col>
           </Row>
         </Col>

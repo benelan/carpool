@@ -358,7 +358,7 @@ const Settings = inject("UserStore")(observer( // mobx stuff
       }
 
       if (this.props.UserStore!.offsite) {
-        alert('This app currently only works on the internal Esri network')
+        alert('This app only works on the internal Esri network. If you are on the internal Esri network please try reloading the page. If you still experience issues contact Ben Elan.')
         return <Redirect to='/home' />
       }
       return (

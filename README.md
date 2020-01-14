@@ -12,6 +12,10 @@ npm install
 npm start
 ```
 
+## TODO
+[ ] For Passengers, instead of buffering around their route when filtering, buffer around their point, looking at other's route
+[ ] For Either, buffer around point searching for other's route AND around route searching for other's point
+
 ## Built With
 This branch uses ArcGIS Online as the backend. The master branch uses the MERN Stack.
 * [ArcGIS](https://developers.arcgis.com/javascript/) - Spatial Analysis
