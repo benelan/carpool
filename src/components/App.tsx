@@ -24,7 +24,7 @@ type MyState = {
 
 const App = inject("UserStore")(observer(
   class App extends React.Component<MyProps, MyState> {
-    
+
     state = {
       loaded: false,
       loaded2: false
@@ -110,6 +110,7 @@ const App = inject("UserStore")(observer(
         "f": "json",
         'where': "email='" + this.props.UserStore!.userEmail + "'",
         'outFields': "*",
+        'returnGeometry': true,
         'timestamp': new Date().getTime() // might help to stop caching?
       };
 
@@ -124,17 +125,28 @@ const App = inject("UserStore")(observer(
         .then(res => {
           const users: Array<any> = res.data.features;
           if (users.length > 0) {  // check to see if user is already saved
-            const user: any = users[0].attributes;
-            // populate store with user data
-            // comments for what the variables do in the store
-            this.props.UserStore!.setArrive(user.arrive_work)
-            this.props.UserStore!.setLeave(user.leave_work)
-            this.props.UserStore!.setDriver(user.driver)
-            this.props.UserStore!.setOffice(user.office_id)
-            this.props.UserStore!.setSuccess(!!user.success)
-            this.props.UserStore!.setNew(false);
-            this.props.UserStore!.setPointId(user.OBJECTID);
-            this.props.UserStore!.setAddress(user.start_addr);
+            const user: any = users[0];
+            loadModules(["esri/geometry/support/webMercatorUtils"]) // sets up the search widget
+              .then(([webMercatorUtils]) => {
+
+                // convert x/y to lon/lat
+                const lonLat = webMercatorUtils.xyToLngLat(user.geometry.x, user.geometry.y)
+                const geo: any = {
+                  x: lonLat[0],
+                  y: lonLat[1]
+                }
+                // populate store with user data
+                // comments for what the variables do in the store
+                this.props.UserStore!.setGeometry(geo)
+                this.props.UserStore!.setArrive(user.attributes.arrive_work)
+                this.props.UserStore!.setLeave(user.attributes.leave_work)
+                this.props.UserStore!.setDriver(user.attributes.driver)
+                this.props.UserStore!.setOffice(user.attributes.office_id)
+                this.props.UserStore!.setSuccess(!!user.attributes.success)
+                this.props.UserStore!.setNew(false);
+                this.props.UserStore!.setPointId(user.attributes.OBJECTID);
+                this.props.UserStore!.setAddress(user.attributes.start_addr);
+              })
           }
           this.setState({ loaded: true }); // allows results and settings to load
         })
@@ -169,6 +181,7 @@ const App = inject("UserStore")(observer(
           // fill in form and state with settings saved in db
           if (users.length > 0) {  // check to see if user is already saved
             const user: any = users[0];
+            // load modules
             // populate store with user data
             this.props.UserStore!.setLineId(user.attributes.OBJECTID)
             this.props.UserStore!.setRoute({  // this is a Geometry type
@@ -176,8 +189,8 @@ const App = inject("UserStore")(observer(
               paths: user.geometry.paths,
               type: 'polyline'
             })
+            this.setState({ loaded2: true }); // allows results and settings to load
           }
-          this.setState({ loaded2: true }); // allows results and settings to load
         })
         .catch(err => {
           this.setState({ loaded2: true }); // allows results and settings to load

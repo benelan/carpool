@@ -62,11 +62,21 @@ const Settings = inject("UserStore")(observer( // mobx stuff
         const serviceUrl2: string = 'https://services.arcgis.com/Wl7Y1m92PbjtJs5n/arcgis/rest/services/carpoolData/FeatureServer/1/addFeatures?f=json';
         let url2: string = this.proxyUrl + serviceUrl2;
 
+        // 0 == FALSE .... 1 == TRUE
+        const success_val2 = (this.props.UserStore!.successful) ? 1 : 0;
+
         // request body
         const data2: any = [{
           "geometry": this.state.route.geometry,
           'attributes': {
+            'name': this.props.UserStore!.userName,
             'email': this.props.UserStore!.userEmail,
+            'arrive_work': this.props.UserStore!.arrive,
+            'leave_work': this.props.UserStore!.leave,
+            'driver': this.props.UserStore!.driver,
+            'office_id': this.props.UserStore!.officeId,
+            'start_addr': encodeURIComponent(this.props.UserStore!.address),
+            'success': success_val2,
             'travel_minutes': this.state.route.attributes.Total_TravelTime,
             'travel_miles': this.state.route.attributes.Total_Miles,
           }
@@ -129,12 +139,22 @@ const Settings = inject("UserStore")(observer( // mobx stuff
         const serviceUrl2: string = 'https://services.arcgis.com/Wl7Y1m92PbjtJs5n/arcgis/rest/services/carpoolData/FeatureServer/1/updateFeatures?f=json';
         let url2: string = this.proxyUrl + serviceUrl2;
 
+        // 0 == FALSE .... 1 == TRUE
+        const success_val2 = (this.props.UserStore!.successful) ? 1 : 0;
+
         // request body
         const data2: any = [{
           "geometry": this.state.route.geometry,
           'attributes': {
             'OBJECTID': this.props.UserStore!.lineId,
+            'name': this.props.UserStore!.userName,
             'email': this.props.UserStore!.userEmail,
+            'arrive_work': this.props.UserStore!.arrive,
+            'leave_work': this.props.UserStore!.leave,
+            'driver': this.props.UserStore!.driver,
+            'office_id': this.props.UserStore!.officeId,
+            'start_addr': encodeURIComponent(this.props.UserStore!.address),
+            'success': success_val2,
             'travel_minutes': this.state.route.attributes.Total_TravelTime,
             'travel_miles': this.state.route.attributes.Total_Miles,
           }
@@ -191,10 +211,6 @@ const Settings = inject("UserStore")(observer( // mobx stuff
           this.setState({ form_complete: true });
         })
         .catch((err: any) => {
-          // handle any errors
-          console.error(err);
-        })
-        .catch((err: any) => {
           console.log(err)
         });
     };
@@ -224,12 +240,14 @@ const Settings = inject("UserStore")(observer( // mobx stuff
       // grab address from search widget
       const address = (document.getElementById("startLoc") as HTMLInputElement).value;
       // search the address that was input
-      this.state.searchWidget!.search(address).then((event: any) => {
+      that.state.searchWidget!.search(address).then((event: any) => {
         // get the lat/lon and address
+        that.props.UserStore!.setGeometry(event.results[0].results[0].feature.geometry);
+
         const lat: number = event.results[0].results[0].feature.geometry.latitude;
         const lon: number = event.results[0].results[0].feature.geometry.longitude;
         const addr: string = event.results[0].results[0].feature.attributes.Match_addr;
-
+        
         // set the state lat/lon
         that.setState({
           lat: lat,

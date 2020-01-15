@@ -5,6 +5,7 @@ import { loadModules } from "esri-loader";
 import { convertTime, filterTime } from "../helpers";
 import { observer, inject } from 'mobx-react'
 import UserStore from '../store/UserStore';
+import axios from "axios";
 
 // state typing
 type MyState = {
@@ -45,9 +46,8 @@ const ResultTable = inject("UserStore")(observer( // mobx stuff
 
     //------------------------------------------ Filter Function ------------------------------------------\\
     async filterF(): Promise<void> {
-      console.log(this.props.UserStore!.route)
-      this.setState({ loaded: false });  // when performing a query show the loading icon
-      
+      this.setState({ loaded: false, data: [] });  // when performing a query show the loading icon
+
       const unitLookup: any = {
         1: 'miles',
         2: 'feet',
@@ -56,8 +56,8 @@ const ResultTable = inject("UserStore")(observer( // mobx stuff
       }
 
       // load modules
-      type MapModules = [typeof import("esri/layers/FeatureLayer"), typeof import("esri/core/urlUtils")];
-      const [FeatureLayer, urlUtils] = await (loadModules(["esri/layers/FeatureLayer", "esri/core/urlUtils"]) as Promise<MapModules>);
+      type MapModules = [typeof import("esri/layers/FeatureLayer"), typeof import("esri/core/urlUtils"), typeof import("esri/Graphic"), typeof import("esri/geometry/Point")];
+      const [FeatureLayer, urlUtils, Graphic, Point] = await (loadModules(["esri/layers/FeatureLayer", "esri/core/urlUtils", "esri/Graphic", "esri/geometry/Point"]) as Promise<MapModules>);
 
       // use proxy and set service url
       // esriConfig.request.proxyUrl = this.proxyUrl;
@@ -65,41 +65,110 @@ const ResultTable = inject("UserStore")(observer( // mobx stuff
       urlUtils.addProxyRule({
         urlPrefix: "https://www.arcgis.com/",
         proxyUrl: "https://belan2.esri.com/DotNet/proxy.ashx"
-      }); 
+      });
 
       urlUtils.addProxyRule({
         urlPrefix: "https://services.arcgis.com/",
         proxyUrl: "https://belan2.esri.com/DotNet/proxy.ashx"
-      }); 
-
-      const serviceUrl: string = 'https://services.arcgis.com/Wl7Y1m92PbjtJs5n/arcgis/rest/services/carpoolData/FeatureServer/0/';
-
-      const featureLayer = new FeatureLayer({ url: serviceUrl }); 
-
-      // query options
-      var query = featureLayer.createQuery();
-      query.geometry = this.props.UserStore!.route;  // the Geometry of the user route
-      query.distance = Math.abs(this.state.distance); // the filter distance
-      query.units = unitLookup[this.state.units]; // the filter units
-      query.spatialRelationship = "intersects";  // this is the default
-      query.returnGeometry = false; // don't return the user's location for security
-      query.outFields = ["name, email, driver, office_id, arrive_work, leave_work", "OBJECTID"]; // limit returned fields for security
-
-      query.where =
-        "(office_id=" + this.props.UserStore!.officeId + ") AND (NOT success=1) AND (NOT driver=" + this.props.UserStore!.driver + " OR driver=3) AND (NOT OBJECTID=" + this.props.UserStore!.pointId + ") AND (NOT email='" + this.props.UserStore!.userEmail + "')";
+      });
 
       const that = this; // this out of scope inside query promise
 
-      // perform query
-      featureLayer.queryFeatures(query)
-        .then(function (response: any) {
-          // returns a feature set
-          that.setState({ data: response.features, loaded: true }); // query finished loading
+      // for Drivers and Either, filter based on the user's route
+      // looking for other user's pick up location
+      if (this.props.UserStore!.driver === 1 || this.props.UserStore!.driver === 3) {
+        const serviceUrl: string = 'https://services.arcgis.com/Wl7Y1m92PbjtJs5n/arcgis/rest/services/carpoolData/FeatureServer/0/';
+        const featureLayer = new FeatureLayer({ url: serviceUrl });
+
+        // query options
+        var query = featureLayer.createQuery();
+        query.geometry = this.props.UserStore!.route;  // the Geometry of the user route
+        query.distance = Math.abs(this.state.distance); // the filter distance
+        query.units = unitLookup[this.state.units]; // the filter units
+        query.spatialRelationship = "intersects";  // this is the default
+        query.returnGeometry = false; // don't return the user's location for security
+        query.outFields = ["name, email, driver, office_id, arrive_work, leave_work", "OBJECTID"]; // limit returned fields for security
+
+        query.where =
+          "(office_id=" + this.props.UserStore!.officeId + ") AND (NOT success=1) AND (NOT driver=" + this.props.UserStore!.driver + " OR driver=3) AND (NOT OBJECTID=" + this.props.UserStore!.pointId + ") AND (NOT email='" + this.props.UserStore!.userEmail + "')";
+
+        // perform query
+        featureLayer.queryFeatures(query)
+          .then(function (response: any) {
+
+            let tempData: Array<any> = that.state.data;
+            response.features.forEach((f: any) => {
+              tempData.push(f)
+            })
+            console.log("before passenger",tempData)
+            tempData = tempData.filter((thing, index, self) => self.findIndex(t => t.email === thing.email && t.name === thing.name) === index)
+          //   var result = tempData.reduce((unique : any, o : any) => {
+          //     if(!unique.some( (obj : any) => obj.name !== o.name && obj.email !== o.email)) {
+          //       unique.push(o);
+          //     }
+          //     return unique;
+          // },[]);
+
+            console.log("after passenger", tempData)
+            that.setState({ data: tempData, loaded: true })
+          })
+          .catch((err: any) => {
+            alert(err.message)
+          });
+      }
+
+      // for Passengers and Either, filter based on the user's pick up location
+      // looking for other user's route
+      if (this.props.UserStore!.driver === 2) {
+        const serviceUrl2: string = 'https://services.arcgis.com/Wl7Y1m92PbjtJs5n/arcgis/rest/services/carpoolData/FeatureServer/1/';
+        const featureLayer2 = new FeatureLayer({ url: serviceUrl2 });
+
+        const point = new Point({
+          x: that.props.UserStore!.geometry.x,
+          y: that.props.UserStore!.geometry.y
         })
-        .catch((err: any) => {
-          alert(err.message)
-        });
+
+        const pickup = new Graphic({
+          geometry: point
+        })
+        // query options
+        var query2 = featureLayer2.createQuery();
+        query2.geometry = pickup.geometry;  // the Geometry of the user route
+        query2.distance = Math.abs(this.state.distance); // the filter distance
+        query2.units = unitLookup[this.state.units]; // the filter units
+        query2.spatialRelationship = "intersects";  // this is the default
+        query2.returnGeometry = false; // don't return the user's location for security
+        query2.outFields = ["name, email, driver, office_id, arrive_work, leave_work", "OBJECTID"]; // limit returned fields for security
+        //query2.where = "1=1"
+        query2.where =
+          "(office_id=" + this.props.UserStore!.officeId + ") AND (NOT success=1) AND (NOT driver=" + this.props.UserStore!.driver + " OR driver=3) AND (NOT OBJECTID=" + this.props.UserStore!.pointId + ") AND (NOT email='" + this.props.UserStore!.userEmail + "')";
+
+        // perform query
+        featureLayer2.queryFeatures(query2)
+          .then(function (response: any) {
+            let tempData2: Array<any> = that.state.data;
+            response.features.forEach((f: any) => {
+              tempData2.push(f)
+            })
+
+           // console.log("before passenger",tempData2)
+           // tempData2 = tempData2.filter((thing, index, self) => self.findIndex(t => t.email == thing.email && t.name == thing.name) !== index)
+          //   var result2 = tempData2.reduce((unique : any, o : any) => {
+          //     if(!unique.some( (obj : any) => obj.name !== o.name && obj.email !== o.email)) {
+          //       unique.push(o);
+          //     }
+          //     return unique;
+          // },[]);
+          //  console.log("after passenger",tempData2)
+            that.setState({ data: tempData2, loaded: true })
+          })
+          .catch((err: any) => {
+            alert(err.message)
+          });
+      }
     };
+
+
 
     //------------------------------------------ JSX ------------------------------------------\\
     render() {
@@ -263,7 +332,7 @@ const ResultTable = inject("UserStore")(observer( // mobx stuff
                       {this.state.loaded ?
                         data.filter(d => filterTime(this.props.UserStore!.arrive, this.props.UserStore!.leave, d.attributes.arrive_work, d.attributes.leave_work, this.state.time_arrive, this.state.time_leave))
                           .map((fd) => (
-                            <tr key={fd.attributes.OBJECTID}>
+                            <tr>
                               <td>{fd.attributes.name}</td>
                               <td>{convertTime(fd.attributes.arrive_work)}</td>
                               <td>{convertTime(fd.attributes.leave_work)}</td>
