@@ -101,7 +101,13 @@ const ResultTable = inject("UserStore")(observer( // mobx stuff
               tempData.push(f)
             })
             console.log("before passenger",tempData)
-            tempData = tempData.filter((thing, index, self) => self.findIndex(t => t.email === thing.email && t.name === thing.name) === index)
+
+            const uniqueArray = tempData.filter((t, index) => {
+              return index === tempData.findIndex(obj => {
+                return JSON.stringify(obj) === JSON.stringify(t);
+              });
+            });
+           // tempData = tempData.filter((thing, index, self) => self.findIndex(t => t.email === thing.email && t.name === thing.name) === index)
           //   var result = tempData.reduce((unique : any, o : any) => {
           //     if(!unique.some( (obj : any) => obj.name !== o.name && obj.email !== o.email)) {
           //       unique.push(o);
@@ -110,7 +116,7 @@ const ResultTable = inject("UserStore")(observer( // mobx stuff
           // },[]);
 
             console.log("after passenger", tempData)
-            that.setState({ data: tempData, loaded: true })
+            that.setState({ data: uniqueArray, loaded: true })
           })
           .catch((err: any) => {
             alert(err.message)
@@ -151,6 +157,13 @@ const ResultTable = inject("UserStore")(observer( // mobx stuff
               tempData2.push(f)
             })
 
+            const uniqueArray2 = tempData2.filter((t, index) => {
+              return index === tempData2.findIndex(obj => {
+                return JSON.stringify(obj) === JSON.stringify(t);
+              });
+            });
+            
+
            // console.log("before passenger",tempData2)
            // tempData2 = tempData2.filter((thing, index, self) => self.findIndex(t => t.email == thing.email && t.name == thing.name) !== index)
           //   var result2 = tempData2.reduce((unique : any, o : any) => {
@@ -160,7 +173,7 @@ const ResultTable = inject("UserStore")(observer( // mobx stuff
           //     return unique;
           // },[]);
           //  console.log("after passenger",tempData2)
-            that.setState({ data: tempData2, loaded: true })
+            that.setState({ data: uniqueArray2, loaded: true })
           })
           .catch((err: any) => {
             alert(err.message)
