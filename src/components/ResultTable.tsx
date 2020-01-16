@@ -97,16 +97,17 @@ const ResultTable = inject("UserStore")(observer( // mobx stuff
           .then(function (response: any) {
 
             let tempData: Array<any> = that.state.data;
-            response.features.forEach((f: any) => {
-              tempData.push(f)
-            })
+            tempData.concat(response.features)
+            // response.features.forEach((f: any) => {
+            //   tempData.push(f)
+            // })
             console.log("before passenger",tempData)
-
-            const uniqueArray = tempData.filter((t, index) => {
-              return index === tempData.findIndex(obj => {
-                return JSON.stringify(obj) === JSON.stringify(t);
-              });
-            });
+            const finalData = Object.values(tempData.reduce((acc,cur)=>Object.assign(acc,{[cur.email]:cur}),{}))
+            // const uniqueArray = tempData.filter((t, index) => {
+            //   return index === tempData.findIndex(obj => {
+            //     return JSON.stringify(obj) === JSON.stringify(t);
+            //   });
+            // });
            // tempData = tempData.filter((thing, index, self) => self.findIndex(t => t.email === thing.email && t.name === thing.name) === index)
           //   var result = tempData.reduce((unique : any, o : any) => {
           //     if(!unique.some( (obj : any) => obj.name !== o.name && obj.email !== o.email)) {
@@ -116,7 +117,7 @@ const ResultTable = inject("UserStore")(observer( // mobx stuff
           // },[]);
 
             console.log("after passenger", tempData)
-            that.setState({ data: uniqueArray, loaded: true })
+            that.setState({ data: finalData, loaded: true })
           })
           .catch((err: any) => {
             alert(err.message)
@@ -153,18 +154,22 @@ const ResultTable = inject("UserStore")(observer( // mobx stuff
         featureLayer2.queryFeatures(query2)
           .then(function (response: any) {
             let tempData2: Array<any> = that.state.data;
-            response.features.forEach((f: any) => {
-              tempData2.push(f)
-            })
-
-            const uniqueArray2 = tempData2.filter((t, index) => {
-              return index === tempData2.findIndex(obj => {
-                return JSON.stringify(obj) === JSON.stringify(t);
-              });
-            });
             
+            tempData2.concat(response.features)
+            console.log("before passenger",tempData2)
+             // response.features.forEach((f: any) => {
+            //   tempData2.push(f)
+            // })
 
-           // console.log("before passenger",tempData2)
+            const finalData2 = Object.values(tempData2.reduce((acc,cur)=>Object.assign(acc,{[cur.email]:cur}),{}))
+            
+            // const uniqueArray2 = tempData2.filter((t, index) => {
+            //   return index === tempData2.findIndex(obj => {
+            //     return JSON.stringify(obj) === JSON.stringify(t);
+            //   });
+            // });
+
+            
            // tempData2 = tempData2.filter((thing, index, self) => self.findIndex(t => t.email == thing.email && t.name == thing.name) !== index)
           //   var result2 = tempData2.reduce((unique : any, o : any) => {
           //     if(!unique.some( (obj : any) => obj.name !== o.name && obj.email !== o.email)) {
@@ -172,8 +177,8 @@ const ResultTable = inject("UserStore")(observer( // mobx stuff
           //     }
           //     return unique;
           // },[]);
-          //  console.log("after passenger",tempData2)
-            that.setState({ data: uniqueArray2, loaded: true })
+            console.log("after passenger",finalData2)
+            that.setState({ data: finalData2, loaded: true })
           })
           .catch((err: any) => {
             alert(err.message)
