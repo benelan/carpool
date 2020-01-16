@@ -5,7 +5,6 @@ import { loadModules } from "esri-loader";
 import { convertTime, filterTime } from "../helpers";
 import { observer, inject } from 'mobx-react'
 import UserStore from '../store/UserStore';
-import axios from "axios";
 
 // state typing
 type MyState = {
@@ -95,28 +94,10 @@ const ResultTable = inject("UserStore")(observer( // mobx stuff
         // perform query
         featureLayer.queryFeatures(query)
           .then(function (response: any) {
-
-            let tempData: Array<any> = that.state.data;
-            tempData.concat(response.features)
-            // response.features.forEach((f: any) => {
-            //   tempData.push(f)
-            // })
-            console.log("before passenger",tempData)
-            const finalData = Object.values(tempData.reduce((acc,cur)=>Object.assign(acc,{[cur.email]:cur}),{}))
-            // const uniqueArray = tempData.filter((t, index) => {
-            //   return index === tempData.findIndex(obj => {
-            //     return JSON.stringify(obj) === JSON.stringify(t);
-            //   });
-            // });
-           // tempData = tempData.filter((thing, index, self) => self.findIndex(t => t.email === thing.email && t.name === thing.name) === index)
-          //   var result = tempData.reduce((unique : any, o : any) => {
-          //     if(!unique.some( (obj : any) => obj.name !== o.name && obj.email !== o.email)) {
-          //       unique.push(o);
-          //     }
-          //     return unique;
-          // },[]);
-
-            console.log("after passenger", tempData)
+            let tempData: Array<any> = [...that.state.data, ...response.features];
+            //const finalData = array.uniqBy(tempData, 'email'); //var array = require('lodash/array');
+            //const finalData = Object.values(tempData.reduce((acc,cur)=>Object.assign(acc,{[cur.attributes.email]:cur}),{}))
+            const finalData = tempData.filter((elem, index, self) => self.findIndex((t) => {return (t.attributes.email === elem.attributes.email)}) === index)
             that.setState({ data: finalData, loaded: true })
           })
           .catch((err: any) => {
@@ -126,7 +107,7 @@ const ResultTable = inject("UserStore")(observer( // mobx stuff
 
       // for Passengers and Either, filter based on the user's pick up location
       // looking for other user's route
-      if (this.props.UserStore!.driver === 2) {
+      if (this.props.UserStore!.driver === 2 || this.props.UserStore!.driver === 3) {
         const serviceUrl2: string = 'https://services.arcgis.com/Wl7Y1m92PbjtJs5n/arcgis/rest/services/carpoolData/FeatureServer/1/';
         const featureLayer2 = new FeatureLayer({ url: serviceUrl2 });
 
@@ -153,31 +134,10 @@ const ResultTable = inject("UserStore")(observer( // mobx stuff
         // perform query
         featureLayer2.queryFeatures(query2)
           .then(function (response: any) {
-            let tempData2: Array<any> = that.state.data;
-            
-            tempData2.concat(response.features)
-            console.log("before passenger",tempData2)
-             // response.features.forEach((f: any) => {
-            //   tempData2.push(f)
-            // })
-
-            const finalData2 = Object.values(tempData2.reduce((acc,cur)=>Object.assign(acc,{[cur.email]:cur}),{}))
-            
-            // const uniqueArray2 = tempData2.filter((t, index) => {
-            //   return index === tempData2.findIndex(obj => {
-            //     return JSON.stringify(obj) === JSON.stringify(t);
-            //   });
-            // });
-
-            
-           // tempData2 = tempData2.filter((thing, index, self) => self.findIndex(t => t.email == thing.email && t.name == thing.name) !== index)
-          //   var result2 = tempData2.reduce((unique : any, o : any) => {
-          //     if(!unique.some( (obj : any) => obj.name !== o.name && obj.email !== o.email)) {
-          //       unique.push(o);
-          //     }
-          //     return unique;
-          // },[]);
-            console.log("after passenger",finalData2)
+            let tempData2: Array<any> = [...that.state.data, ...response.features];
+            //const finalData2 = array.uniqBy(tempData2, 'attributes.email');  // var array = require('lodash/array');
+            //const finalData2 = Object.values(tempData2.reduce((acc,cur)=>Object.assign(acc,{[cur.attributes.email]:cur}),{}))
+            const finalData2 = tempData2.filter((elem, index, self) => self.findIndex((t) => {return (t.attributes.email === elem.attributes.email)}) === index)
             that.setState({ data: finalData2, loaded: true })
           })
           .catch((err: any) => {
@@ -185,7 +145,6 @@ const ResultTable = inject("UserStore")(observer( // mobx stuff
           });
       }
     };
-
 
 
     //------------------------------------------ JSX ------------------------------------------\\
@@ -350,7 +309,7 @@ const ResultTable = inject("UserStore")(observer( // mobx stuff
                       {this.state.loaded ?
                         data.filter(d => filterTime(this.props.UserStore!.arrive, this.props.UserStore!.leave, d.attributes.arrive_work, d.attributes.leave_work, this.state.time_arrive, this.state.time_leave))
                           .map((fd) => (
-                            <tr>
+                            <tr key={fd.attributes.email}>
                               <td>{fd.attributes.name}</td>
                               <td>{convertTime(fd.attributes.arrive_work)}</td>
                               <td>{convertTime(fd.attributes.leave_work)}</td>
