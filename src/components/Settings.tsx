@@ -11,9 +11,6 @@ type MyState = {
   searchWidget: import("esri/widgets/Search") | null,
   form_complete: Boolean,
   office_old: number,
-  route: any | null,  // needs to cast as geometry for arcgis query
-  lon: number | null,
-  lat: number | null,
   saved: boolean
 };
 
@@ -29,9 +26,6 @@ const Settings = inject("UserStore")(observer( // mobx stuff
       form_complete: false, // redirect to results when form is saved
       searchWidget: null,
       office_old: this.props.UserStore!.officeId, // only calculates new route if the office or pick up location is changed. this variable keeps track of the initial office id
-      lat: null,
-      lon: null,
-      route: null, // route geometry
       saved: false // display loading symbo when saved
     };
 
@@ -58,8 +52,7 @@ const Settings = inject("UserStore")(observer( // mobx stuff
     //--------------------- CRUD OPERATIONS ---------------------\\
     async createUser(): Promise<void> {
       //--------------------- ROUTE ---------------------\\
-      if (!!this.state.route) { // if the route changed update it
-        const serviceUrl2: string = 'https://services.arcgis.com/Wl7Y1m92PbjtJs5n/arcgis/rest/services/carpoolData/FeatureServer/1/addFeatures?f=json';
+        const serviceUrl2: string = 'https://utility.arcgis.com/usrsvcs/servers/28aab36c44a8416f95af8a1509fb3c75/rest/services/carpoolData/FeatureServer/1/addFeatures?f=json';
         let url2: string = this.proxyUrl + serviceUrl2;
 
         // 0 == FALSE .... 1 == TRUE
@@ -67,7 +60,7 @@ const Settings = inject("UserStore")(observer( // mobx stuff
 
         // request body
         const data2: any = [{
-          "geometry": this.state.route.geometry,
+          "geometry": this.props.UserStore!.route,
           'attributes': {
             'name': this.props.UserStore!.userName,
             'email': this.props.UserStore!.userEmail,
@@ -77,8 +70,8 @@ const Settings = inject("UserStore")(observer( // mobx stuff
             'office_id': this.props.UserStore!.officeId,
             'start_addr': encodeURIComponent(this.props.UserStore!.address),
             'success': success_val2,
-            'travel_minutes': this.state.route.attributes.Total_TravelTime,
-            'travel_miles': this.state.route.attributes.Total_Miles,
+            'travel_minutes': this.props.UserStore!.minutes,
+            'travel_miles': this.props.UserStore!.miles
           }
         }];
 
@@ -89,10 +82,9 @@ const Settings = inject("UserStore")(observer( // mobx stuff
             // handle any errors
             console.error(err);
           });
-      }
 
       //--------------------- Point ---------------------\\
-      const serviceUrl: string = 'https://services.arcgis.com/Wl7Y1m92PbjtJs5n/arcgis/rest/services/carpoolData/FeatureServer/0/addFeatures?f=json&features='
+      const serviceUrl: string = 'https://utility.arcgis.com/usrsvcs/servers/28aab36c44a8416f95af8a1509fb3c75/rest/services/carpoolData/FeatureServer/0/addFeatures?f=json&features='
       let url: string = this.proxyUrl + serviceUrl;
 
       // 0 == FALSE .... 1 == TRUE
@@ -101,8 +93,8 @@ const Settings = inject("UserStore")(observer( // mobx stuff
       // request body
       const data: any = [{
         "geometry": {
-          "x": this.state.lon,
-          "y": this.state.lat,
+          "x": this.props.UserStore!.geometry.x,
+          "y": this.props.UserStore!.geometry.y,
           "spatialReference": {
             "wkid": 4326
           }
@@ -135,8 +127,7 @@ const Settings = inject("UserStore")(observer( // mobx stuff
 
     async updateUser(): Promise<void> {
       //--------------------- ROUTE ---------------------\\
-      if (!!this.state.route) { // if the route changed update it
-        const serviceUrl2: string = 'https://services.arcgis.com/Wl7Y1m92PbjtJs5n/arcgis/rest/services/carpoolData/FeatureServer/1/updateFeatures?f=json';
+        const serviceUrl2: string = 'https://utility.arcgis.com/usrsvcs/servers/28aab36c44a8416f95af8a1509fb3c75/rest/services/carpoolData/FeatureServer/1/updateFeatures?f=json';
         let url2: string = this.proxyUrl + serviceUrl2;
 
         // 0 == FALSE .... 1 == TRUE
@@ -144,7 +135,7 @@ const Settings = inject("UserStore")(observer( // mobx stuff
 
         // request body
         const data2: any = [{
-          "geometry": this.state.route.geometry,
+          "geometry":  this.props.UserStore!.route,
           'attributes': {
             'OBJECTID': this.props.UserStore!.lineId,
             'name': this.props.UserStore!.userName,
@@ -155,8 +146,8 @@ const Settings = inject("UserStore")(observer( // mobx stuff
             'office_id': this.props.UserStore!.officeId,
             'start_addr': encodeURIComponent(this.props.UserStore!.address),
             'success': success_val2,
-            'travel_minutes': this.state.route.attributes.Total_TravelTime,
-            'travel_miles': this.state.route.attributes.Total_Miles,
+            'travel_minutes': this.props.UserStore!.minutes,
+            'travel_miles': this.props.UserStore!.miles,
           }
         }];
 
@@ -171,11 +162,10 @@ const Settings = inject("UserStore")(observer( // mobx stuff
           .catch((err: any) => {
             console.log(err)
           });
-      }
 
 
       //--------------------- POINT ---------------------\\
-      const serviceUrl: string = 'https://services.arcgis.com/Wl7Y1m92PbjtJs5n/arcgis/rest/services/carpoolData/FeatureServer/0/updateFeatures?f=json&features='
+      const serviceUrl: string = 'https://utility.arcgis.com/usrsvcs/servers/28aab36c44a8416f95af8a1509fb3c75/rest/services/carpoolData/FeatureServer/0/updateFeatures?f=json&features='
       let url: string = this.proxyUrl + serviceUrl;
 
       // 0 == FALSE .... 1 == TRUE
@@ -184,8 +174,8 @@ const Settings = inject("UserStore")(observer( // mobx stuff
       // request body
       const data: any = [{
         "geometry": {
-          "x": this.state.lon,
-          "y": this.state.lat,
+          "x": this.props.UserStore!.geometry.x,
+          "y": this.props.UserStore!.geometry.y,
           "spatialReference": {
             "wkid": 4326
           }
@@ -247,12 +237,6 @@ const Settings = inject("UserStore")(observer( // mobx stuff
         const lat: number = event.results[0].results[0].feature.geometry.latitude;
         const lon: number = event.results[0].results[0].feature.geometry.longitude;
         const addr: string = event.results[0].results[0].feature.attributes.Match_addr;
-        
-        // set the state lat/lon
-        that.setState({
-          lat: lat,
-          lon: lon
-        });
 
         // if the address and office didn't change
         if ((addr === that.props.UserStore!.address) && (that.props.UserStore!.officeId === that.state.office_old)) {
@@ -327,9 +311,9 @@ const Settings = inject("UserStore")(observer( // mobx stuff
           routeParams.stops.features.push(end);
           // calculate route
           routeTask.solve(routeParams).then((res: any) => {
-            that.setState({ route: res.routeResults[0].route }); // this route is used for the rest calls
             that.props.UserStore!.setRoute(res.routeResults[0].route.geometry) // this route geometry is used for the results query
-
+            this.props.UserStore!.setMiles(res.routeResults[0].route.attributes.Total_TravelTime)
+            this.props.UserStore!.setMinutes(res.routeResults[0].route.attributes.Total_Miles)
             // REST CALLS HERE
             if (that.props.UserStore!.userNew) {
               // if the user is not in the db, add the user

@@ -76,7 +76,7 @@ const ResultTable = inject("UserStore")(observer( // mobx stuff
       // for Drivers and Either, filter based on the user's route
       // looking for other user's pick up location
       if (this.props.UserStore!.driver === 1 || this.props.UserStore!.driver === 3) {
-        const serviceUrl: string = 'https://services.arcgis.com/Wl7Y1m92PbjtJs5n/arcgis/rest/services/carpoolData/FeatureServer/0/';
+        const serviceUrl: string = 'https://utility.arcgis.com/usrsvcs/servers/28aab36c44a8416f95af8a1509fb3c75/rest/services/carpoolData/FeatureServer/0/';
         const featureLayer = new FeatureLayer({ url: serviceUrl });
 
         // query options
@@ -108,7 +108,7 @@ const ResultTable = inject("UserStore")(observer( // mobx stuff
       // for Passengers and Either, filter based on the user's pick up location
       // looking for other user's route
       if (this.props.UserStore!.driver === 2 || this.props.UserStore!.driver === 3) {
-        const serviceUrl2: string = 'https://services.arcgis.com/Wl7Y1m92PbjtJs5n/arcgis/rest/services/carpoolData/FeatureServer/1/';
+        const serviceUrl2: string = 'https://utility.arcgis.com/usrsvcs/servers/28aab36c44a8416f95af8a1509fb3c75/rest/services/carpoolData/FeatureServer/1/';
         const featureLayer2 = new FeatureLayer({ url: serviceUrl2 });
 
         const point = new Point({

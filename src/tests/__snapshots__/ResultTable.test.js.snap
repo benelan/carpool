@@ -7,6 +7,7 @@ exports[`ResultTable ResultTable snapshot 1`] = `
       "address": "",
       "arrive": "09:00",
       "driver": 1,
+      "geometry": null,
       "leave": "17:00",
       "lineId": null,
       "officeId": 1,

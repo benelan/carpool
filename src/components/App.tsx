@@ -12,7 +12,6 @@ import { observer, inject } from 'mobx-react'
 import UserStore from '../store/UserStore';
 import axios from "axios";
 
-
 type MyProps = {
   UserStore?: UserStore
 }
@@ -101,7 +100,7 @@ const App = inject("UserStore")(observer(
 
     async getUserByEmail(): Promise<void> {
       //------------------------------------------ POINT ------------------------------------------\\
-      const serviceUrl: string = 'https://services.arcgis.com/Wl7Y1m92PbjtJs5n/arcgis/rest/services/carpoolData/FeatureServer/0/query?';
+      const serviceUrl: string = 'https://utility.arcgis.com/usrsvcs/servers/28aab36c44a8416f95af8a1509fb3c75/rest/services/carpoolData/FeatureServer/0/query?';
 
       let url: string = this.proxyUrl + serviceUrl;
 
@@ -156,7 +155,7 @@ const App = inject("UserStore")(observer(
           console.log(err)
         });
       //------------------------------------------ Line ------------------------------------------\\
-      const serviceUrl2: string = 'https://services.arcgis.com/Wl7Y1m92PbjtJs5n/arcgis/rest/services/carpoolData/FeatureServer/1/query?';
+      const serviceUrl2: string = 'https://utility.arcgis.com/usrsvcs/servers/28aab36c44a8416f95af8a1509fb3c75/rest/services/carpoolData/FeatureServer/1/query?';
       let url2: string = this.proxyUrl + serviceUrl2; // use proxy to authenticate for request
 
       // query options
@@ -184,13 +183,15 @@ const App = inject("UserStore")(observer(
             // load modules
             // populate store with user data
             this.props.UserStore!.setLineId(user.attributes.OBJECTID)
+            this.props.UserStore!.setMiles(user.attributes.travel_miles)
+            this.props.UserStore!.setMinutes(user.attributes.travel_minutues)
             this.props.UserStore!.setRoute({  // this is a Geometry type
               spatialReference: res.data.spatialReference,
               paths: user.geometry.paths,
               type: 'polyline'
             })
-            this.setState({ loaded2: true }); // allows results and settings to load
           }
+          this.setState({ loaded2: true }); // allows results and settings to load
         })
         .catch(err => {
           this.setState({ loaded2: true }); // allows results and settings to load

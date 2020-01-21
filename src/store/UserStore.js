@@ -15,6 +15,8 @@ class UserStore {
     address = '';
     offsite = false;  // allows results and settings to load
     geometry = null;
+    minutes = null;
+    miles = null;
 
     setName(x) {
         this.userName = x;
@@ -58,6 +60,12 @@ class UserStore {
     setGeometry(x) {
         this.geometry = x
     }
+    setMinutes(x) {
+        this.minutes = x;
+    }
+    setMiles(x) {
+        this.miles = x
+    }
 }
 
   
@@ -76,6 +84,8 @@ decorate(UserStore, {
     address: observable,
     offsite: observable,
     geometry: observable,
+    minutes: observable,
+    miles: observable,
     setNew: action,
     setName: action,
     setEmail: action,
@@ -89,7 +99,9 @@ decorate(UserStore, {
     setRoute: action,
     setAddress: action,
     setOffsite: action,
-    setGeometry: action
+    setGeometry: action,
+    setMinutes: action,
+    setMiles: action
 })
 
 export default UserStore
