@@ -1,6 +1,6 @@
 # Carpool
 
-[A carpool matcher app](https://carpool.now.sh/home) for Esri employees. This branch creates a route from the user's home to their office. The user can then spatially filter the resulting table by creating a buffer around their route and finding colleagues that intersect the buffer. The 'master' branch does not filter spatially, but uses a custom backend api.
+A carpool matcher app for Esri employees. This branch creates a route from the user's home to their office. The user can then spatially filter the resulting table by creating a buffer around their route and finding colleagues that intersect the buffer. The 'master' branch does not filter spatially, but uses a custom backend api.
 
 ## Prerequisites
 This branch uses the Esri [resource-proxy](https://github.com/Esri/resource-proxy). If you are not on Esri's intranet where my proxy is hosted, it will not work. You will need to set up your own proxy and feature layer.
