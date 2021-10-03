@@ -1,8 +1,8 @@
 # Carpool
-A carpool matcher app for Esri employees. Check out the 'spatial' branch for a more advanced solution. The 'spatial' branch creates a route from the user's home to their office. The user can then spatially filter the results table by creating a buffer around their route and finding colleagues that intersect the buffer. The 'spatial' branch uses ArcGIS Online as the backend api.
+A carpool matcher app that connects employees based on their office hours. Check out the `spatial` branch for a more advanced solution. The `spatial` branch creates a route from the user's home to their office. The user can then spatially filter the results table by creating a buffer around their route and finding colleagues that intersect the buffer. The `spatial` branch uses ArcGIS Online as the backend api.
 
 ## Using the App
-To get started, you will need to set up an application with [ArcGIS for Developers](https://developers.arcgis.com/documentation/core-concepts/security-and-authentication/accessing-arcgis-online-services/) in order to implement app login.
+To get started, you will need to set up an application with [ArcGIS for Developers](https://developers.arcgis.com/documentation/core-concepts/security-and-authentication/accessing-arcgis-online-services/) in order to implement the authentication. Alternatively, you can choose to use a different [Passport Stragegy](https://www.passportjs.org/packages/) and make some changes to `api/index.js` [file](https://github.com/benelan/carpool/blob/master/api/index.js#L14).
 
 Next, if you don't have one, create an account at [mongoDB Atlas](https://docs.atlas.mongodb.com/getting-started/). Once you set up your account, you will need to create a file in the api directory of this application called '.env'. In the file, add:
 
